@@ -10,7 +10,7 @@ import { EstadoHistoria, Conversa } from "./motor/conversa.js";
 import { hash, criarCanvas } from "./arte/pixel.js";
 import { onibus, interiorOnibus } from "./arte/objetos.js";
 
-export const PISTAS = NPCS.filter((n) => !n.bebe).map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
+export const PISTAS = NPCS.filter((n) => !n.bebe && !n.extra).map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
 export const TEXTO_PISTAS = {
   pista_davi_dicaprio: "Davi: mandaram decorar falas e ensaiar o melhor ângulo… coisa de CINEMA.",
   pista_taylor_frisso: "Taylor: tapete VERMELHO e estrelas… na calçada.",
@@ -332,6 +332,16 @@ export class Jogo {
       if (!n.alvo) {
         n.espera -= dt;
         n.pose = "parado";
+        if (c.par) {
+          // conversando com o par: vira para ele e gesticula de vez em quando
+          const p = this.npcs.find((o) => o.id === c.par);
+          if (p) {
+            const dx = p.x - n.x;
+            const dy = p.y - n.y;
+            n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "esq" : "dir") : dy < 0 ? "cima" : "baixo";
+            if (Math.random() < dt * 0.35) n.acenarAte = this.tempo + 0.8;
+          }
+        }
         if (n.espera <= 0) {
           const a = Math.random() * Math.PI * 2;
           const r = Math.random() * m(c.raio || 3);
@@ -441,6 +451,11 @@ export class Jogo {
       return this.ui.mensagem("Sino do refeitório", "DÉM! DÉM! DÉM! …Em três segundos já tem fila no refeitório.");
     }
     if (it.acao === "letreiro") return this.examinarLetreiro();
+    if (it.acao === "musica") {
+      ["C5", "E5", "G5", "C6"].forEach((n, k) => setTimeout(() => this.audio.sfx("clique"), k * 120));
+      this.audio.sfx("escolha");
+      j.acenarAte = this.tempo + 1.5;
+    }
     const extras = { palha: "extra_palha", quiosque: "extra_quiosque", casa_porta: "extra_casa" };
     if (extras[it.id] && !this.estado.flags.has(extras[it.id]) && !this.revelado) {
       this.estado.flags.add(extras[it.id]);
@@ -879,7 +894,7 @@ export class Jogo {
     this.desenharBola(cx, cy);
     // indicadores sobre os NPCs
     for (const n of this.npcsVisiveis) {
-      if (n.bebe) continue;
+      if (n.bebe || n.def.extra) continue;
       const sx = Math.round(n.x - cx);
       const sy = Math.round(n.y - cy - ALT - 6 + Math.sin(t * 4) * 1.5);
       const temPista = !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
@@ -916,7 +931,7 @@ export class Jogo {
     if (this.alvo?.tipo === "npc" && this.modo === "explorar") {
       const n = this.alvo.npc;
       const alto = n.bebe ? 20 : ALT;
-      const temBalao = !n.bebe && !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
+      const temBalao = !n.bebe && !n.def.extra && !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
       this.ui.rotuloNpc(n.def.nome, n.x - cx, n.y - cy - alto - (temBalao ? 12 : 2));
     } else this.ui.rotuloNpc(null);
   }

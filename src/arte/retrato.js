@@ -573,6 +573,17 @@ class PintorRetrato {
     // mão segurando o item no canto inferior direito
     const mao = () => ret(50, 56, 58, 63, (x) => (x > 54 ? escurecer(this.pele, 0.15) : this.pele));
     switch (it.tipo) {
+      case "microfone":
+        ret(52, 54, 46, 63, "#8a8a94");
+        for (let y = 38; y < 47; y++) for (let x = 49; x <= 57; x++) if ((x - 53) ** 2 + (y - 42) ** 2 <= 17) s(x, y, (x + y) % 2 ? c : "#5a5a64");
+        mao();
+        break;
+      case "camera":
+        ret(40, 60, 44, 58, (x, y) => (y === 44 ? "#3a3a44" : c));
+        for (let y = 46; y < 57; y++) for (let x = 42; x < 54; x++) if ((x - 48) ** 2 + (y - 51) ** 2 <= 20) s(x, y, (x - 48) ** 2 + (y - 51) ** 2 <= 6 ? "#5a8ad8" : "#3a3a44");
+        ret(56, 58, 46, 47, "#d0202e");
+        mao();
+        break;
       case "estatueta":
         ret(51, 55, 59, 63, escurecer(c, 0.45));
         ret(52, 54, 40, 58, (x) => (x === 52 ? clarear(c, 0.35) : x === 54 ? escurecer(c, 0.2) : c));

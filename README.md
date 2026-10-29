@@ -90,6 +90,16 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 - Na **quadra de basquete** tem duas cestas e uma bola: chegue perto da bola e aperte E para arremessar.
 - A **cachoeira** fica virada para o lago: a água cai no poço e corre pelo riacho até o lago.
 
+## Pessoas e lugares do acampamento
+
+- **Pessoas:** Renan e Jaque (casal, no lago), Nathaly e Gaby (piscina), Izabelle e Lara (quarto das meninas),
+  MJ (quarto dos meninos), Brayan e Kenedy (quadra), Thama e Débora (refeitório), Douglas, Julio e Vinicius
+  (fogueira), Pedro (palco, mídia), Almerão (filmando pelo gramado) e Mylena e Dener (JV). Elas andam,
+  conversam em dupla e têm falas próprias.
+- **Lugares:** quartos separados das meninas e dos meninos (camas, malas, pôsteres), refeitório com mesas,
+  cadeiras e comida, palco com bateria, violão e microfones, estacionamento com carros e ônibus, púlpito
+  com a Bíblia, árvore com a corda molhada e as bombinhas no quarto dos meninos.
+
 ## O mistério do tema
 
 1. Quatro personagens têm um **!** sobre a cabeça: cada um conta uma pista quando você pergunta.
@@ -117,7 +127,7 @@ nenhum nome, foto ou dado pessoal sai do aparelho. Aberturas pelo computador loc
 
 | O quê | Arquivo |
 |---|---|
-| **Personagens (NPCs)**: nome, local, roupa, comportamento e diálogos | `src/dados/npcs.js` |
+| **Personagens (NPCs)**: nome, local, roupa, comportamento e diálogos | `src/dados/npcs.js` (principais) e `src/dados/npcsExtras.js` (pessoas do acampamento) |
 | **Mapa**: posições (em metros) de construções, árvores, caminhos e objetos | `src/dados/mapa.js` |
 | **Camarim**: roupas, cabelos, cores, padrões e looks | `src/dados/guardaroupa.js` |
 | **Palavra secreta**, velocidade, zoom | `src/config.js` |

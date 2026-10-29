@@ -253,6 +253,8 @@ export const NA_MAO = [
   { id: "buque", nome: "Buquê de flores", tipo: "buque", cor: "#e05a9c" },
   { id: "violao", nome: "Violão", tipo: "violao", cor: "#a86a2a" },
   { id: "suco", nome: "Copo de suco", tipo: "copo", cor: "#f29a2a" },
+  { id: "microfone", nome: "Microfone", tipo: "microfone", cor: "#2a2a30" },
+  { id: "camera", nome: "Câmera filmadora", tipo: "camera", cor: "#16161a" },
   { id: "estatueta", nome: "Estatueta dourada", tipo: "estatueta", cor: "#e2b13c", segredo: true },
   { id: "claquete", nome: "Claquete", tipo: "claquete", cor: "#16161a", segredo: true },
   { id: "pipoca", nome: "Balde de pipoca", tipo: "pipoca", cor: "#c41e2a", segredo: true },

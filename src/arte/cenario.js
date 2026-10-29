@@ -405,6 +405,102 @@ export class Cenario {
     return o;
   }
 
+  // Piso pintado direto no chão (tábuas, ladrilhos, asfalto).
+  pisoPintado(x0, y0, w, h, cores, tam = 8, tipo = 3) {
+    const ctx = this.ctxChao;
+    for (let y = y0; y < y0 + h; y += 4) for (let x = x0; x < x0 + w; x += tam) {
+      ctx.fillStyle = cores[(Math.floor((x - x0) / tam) + Math.floor((y - y0) / 4) + (hash(x, y, 7) > 0.8 ? 1 : 0)) % cores.length];
+      ctx.fillRect(x + ((y / 4) % 2 ? tam / 2 : 0) - (x === x0 && (y / 4) % 2 ? tam / 2 : 0), y, tam, 4);
+    }
+    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    for (let y = y0; y < y0 + h; y += 4) ctx.fillRect(x0, y, w, 1);
+    for (let j = Math.floor(y0 / CEL); j < Math.ceil((y0 + h) / CEL); j++) for (let i = Math.floor(x0 / CEL); i < Math.ceil((x0 + w) / CEL); i++) if (i >= 0 && j >= 0 && i < this.cw && j < this.ch) this.piso[j * this.cw + i] = tipo;
+  }
+
+  // Alojamentos, refeitório, palco, estacionamento, Bíblia e corda.
+  montarExtras() {
+    const ret = (o) => ({ x0: px(o.x - o.w / 2), x1: px(o.x + o.w / 2), y0: py(o.z - o.d / 2), y1: py(o.z + o.d / 2) });
+    // ----- quartos (sem teto, para ver por dentro) -----
+    const quarto = (q, meninas) => {
+      const { x0, x1, y0, y1 } = ret(q);
+      const W = x1 - x0;
+      this.ctxChao.fillStyle = "rgba(10,20,10,0.3)";
+      this.ctxChao.fillRect(x0 - 2, y0 - 2, W + 8, y1 - y0 + 8);
+      this.pisoPintado(x0, y0, W, y1 - y0, meninas ? ["#c8946a", "#b8845a", "#d4a074"] : ["#b8845a", "#a87448", "#c4905e"]);
+      const tp = O.tapete(48, 22, meninas ? "#e88ab0" : "#2a6ad0");
+      this.add(tp, (x0 + x1) / 2, y1 - 14, { chao: true });
+      const posteres = meninas ? [[8, "#e05a9c"], [96, "#7a3fb0"], [160, "#f2c14e"]] : [[8, "#2a6ad0"], [96, "#d0202e"], [160, "#2f7a46"]];
+      this.add(O.paredeQuarto(W, q.cor, posteres), x0, y0, { tipo: "parede" });
+      this.add(O.paredeLado(y1 - y0, q.cor), x0 - 6, y1, { tipo: "parede" });
+      this.add(O.paredeLado(y1 - y0, q.cor), x1, y1, { tipo: "parede" });
+      // parede da frente baixinha, com a porta no meio
+      const porta = 20;
+      const meio = (x0 + x1) / 2;
+      this.add(O.muretaFrente(meio - porta / 2 - x0 + 6, q.cor), x0 - 6, y1 + 8, { tipo: "parede" });
+      this.add(O.muretaFrente(x1 - (meio + porta / 2) + 6, q.cor), meio + porta / 2, y1 + 8, { tipo: "parede" });
+      // camas e objetos pessoais
+      const cores = meninas ? ["#e05a9c", "#c7a6ef", "#f08aa8", "#7fd1e8", "#e05a9c", "#f2d544"] : ["#2c4a9c", "#2f7a46", "#3a3a44", "#d94b3d", "#2a6ad0", "#7a4a24"];
+      for (let k = 0; k < 6; k++) {
+        const bx = x0 + 14 + k * 30;
+        this.add(O.cama(cores[k], k % 3), bx, y0 + 34, { tipo: "cama" });
+        const item = meninas ? (k === 1 ? "pelucia" : k === 3 ? "maquiagem" : "abajur") : k === 5 ? "bombinhas" : "abajur";
+        if (k % 2 === 1 || item !== "abajur") this.add(O.criado(item), bx + 16, y0 + 24, { tipo: "criado" });
+      }
+      for (let k = 0; k < 3; k++) this.add(O.mala(meninas ? ["#e05a9c", "#c9a14a", "#7a3fb0"][k] : ["#2c4a9c", "#3a3a44", "#2f7a46"][k]), x0 + 20 + k * 64, y1 - 4, { tipo: "mala" });
+      if (meninas) this.add(O.arara(), x1 - 22, y1 - 2, { tipo: "arara" });
+      else { this.add(O.violaoSuporte(), x1 - 14, y1 - 3, { tipo: "violao" }); }
+    };
+    quarto(MAPA.quartoMeninas, true);
+    quarto(MAPA.quartoMeninos, false);
+    // ----- refeitório: área coberta com mesas, cadeiras e comida -----
+    {
+      const a = ret(MAPA.refeitorioArea);
+      this.pisoPintado(a.x0, a.y0, a.x1 - a.x0, a.y1 - a.y0, ["#e8dcc0", "#d8ccb0"], 12, 2);
+      this.add(O.buffet(), px(MAPA.refeitorioArea.x), py(49.2), { tipo: "buffet" });
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+        const mx = px(MAPA.refeitorioArea.x - 6 + i * 12);
+        const my = py(52.6 + j * 3.6);
+        for (let k = 0; k < 4; k++) this.add(O.cadeira(), mx - 16 + k * 11, my - 13, { tipo: "cadeira" });
+        this.add(O.mesaComida(i + j * 2), mx, my, { tipo: "mesa" });
+        for (let k = 0; k < 4; k++) this.add(O.cadeira("#b8865a"), mx - 16 + k * 11, my + 6, { tipo: "cadeira" });
+      }
+      // pilares da cobertura
+      for (const [x, z] of [[-41.6, 48.2], [-18.4, 48.2], [-41.6, 56.8], [-18.4, 56.8]]) this.add(O.poste(), px(x), py(z), { tipo: "pilar" });
+    }
+    // ----- palco do louvor -----
+    {
+      const p = ret(MAPA.palco);
+      const ctx = this.ctxChao;
+      ctx.fillStyle = "rgba(10,20,10,0.35)";
+      ctx.fillRect(p.x0 + 3, p.y0 + 3, p.x1 - p.x0, p.y1 - p.y0);
+      this.pisoPintado(p.x0, p.y0, p.x1 - p.x0, p.y1 - p.y0, ["#5a3a22", "#6a4a2a", "#4a2e1a"], 10, 3);
+      ctx.fillStyle = "#3a2414";
+      ctx.fillRect(p.x0, p.y1 - 3, p.x1 - p.x0, 3);
+      this.add(O.caixaSom(), px(9.5), py(27.4), { tipo: "som" });
+      this.add(O.caixaSom(), px(20.5), py(27.4), { tipo: "som" });
+      this.add(O.bateria(), px(13), py(27.4), { tipo: "bateria" });
+      this.add(O.violaoSuporte(), px(18.6), py(27.2), { tipo: "violao" });
+      this.add(O.pedestalMic(), px(14.6), py(30.4), { tipo: "mic" });
+      this.add(O.pedestalMic(), px(17.2), py(30.4), { tipo: "mic" });
+    }
+    // ----- estacionamento -----
+    {
+      const e = ret(MAPA.estacionamento);
+      this.pisoPintado(e.x0, e.y0, e.x1 - e.x0, e.y1 - e.y0, ["#6a6a6e", "#626266", "#707074"], 6, 2);
+      const ctx = this.ctxChao;
+      ctx.fillStyle = "#e8e4dc";
+      for (let k = 0; k <= 6; k++) { ctx.fillRect(e.x0 + 8 + k * 40, e.y0 + 4, 2, 26); ctx.fillRect(e.x0 + 8 + k * 40, e.y1 - 30, 2, 26); }
+      const cores = ["#b0121f", "#f4f4f0", "#2c4a9c", "#16161a", "#9a9aa0", "#2f7a46", "#f2c14e", "#7a3fb0"];
+      for (let k = 0; k < 5; k++) this.add(O.carro(cores[k]), e.x0 + 28 + k * 40, e.y0 + 26, { tipo: "carro" });
+      for (let k = 0; k < 3; k++) this.add(O.carro(cores[k + 5]), e.x0 + 28 + k * 40, e.y1 - 6, { tipo: "carro" });
+      this.add(O.onibus(0, false), e.x1 - 58, e.y1 - 4, { tipo: "onibus" });
+      this.marcarSolido(e.x1 - 108, e.y1 - 12, 100, 10);
+    }
+    // ----- Bíblia e corda molhada -----
+    this.add(O.pulpitoBiblia(), px(MAPA.biblia.x), py(MAPA.biblia.z), { tipo: "biblia" });
+    this.add(O.cordaMolhada(), px(MAPA.arvoreCorda.x) + 18, py(MAPA.arvoreCorda.z) + 8, { tipo: "corda", chao: true });
+  }
+
   montarObjetos() {
     let seed = 1;
     const cache = new Map();
@@ -490,7 +586,7 @@ export class Cenario {
     }
     S("casa", O.casaAmarela());
     S("refeitorio", O.refeitorio());
-    S("alojamento", O.alojamento());
+    this.montarExtras();
     this.add(O.portao(), px(MAPA.portao.x), py(MAPA.portao.z), { tipo: "portao" });
     for (const c of this.cestas) {
       const o = this.add(O.cesta(c.lado), c.x + c.lado * 10, c.y + 1, { tipo: "cesta" });

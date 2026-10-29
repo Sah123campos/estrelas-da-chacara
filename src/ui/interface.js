@@ -473,11 +473,11 @@ export class Interface {
     };
     const areas = [
       ["patio", "Pátio azul"], ["lago", "Lago"], ["terraco", "Piscina"], ["casa", "Casa amarela"], ["cachoeira", "Cachoeira"],
-      ["refeitorio", "Refeitório*"], ["quadra", "Quadra de basquete*"], ["fogueira", "Fogueira*"], ["alojamento", "Alojamento e camarim*"], ["portao", "Portão*"],
+      ["refeitorio", "Refeitório*"], ["quadra", "Quadra de basquete*"], ["fogueira", "Fogueira*"], ["quartoMeninas", "Quarto das meninas*"], ["quartoMeninos", "Quarto dos meninos*"], ["palco", "Palco*"], ["estacionamento", "Estacionamento*"], ["portao", "Portão*"],
     ];
     for (const [k, nome] of areas) { const a = MAPA[k]; marca(px(a.x), py(a.z) + (k === "casa" ? 30 : 0), nome); }
     marca(px(MAPA.letreiro.x), py(MAPA.letreiro.z) - 20, j.revelado ? "Letreiro HOLLYWOOD" : "Lonas misteriosas");
-    for (const n of j.npcs) marca(n.x, n.y, n.def.nome.split(" ")[0], "npc");
+    for (const n of j.npcsVisiveis) marca(n.x, n.y, n.def.nome.split(" ")[0], "npc");
     marca(j.jogador.x, j.jogador.y, "Você", "voce");
     this.abrirPainel($("mapa"));
     this.app.audio.sfx("abrir");

@@ -660,6 +660,13 @@ class Pintor {
         s(0, 1, c);
         s(1, -2, "#e05a9c");
         break;
+      case "microfone":
+        s(0, 0, "#8a8a94"); s(0, -1, "#8a8a94"); s(0, -2, c); s(1, -2, c); s(0, -3, "#c8c8d0");
+        break;
+      case "camera":
+        for (let i = -2; i <= 1; i++) for (let j = -2; j <= 0; j++) s(i, j, c);
+        s(2, -1, "#3a3a44"); s(-1, -2, "#d0202e"); s(0, -1, "#5a8ad8");
+        break;
       case "estatueta":
         s(0, -1 + by, clarear(c, 0.3));
         s(0, -2 + by, c);

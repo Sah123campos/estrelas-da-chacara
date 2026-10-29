@@ -676,3 +676,192 @@ export function interiorOnibus(x, w, h, t) {
     x.fillStyle = "#16386a"; x.fillRect(bx, Math.round(h * 0.7), Math.round(w * 0.2), Math.round(h * 0.06));
   }
 }
+
+// ======================= Objetos extras (alojamentos, refeitório, palco, estacionamento) =======================
+const R = (pm, x0, y0, w, h, c) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) pm.set(x, y, typeof c === "function" ? c(x, y) : c); };
+
+// Cama vista de cima (cabeceira em cima), com travesseiro, lençol e cobertor.
+export function cama(cor = "#e05a9c", estampa = 0) {
+  const pm = new Pixmap(18, 30);
+  R(pm, 0, 0, 18, 30, "#7a4a24");
+  R(pm, 1, 1, 16, 28, "#f4f2ea");
+  R(pm, 3, 2, 12, 6, (x, y) => (y === 2 ? "#ffffff" : "#e8e4dc"));
+  const c = rgb(cor);
+  R(pm, 1, 10, 16, 19, (x, y) => {
+    if (y === 10) return clarear(c, 0.3);
+    if (estampa === 1 && (x + y) % 6 === 0) return clarear(c, 0.4);
+    if (estampa === 2 && y % 4 === 0) return escurecer(c, 0.2);
+    if (x === 16) return escurecer(c, 0.2);
+    return c;
+  });
+  R(pm, 0, 0, 18, 1, "#5a3418");
+  return pronto(pm, 9, 29, { x: -9, y: -29, w: 18, h: 29 });
+}
+
+export function mala(cor = "#2c4a9c") {
+  const pm = new Pixmap(12, 10);
+  R(pm, 0, 2, 12, 8, (x, y) => (y === 2 ? clarear(rgb(cor), 0.25) : x === 11 ? escurecer(rgb(cor), 0.25) : cor));
+  R(pm, 4, 0, 4, 2, "#3a3a3a");
+  R(pm, 0, 5, 12, 1, escurecer(rgb(cor), 0.3));
+  return pronto(pm, 6, 9, { x: -6, y: -4, w: 12, h: 4 });
+}
+
+export function criado(item = "abajur") {
+  const pm = new Pixmap(12, 18);
+  R(pm, 0, 8, 12, 10, (x, y) => (y === 8 ? "#c8966a" : x === 11 ? "#6a4a30" : "#9a6a40"));
+  R(pm, 2, 12, 8, 1, "#5a3a22");
+  if (item === "abajur") { R(pm, 5, 3, 2, 5, "#8a8a8a"); R(pm, 3, 0, 6, 4, "#fff3c4"); }
+  if (item === "bombinhas") { R(pm, 1, 4, 10, 4, "#d0202e"); R(pm, 2, 5, 8, 1, "#ffd84a"); for (const x of [2, 5, 8]) { R(pm, x, 1, 2, 3, "#e8e8e8"); pm.set(x, 0, "#3a3a3a"); } }
+  if (item === "pelucia") { R(pm, 3, 2, 6, 6, "#c9a07a"); pm.set(3, 1, "#c9a07a"); pm.set(8, 1, "#c9a07a"); pm.set(4, 4, "#1a1010"); pm.set(7, 4, "#1a1010"); }
+  if (item === "maquiagem") { R(pm, 2, 5, 8, 3, "#f08aa8"); R(pm, 3, 3, 2, 2, "#b0121f"); R(pm, 7, 2, 2, 3, "#c9a14a"); }
+  return pronto(pm, 6, 17, { x: -6, y: -6, w: 12, h: 6 });
+}
+
+export function tapete(w, h, cor = "#b0485a") {
+  const pm = new Pixmap(w, h);
+  const c = rgb(cor);
+  R(pm, 0, 0, w, h, (x, y) => (x < 2 || y < 2 || x >= w - 2 || y >= h - 2 ? clarear(c, 0.3) : (x + y) % 6 < 3 ? c : escurecer(c, 0.12)));
+  return pronto(pm, w >> 1, h - 1, null, false);
+}
+
+// Parede do alojamento (vista de frente), com pôsteres e janela.
+export function paredeQuarto(w, cor, posteres = []) {
+  const H = 26;
+  const pm = new Pixmap(w, H);
+  const c = rgb(cor);
+  R(pm, 0, 0, w, 4, escurecer(c, 0.35));
+  R(pm, 0, 4, w, H - 6, (x, y) => (y % 7 === 0 ? escurecer(c, 0.06) : c));
+  R(pm, 0, H - 2, w, 2, "#6a4a30");
+  for (const [px0, pc] of posteres) {
+    R(pm, px0, 8, 10, 12, "#f4f4f0");
+    R(pm, px0 + 1, 9, 8, 10, pc);
+    R(pm, px0 + 3, 12, 4, 4, clarear(rgb(pc), 0.4));
+  }
+  for (let k = 0; k < w; k += 70) janela(pm, k + 30, 7, 14, 12);
+  return pronto(pm, 0, H - 1, { x: 0, y: -6, w, h: 6 });
+}
+
+export function paredeLado(h, cor) {
+  const pm = new Pixmap(6, h + 8);
+  R(pm, 0, 0, 6, h + 8, (x) => (x < 2 ? clarear(rgb(cor), 0.15) : x > 4 ? escurecer(rgb(cor), 0.3) : escurecer(rgb(cor), 0.1)));
+  return pronto(pm, 0, h + 7, { x: 0, y: -h, w: 6, h });
+}
+
+export function muretaFrente(w, cor) {
+  const pm = new Pixmap(w, 9);
+  R(pm, 0, 0, w, 3, escurecer(rgb(cor), 0.35));
+  R(pm, 0, 3, w, 6, (x) => (x % 12 === 0 ? escurecer(rgb(cor), 0.15) : cor));
+  return pronto(pm, 0, 8, { x: 0, y: -4, w, h: 4 });
+}
+
+// Carro visto de lado (frente para a direita).
+export function carro(cor = "#b0121f") {
+  const W = 44, H = 22;
+  const pm = new Pixmap(W, H);
+  const c = rgb(cor);
+  R(pm, 2, 9, W - 4, 8, (x, y) => (y === 9 ? clarear(c, 0.25) : x > W - 6 ? escurecer(c, 0.1) : c));
+  R(pm, 10, 3, 22, 7, (x, y) => (y === 3 ? clarear(c, 0.2) : c));
+  R(pm, 12, 4, 8, 5, "#9ad4f0"); R(pm, 22, 4, 8, 5, "#7ab8e0");
+  R(pm, 2, 12, W - 4, 1, escurecer(c, 0.25));
+  pm.set(W - 3, 11, "#fff3a0"); pm.set(2, 11, "#d0202e");
+  for (const cx of [10, W - 11]) for (let y = -4; y <= 4; y++) for (let x = -4; x <= 4; x++) { const d = Math.hypot(x, y); if (d <= 4.2) pm.set(cx + x, 17 + y, d > 2.4 ? "#1a1a20" : "#a8a8b0"); }
+  return pronto(pm, W >> 1, H - 1, { x: -20, y: -6, w: 40, h: 6 });
+}
+
+// Refeitório: mesa comprida com toalha e comida, cadeiras e balcão de comida.
+export function mesaComida(seed = 0) {
+  const W = 46, H = 26;
+  const pm = new Pixmap(W, H);
+  R(pm, 0, 4, W, 14, (x, y) => ((Math.floor(x / 4) + Math.floor(y / 4)) % 2 ? "#f4f4f0" : "#d0303e"));
+  R(pm, 0, 18, W, 3, "#8a5a3a");
+  for (const x of [2, W - 4]) R(pm, x, 21, 2, 4, "#5a3a22");
+  const pratos = [[6, 8], [16, 12], [26, 8], [36, 12]];
+  pratos.forEach(([x, y], k) => {
+    R(pm, x, y, 6, 4, "#ffffff");
+    R(pm, x + 1, y + 1, 4, 2, ["#f2d544", "#8a4a22", "#9ccf6a", "#e86a2a"][(k + seed) % 4]);
+  });
+  R(pm, 20, 4, 6, 4, "#e8e8f0"); R(pm, 21, 2, 4, 2, "#f29a2a"); // jarra de suco
+  return pronto(pm, W >> 1, H - 1, { x: -23, y: -12, w: 46, h: 12 });
+}
+
+export function cadeira(cor = "#c8966a") {
+  const pm = new Pixmap(8, 12);
+  R(pm, 0, 0, 8, 4, escurecer(rgb(cor), 0.15));
+  R(pm, 0, 4, 8, 4, cor);
+  R(pm, 0, 8, 1, 4, "#5a3a22"); R(pm, 7, 8, 1, 4, "#5a3a22");
+  return pronto(pm, 4, 11, { x: -3, y: -3, w: 6, h: 3 });
+}
+
+export function buffet() {
+  const W = 60, H = 26;
+  const pm = new Pixmap(W, H);
+  R(pm, 0, 8, W, 12, (x, y) => (y === 8 ? "#e8e8f0" : y < 12 ? "#c8c8d0" : "#a8a8b0"));
+  for (let k = 0; k < 4; k++) {
+    const x = 4 + k * 14;
+    R(pm, x, 2, 11, 7, "#8a8a94");
+    R(pm, x + 1, 3, 9, 4, ["#f4f0e0", "#6a3a1a", "#e86a2a", "#9ccf6a"][k]);
+    if (k === 1) for (let i = 0; i < 4; i++) pm.set(x + 2 + i * 2, 3, "#3a1a0a");
+    pm.set(x + 5, 1, "#ffffff"); pm.set(x + 6, 0, "#ffffff");
+  }
+  R(pm, 0, 20, W, 5, "#6a6a74");
+  return pronto(pm, W >> 1, H - 1, { x: -30, y: -12, w: 60, h: 12 });
+}
+
+// Palco: bateria, violão no suporte, pedestal de microfone e caixa de som.
+export function bateria() {
+  const pm = new Pixmap(34, 30);
+  const tambor = (cx, cy, r, cor) => { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y * 1.6 <= r * r) pm.set(cx + x, cy + y, x * x + y * y * 1.6 > (r - 1.2) * (r - 1.2) ? cor : "#f4f2ea"); };
+  R(pm, 11, 14, 12, 12, (x, y) => (y < 16 ? "#f4f2ea" : "#b0121f"));
+  tambor(17, 20, 6, "#b0121f");
+  tambor(8, 15, 4, "#b0121f"); tambor(26, 15, 4, "#b0121f");
+  for (const [x, y] of [[3, 6], [31, 5]]) { R(pm, x - 4, y, 9, 2, "#e2b13c"); R(pm, x, y + 2, 1, 22 - y, "#8a8a94"); }
+  R(pm, 15, 26, 4, 3, "#3a3a44");
+  return pronto(pm, 17, 29, { x: -15, y: -8, w: 30, h: 8 });
+}
+
+export function violaoSuporte() {
+  const pm = new Pixmap(12, 26);
+  R(pm, 5, 0, 2, 12, "#3e2616");
+  for (let y = 10; y < 24; y++) { const w = y < 15 ? 3 : 5; R(pm, 6 - w, y, w * 2, 1, y % 5 === 0 ? "#8a5a2a" : "#c8843a"); }
+  pm.set(6, 16, "#2a1a10"); pm.set(5, 16, "#2a1a10");
+  R(pm, 2, 24, 8, 2, "#3a3a44");
+  return pronto(pm, 6, 25, { x: -3, y: -2, w: 6, h: 2 });
+}
+
+export function pedestalMic() {
+  const pm = new Pixmap(10, 30);
+  R(pm, 4, 6, 1, 22, "#8a8a94");
+  R(pm, 3, 2, 3, 4, "#2a2a30"); pm.set(4, 2, "#8a8a94");
+  R(pm, 1, 28, 7, 2, "#3a3a44");
+  pm.set(6, 12, "#16161a"); pm.set(7, 13, "#16161a"); pm.set(8, 14, "#16161a"); // cabo
+  return pronto(pm, 4, 29, { x: -2, y: -2, w: 4, h: 2 });
+}
+
+export function caixaSom() {
+  const pm = new Pixmap(16, 22);
+  R(pm, 0, 0, 16, 22, (x, y) => (x === 0 || y === 0 ? "#3a3a44" : "#1a1a20"));
+  for (const [cy, r] of [[7, 4], [16, 3]]) for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r) pm.set(8 + x, cy + y, x * x + y * y <= 1.5 ? "#8a8a94" : "#4a4a54");
+  return pronto(pm, 8, 21, { x: -8, y: -5, w: 16, h: 5 });
+}
+
+// Púlpito de madeira com a Bíblia aberta.
+export function pulpitoBiblia() {
+  const pm = new Pixmap(18, 30);
+  R(pm, 5, 10, 8, 18, (x) => (x === 5 ? "#c8966a" : x === 12 ? "#5a3a22" : "#8a5a3a"));
+  R(pm, 1, 6, 16, 5, (x, y) => (y === 6 ? "#c8966a" : "#9a6a40"));
+  R(pm, 2, 1, 14, 6, "#f4ecd8");
+  R(pm, 8, 1, 2, 6, "#c8b898");
+  for (let y = 2; y < 6; y++) for (const x of [3, 5, 11, 13]) pm.set(x, y, "#8a7a6a");
+  R(pm, 8, 6, 2, 3, "#b0121f"); // fitinha
+  R(pm, 3, 28, 12, 2, "#5a3a22");
+  return pronto(pm, 9, 29, { x: -6, y: -3, w: 12, h: 3 });
+}
+
+// Corda enrolada e molhada encostada na árvore (com poça).
+export function cordaMolhada() {
+  const pm = new Pixmap(30, 16);
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 30; x++) { const nx = (x - 15) / 15; const ny = (y - 10) / 6; if (nx * nx + ny * ny <= 1) pm.set(x, y, hash(x, y, 4) > 0.8 ? "#9ad4f0" : "#5a8aa8"); }
+  for (let k = 0; k < 3; k++) for (let a = 0; a < 40; a++) { const t = (a / 40) * Math.PI * 2; pm.set(13 + Math.cos(t) * (6 - k), 8 + Math.sin(t) * (3 - k * 0.6), k % 2 ? "#b8945a" : "#d8b878"); }
+  for (let y = 0; y < 8; y++) pm.set(6 + y * 0.2, y, "#c8a46a");
+  return pronto(pm, 15, 15, null, false);
+}

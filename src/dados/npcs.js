@@ -17,9 +17,11 @@
 // Personagens fictícios de uma experiência humorística. Não representam as celebridades reais.
 // ============================================================================
 
+import { EXTRAS } from "./npcsExtras.js";
+
 const POS = { flag: "tema_revelado" };
 
-export const NPCS = [
+const PRINCIPAIS = [
   {
     id: "davi_dicaprio",
     nome: "Davi Dicaprio",
@@ -240,3 +242,5 @@ export const NPCS = [
     },
   },
 ];
+
+export const NPCS = [...PRINCIPAIS, ...EXTRAS];

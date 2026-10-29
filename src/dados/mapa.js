@@ -52,7 +52,20 @@ export const MAPA = {
   refeitorio: { x: -30, z: 40, w: 18, d: 11, fonte: "provisorio" },
   quadra: { x: 30, z: 44, w: 28, d: 16, fonte: "provisorio" },
   fogueira: { x: -6, z: 30, fonte: "provisorio" },
-  alojamento: { x: -2, z: 64, w: 26, d: 8, fonte: "provisorio" },
+  alojamento: { x: -2, z: 65, w: 26, d: 8, fonte: "provisorio" }, // ponto central entre os dois quartos
+  // Alojamentos separados (vistos "sem teto", com camas e objetos pessoais) — provisórios.
+  quartoMeninas: { x: -28, z: 65, w: 24, d: 10, cor: "#d8b8e8", fonte: "provisorio" },
+  quartoMeninos: { x: 24, z: 65, w: 24, d: 10, cor: "#a8c8e8", fonte: "provisorio" },
+  // Área coberta do refeitório, com mesas, cadeiras e comida.
+  refeitorioArea: { x: -30, z: 52.5, w: 24, d: 9, fonte: "provisorio" },
+  // Espaço musical (palco do louvor) perto da fogueira.
+  palco: { x: 15, z: 29, w: 14, d: 6, fonte: "provisorio" },
+  // Estacionamento ao lado do portão.
+  estacionamento: { x: -42, z: 85, w: 36, d: 12, fonte: "provisorio" },
+  // Cantinho da Palavra: púlpito com a Bíblia aberta, ao lado da fogueira.
+  biblia: { x: -14, z: 27, fonte: "provisorio" },
+  // Árvore com a corda molhada.
+  arvoreCorda: { x: -52, z: 6, fonte: "provisorio" },
   portao: { x: 0, z: 92, fonte: "provisorio" },
 
   // O mistério: nove formas enormes cobertas por lonas no morro, ao lado da casa amarela.
@@ -62,6 +75,11 @@ export const MAPA = {
     { pts: [[0, 96], [0, 70], [2, 52], [0, 34], [0, 12.6]], largura: 3.2, tipo: "terra", fonte: "provisorio" },
     { pts: [[0, 34], [-14, 37], [-30, 42]], largura: 2.4, tipo: "terra", fonte: "provisorio" },
     { pts: [[2, 40], [16, 44]], largura: 2.4, tipo: "terra", fonte: "provisorio" },
+    { pts: [[0, 66], [-16, 66]], largura: 2.2, tipo: "terra", fonte: "provisorio" },
+    { pts: [[0, 66], [12, 66]], largura: 2.2, tipo: "terra", fonte: "provisorio" },
+    { pts: [[0, 46], [-18, 52]], largura: 2.2, tipo: "terra", fonte: "provisorio" },
+    { pts: [[0, 30], [8, 31]], largura: 2, tipo: "terra", fonte: "provisorio" },
+    { pts: [[-41, 91], [-41, 96]], largura: 4, tipo: "terra", fonte: "provisorio" },
     { pts: [[6, 2], [16, -8], [22, -16]], largura: 2.0, tipo: "terra", fonte: "estimado" },
     // subida da colina até a casa e o morro
     { pts: [[-14, -26], [-6, -56], [-14, -84], [-30, -96], [-50, -100]], largura: 2.6, tipo: "terra", fonte: "estimado" },
@@ -104,6 +122,18 @@ export const MAPA = {
     ...Array.from({ length: 16 }, (_, i) => ({ tipo: i % 2 ? "mangueira" : "copa", x: 82 + ((i * 29) % 14), z: -10 + i * 7, s: 0.9 + ((i * 7) % 5) / 10, fonte: "provisorio" })),
     ...Array.from({ length: 9 }, (_, i) => ({ tipo: "pinheiro", x: 76 + ((i * 23) % 18), z: -120 + i * 9, s: 0.9, fonte: "provisorio" })),
     { tipo: "mangueira", x: -40, z: 20, s: 1.2, fonte: "provisorio" },
+    { tipo: "mangueira", x: -52, z: 6, s: 1.2, fonte: "provisorio" },
+    { tipo: "copa", x: -10, z: 76, s: 0.8, fonte: "provisorio" },
+    { tipo: "copa", x: 10, z: 76, s: 0.8, fonte: "provisorio" },
+    { tipo: "arbusto", x: -22, z: 74, s: 0.9, fonte: "provisorio" },
+    { tipo: "arbusto", x: 30, z: 74, s: 0.9, fonte: "provisorio" },
+    { tipo: "ipe", x: -60, z: 70, s: 0.9, fonte: "provisorio" },
+    { tipo: "copa", x: 50, z: 30, s: 1.0, fonte: "provisorio" },
+    { tipo: "arbusto", x: 46, z: 16, s: 1.0, fonte: "provisorio" },
+    { tipo: "copa", x: -62, z: 30, s: 1.0, fonte: "provisorio" },
+    { tipo: "arbusto", x: -56, z: 44, s: 1.0, fonte: "provisorio" },
+    { tipo: "copa", x: 60, z: 60, s: 1.0, fonte: "provisorio" },
+    { tipo: "arbusto", x: 52, z: 80, s: 1.0, fonte: "provisorio" },
     { tipo: "mangueira", x: 14, z: 24, s: 1.1, fonte: "provisorio" },
     { tipo: "mangueira", x: -18, z: 52, s: 1.0, fonte: "provisorio" },
     { tipo: "palmeira", x: -8, z: 86, s: 1.0, fonte: "provisorio" },
@@ -139,6 +169,11 @@ export const MAPA = {
     lago: { x: -14, z: -40 },
     portao: { x: 0, z: 88 },
     alojamento: { x: -2, z: 70 },
+    quarto_meninas: { x: -28, z: 67 },
+    quarto_meninos: { x: 24, z: 67 },
+    palco: { x: 15, z: 33.5 },
+    estacionamento: { x: -40, z: 92.5 },
+    refeitorio: { x: -30, z: 56 },
   },
 
   // Objetos interativos (além dos NPCs).
@@ -153,6 +188,16 @@ export const MAPA = {
     { id: "murinho", x: 3, z: 3.6, r: 2.4, rotulo: "Sentar no murinho azul", acao: "sentar" },
     { id: "casa_porta", x: -58, z: -101.5, r: 3, rotulo: "Bater na porta", texto: "Ninguém atende. Pela janela dá para ver araras cheias de roupas brilhantes e um cartaz enrolado. Que mistério…" },
     { id: "letreiro", x: -6, z: -114.5, r: 9, rotulo: "Examinar as lonas", acao: "letreiro" },
+    { id: "biblia", x: -14, z: 28.2, r: 2.4, rotulo: "Ler a Bíblia", texto: "A Bíblia está aberta em Jeremias 29:11: “Porque eu bem sei os planos que tenho para vocês, diz o Senhor; planos de paz e não de mal, para dar a vocês esperança e um futuro.” Que promessa pra esse acampamento!" },
+    { id: "corda", x: -50, z: 8.2, r: 3.2, rotulo: "Olhar a corda", texto: "Nossa, parece que amarraram e jogaram água em alguém aqui... por que será?" },
+    { id: "bombinhas", x: 33, z: 61.6, r: 2.2, rotulo: "Mexer na caixinha", texto: "Uma caixa de bombinhas escondida embaixo do criado-mudo… A madrugada vai ser boa!" },
+    { id: "bateria", x: 13, z: 28, r: 2.4, rotulo: "Tocar a bateria", acao: "musica", texto: "TU-DUM-TSSS! Você manda uma virada na bateria e o Pedro faz sinal de joinha lá do microfone." },
+    { id: "violao", x: 19, z: 27.6, r: 2, rotulo: "Tocar o violão", acao: "musica", texto: "Você dedilha uns acordes no violão. Até os passarinhos param pra ouvir." },
+    { id: "microfone", x: 16.5, z: 30.4, r: 1.8, rotulo: "Falar no microfone", texto: "“Alô, alô, chácara!” — sua voz ecoa nas caixas de som. Do refeitório alguém grita: “TÁ ALTO!”" },
+    { id: "buffet", x: -30, z: 49.6, r: 3.2, rotulo: "Ver a comida", texto: "Arroz soltinho, feijão, frango assado, salada e um bolo de fubá que tá cheirando de longe. A Thais caprichou!" },
+    { id: "cama_meninas", x: -34, z: 62.5, r: 2.4, rotulo: "Olhar as camas", texto: "Camas arrumadinhas, ursinho de pelúcia, necessaire de maquiagem e um pôster escrito “Estrelas da Chácara ★”." },
+    { id: "cama_meninos", x: 18, z: 62.5, r: 2.4, rotulo: "Olhar as camas", texto: "Uma cama arrumada e cinco bagunçadas. Tem tênis pra todo lado e um travesseiro com cheiro de protetor solar." },
+    { id: "carros", x: -40, z: 90.6, r: 4, rotulo: "Olhar o estacionamento", texto: "Carros de todo mundo que veio ajudar, e o ônibus do acampamento descansando à sombra. Alguém esqueceu o pisca-alerta ligado…" },
     { id: "quiosque", x: 55, z: -18.5, r: 3, rotulo: "Espiar o quiosque", texto: "Tem caixas e mais caixas de milho de pipoca empilhadas aqui. Pra que tanto?!" },
   ],
 };
