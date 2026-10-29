@@ -66,6 +66,86 @@ export class Jogo {
     this.extraFoto = null;
     this.criarNPCs();
     this.tapete = this.pintarTapete();
+    this.colocarBola();
+  }
+
+  // ---------- bola de basquete ----------
+  colocarBola() {
+    const q = MAPA.quadra;
+    this.bola = { x: px(q.x) + 14, y: py(q.z) + 22, alt: 0, va: 0, vx: 0, vy: 0, arremesso: null };
+    this.cestasFeitas = 0;
+  }
+
+  arremessar() {
+    const j = this.jogador;
+    const b = this.bola;
+    const cesta = this.cen.cestas.reduce((m, c) => (Math.abs(c.aro.x - j.x) < Math.abs(m.aro.x - j.x) ? c : m));
+    j.dir = cesta.aro.x < j.x ? "esq" : "dir";
+    j.acenarAte = this.tempo + 0.8;
+    const dist = Math.hypot(cesta.aro.x - j.x, cesta.aro.y - j.y);
+    b.arremesso = { t: 0, dur: 0.7 + dist / 260, de: { x: j.x + (j.dir === "esq" ? -6 : 6), y: j.y, alt: 24 }, ate: { x: cesta.aro.x, y: cesta.aro.y, alt: cesta.aro.alt }, cesta, acerto: Math.random() < Math.max(0.35, 0.92 - dist / 400) };
+    this.audio.sfx("clique");
+  }
+
+  atualizarBola(dt) {
+    const b = this.bola;
+    const A = b.arremesso;
+    if (A) {
+      A.t += dt;
+      const k = Math.min(1, A.t / A.dur);
+      b.x = A.de.x + (A.ate.x - A.de.x) * k;
+      b.y = A.de.y + (A.ate.y - A.de.y) * k;
+      b.alt = A.de.alt + (A.ate.alt - A.de.alt) * k + Math.sin(k * Math.PI) * (36 + A.dur * 20);
+      if (k >= 1) {
+        b.arremesso = null;
+        if (A.acerto) {
+          b.alt = A.ate.alt - 3; b.va = -20; b.vx = -A.cesta.lado * 12; b.vy = 4;
+          this.cestasFeitas++;
+          this.audio.sfx("escolha");
+          this.ui.aviso(`🏀 <b>Cesta!</b> ${this.cestasFeitas > 1 ? `(${this.cestasFeitas} cestas)` : "Que arremesso de estrela!"}`, 1800);
+        } else {
+          b.va = 70; b.vx = -A.cesta.lado * 55; b.vy = (Math.random() - 0.5) * 30;
+          this.audio.sfx("erro");
+          this.ui.aviso("Bateu no aro! Tenta de novo.", 1500);
+        }
+      }
+      return;
+    }
+    if (!b.alt && !b.va && Math.abs(b.vx) < 1 && Math.abs(b.vy) < 1) return;
+    b.va -= 320 * dt;
+    b.alt += b.va * dt;
+    if (b.alt <= 0) {
+      b.alt = 0;
+      b.va = Math.abs(b.va) > 30 ? -b.va * 0.55 : 0;
+      if (b.va) this.audio.sfx("clique");
+      b.vx *= 0.8; b.vy *= 0.8;
+    }
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    if (!b.alt) { b.vx *= 0.97; b.vy *= 0.97; }
+    // fica dentro da quadra
+    const q = MAPA.quadra;
+    const x0 = px(q.x - q.w / 2) + 6, x1 = px(q.x + q.w / 2) - 6, y0 = py(q.z - q.d / 2) + 6, y1 = py(q.z + q.d / 2) - 6;
+    if (b.x < x0 || b.x > x1) { b.vx = -b.vx; b.x = Math.max(x0, Math.min(x1, b.x)); }
+    if (b.y < y0 || b.y > y1) { b.vy = -b.vy; b.y = Math.max(y0, Math.min(y1, b.y)); }
+  }
+
+  desenharBola(cx, cy) {
+    const b = this.bola;
+    const ctx = this.ctx;
+    const x = Math.round(b.x - cx);
+    const y = Math.round(b.y - cy);
+    ctx.fillStyle = "rgba(10,30,14,0.35)";
+    ctx.fillRect(x - 2, y, 5, 1);
+    const by = y - 5 - Math.round(b.alt);
+    ctx.fillStyle = "#1a0e08";
+    ctx.fillRect(x - 2, by - 1, 5, 7); ctx.fillRect(x - 3, by, 7, 5);
+    ctx.fillStyle = "#e8702a";
+    ctx.fillRect(x - 2, by, 5, 5);
+    ctx.fillStyle = "#ffa060";
+    ctx.fillRect(x - 1, by, 2, 1);
+    ctx.fillStyle = "#5a2a10";
+    ctx.fillRect(x, by, 1, 5); ctx.fillRect(x - 2, by + 2, 5, 1);
   }
 
   // ---------- configuração ----------
@@ -143,6 +223,7 @@ export class Jogo {
     }
     for (const n of this.npcsVisiveis) this.atualizarNPC(n, dt);
     this.atualizarParticulas(dt);
+    this.atualizarBola(dt);
     if (this.clarear) { this.anoitecer = Math.max(0, (this.anoitecer || 0) - dt / 3); if (!this.anoitecer) this.clarear = false; }
     if (this.modo !== "explorar") ent.limpar();
   }
@@ -296,6 +377,11 @@ export class Jogo {
       const d = Math.hypot(n.x - fx, (n.y - fy) * 1.2);
       if (d < 22 && d < md) { md = d; melhor = { tipo: "npc", npc: n, rotulo: `Conversar com ${n.def.nome}` }; }
     }
+    {
+      const b = this.bola;
+      const d = Math.hypot(b.x - fx, b.y - fy);
+      if (!b.arremesso && b.alt < 4 && d < 16 && d < md) { md = d; melhor = { tipo: "bola", rotulo: "Arremessar a bola 🏀" }; }
+    }
     for (const it of MAPA.interativos) {
       const d = Math.hypot(px(it.x) - fx, py(it.z) - fy);
       if (d < m(it.r) && d < md) {
@@ -335,6 +421,7 @@ export class Jogo {
       });
       return;
     }
+    if (alvo.tipo === "bola") return this.arremessar();
     const it = alvo.item;
     if (it.acao === "sentar") {
       j.sentado = true;
@@ -682,6 +769,7 @@ export class Jogo {
       ctx.globalAlpha = 1;
       if (o.fogo) this.desenharFogo(o.x - cx, o.y - cy - 8);
     }
+    this.desenharBola(cx, cy);
     // indicadores sobre os NPCs
     for (const n of this.npcsVisiveis) {
       if (n.bebe) continue;

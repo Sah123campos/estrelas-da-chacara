@@ -39,7 +39,7 @@ Abra `http://localhost:8080`. No GitHub Pages basta publicar a pasta (raiz do re
 
 ## O seu rosto no jogo
 
-Na aba **Sua foto** do camarim, escolha uma foto ou tire uma na hora (o jogo pede permissão antes
+No camarim, use os botões **Tirar foto do rosto** / **Foto da galeria** (logo abaixo do retrato) ou a aba **Seu rosto**, que é a primeira (o jogo pede permissão antes
 de abrir a câmera). O jogo encontra olhos e boca, alinha o rosto e o transforma em pixel art:
 
 - **Retrato grande** (64×64) nos diálogos, no camarim e no canto da tela: o rosto da foto com o
@@ -70,6 +70,7 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 - Você chega pelo **portão** e sobe o caminho até a chácara.
 - Dá para **sentar no murinho azul** (borda da plataforma de concreto azul das fotos).
 - O **toboágua** desce até a piscina: aperte E na escadinha, escorregue, caia na água e nade um pouco.
+- Na **quadra de basquete** tem duas cestas e uma bola: chegue perto da bola e aperte E para arremessar.
 - A **cachoeira** fica virada para o lago: a água cai no poço e corre pelo riacho até o lago.
 
 ## O mistério do tema

@@ -551,3 +551,34 @@ export function letra(ch, brilho = 0) {
   }));
   return pronto(pm, W >> 1, H - 2, { x: -14, y: -4, w: 28, h: 4 });
 }
+
+// Tabela de basquete vista de cima/frente: poste, tabela branca com quadrado vermelho,
+// aro laranja e redinha. lado -1 = cesta da esquerda (aro virado para a direita).
+export function cesta(lado = -1) {
+  const W = 34;
+  const H = 66;
+  const pm = new Pixmap(W, H);
+  const px0 = lado < 0 ? 4 : W - 6; // poste
+  for (let y = 18; y < H - 2; y++) { pm.set(px0, y, "#5a5a64"); pm.set(px0 + 1, y, "#3a3a44"); }
+  for (let x = -2; x <= 3; x++) pm.set(px0 + x, H - 2, "#2a2a30");
+  // braço
+  const tx = lado < 0 ? 8 : W - 10;
+  for (let k = 0; k < 5; k++) pm.set(lado < 0 ? px0 + 1 + k : px0 - k, 20, "#4a4a54");
+  // tabela (vista de lado, fininha) com o quadrado
+  for (let y = 6; y < 28; y++) for (let i = 0; i < 3; i++) pm.set(tx + (lado < 0 ? i : -i), y, i === 1 ? "#ffffff" : "#d8d8e0");
+  for (let y = 14; y < 22; y++) pm.set(tx + (lado < 0 ? 1 : -1), y, "#d0202e");
+  // aro (elipse) e rede
+  const ax = lado < 0 ? tx + 10 : tx - 10;
+  for (let k = 0; k < 24; k++) {
+    const a = (k / 24) * Math.PI * 2;
+    pm.set(ax + Math.cos(a) * 6, 24 + Math.sin(a) * 2, k < 12 ? "#e8601e" : "#ff8a3a");
+  }
+  for (let y = 26; y < 34; y++) {
+    const w = 5 - (y - 26) * 0.35;
+    for (let x = -w; x <= w; x++) if ((Math.round(x) + y) % 2 === 0) pm.set(ax + x, y, "#f4f4f4");
+  }
+  const o = pronto(pm, lado < 0 ? px0 : px0, H - 2, { x: -2, y: -3, w: 5, h: 3 });
+  o.altAro = H - 2 - 24;
+  o.aroDx = ax - px0;
+  return o;
+}

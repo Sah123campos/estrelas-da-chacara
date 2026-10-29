@@ -310,3 +310,10 @@ input[type="color"] { width: 34px; height: 30px; border: 2px solid #4a3a6a; padd
 
 /* nome do personagem por cima do jogo (texto nítido) */
 .rotulo-npc { position: absolute; transform: translate(-50%, -100%); padding: 2px 8px 3px; background: rgba(20, 12, 36, 0.88); border: 2px solid var(--ouro-escuro); color: #ffe9a8; font-size: clamp(13px, 1.6vh + 6px, 17px); white-space: nowrap; pointer-events: none; text-shadow: 1px 1px 0 #000; }
+.cam-foto-botoes { position: relative; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.cam-foto-botoes .btn { width: auto; }
+@media (max-width: 760px), (orientation: portrait) {
+  .cam-foto-botoes { width: 100%; order: 3; }
+  .cam-ferramentas { order: 4; }
+  .cam-foto-botoes .btn { flex: 1 1 140px; font-size: 14px; padding: 6px 8px; }
+}

@@ -310,16 +310,43 @@ export class Cenario {
       }
     }
 
-    // ---------- quadra (provisória) ----------
+    // ---------- quadra de basquete (provisória) ----------
     {
       const q = MAPA.quadra;
       const x0 = px(q.x - q.w / 2), x1 = px(q.x + q.w / 2), y0 = py(q.z - q.d / 2), y1 = py(q.z + q.d / 2);
+      const M = 10;
+      const ix0 = x0 + M, ix1 = x1 - M, iy0 = y0 + M, iy1 = y1 - M;
+      const cy = (iy0 + iy1) / 2;
+      const cx = (ix0 + ix1) / 2;
+      const aros = [ix0 + 12, ix1 - 12];
+      this.cestas = aros.map((x, i) => ({ x, y: Math.round(cy), lado: i === 0 ? -1 : 1 }));
       for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
-        let c = rgb(x - x0 < 10 || x1 - x < 10 || y - y0 < 10 || y1 - y < 10 ? "#a85a3a" : "#3a8a5a");
-        const lin = (Math.abs(x - x0 - 10) < 1 || Math.abs(x1 - x - 10) < 1 || Math.abs(y - y0 - 10) < 1 || Math.abs(y1 - y - 10) < 1 || Math.abs(x - (x0 + x1) / 2) < 1 || Math.abs(Math.hypot(x - (x0 + x1) / 2, y - (y0 + y1) / 2) - 18) < 0.8);
-        if (lin && x - x0 >= 10 && x1 - x >= 10 && y - y0 >= 10 && y1 - y >= 10) c = rgb("#f4f4f0");
+        const fora = x < ix0 || x >= ix1 || y < iy0 || y >= iy1;
+        let c;
+        if (fora) c = rgb(hash(x >> 1, y >> 1, 2) > 0.5 ? "#3a6a8a" : "#36627f");
+        else {
+          // piso laranja de quadra, com tábuas
+          c = rgb((Math.floor((x - ix0) / 12) + Math.floor((y - iy0) / 4)) % 2 ? "#d48a4a" : "#cc8244");
+          if ((y - iy0) % 4 === 0) c = escurecer(c, 0.06);
+          // garrafão azul
+          for (const ax of aros) {
+            const dentro = Math.abs(y - cy) < 20 && (ax < cx ? x < ix0 + 46 : x >= ix1 - 46);
+            if (dentro) c = rgb("#2c5a9c");
+          }
+          const lin = (v) => Math.abs(v) < 0.8;
+          let branco = x === ix0 || x === ix1 - 1 || y === iy0 || y === iy1 - 1 || lin(x - cx) || lin(Math.hypot(x - cx, y - cy) - 18);
+          for (const ax of aros) {
+            const garrafaoX = ax < cx ? ix0 + 46 : ix1 - 46;
+            if (Math.abs(y - cy) <= 20 && (ax < cx ? x <= garrafaoX : x >= garrafaoX) && (lin(Math.abs(y - cy) - 20) || lin(x - garrafaoX))) branco = true;
+            if (lin(Math.hypot(x - garrafaoX, y - cy) - 20) && (ax < cx ? x >= garrafaoX : x <= garrafaoX)) branco = true;
+            const d3 = Math.hypot(x - ax, y - cy);
+            if (lin(d3 - 64) && (ax < cx ? x >= ax : x <= ax)) branco = true;
+            if (Math.abs(y - cy) > 44 && Math.abs(y - cy) < 46 && (ax < cx ? x < ax : x > ax)) branco = true;
+          }
+          if (branco) c = rgb("#f4f4f0");
+        }
         set(x, y, c);
-        piso(x, y, 2);
+        piso(x, y, 3);
       }
     }
     // ---------- roda da fogueira ----------
@@ -453,6 +480,10 @@ export class Cenario {
     S("refeitorio", O.refeitorio());
     S("alojamento", O.alojamento());
     this.add(O.portao(), px(MAPA.portao.x), py(MAPA.portao.z), { tipo: "portao" });
+    for (const c of this.cestas) {
+      const o = this.add(O.cesta(c.lado), c.x + c.lado * 10, c.y + 1, { tipo: "cesta" });
+      c.aro = { x: o.x + o.aroDx, y: o.y, alt: o.altAro };
+    }
     this.marcarSolido(px(MAPA.portao.x) - 44, py(MAPA.portao.z) - 4, 10, 6);
     this.marcarSolido(px(MAPA.portao.x) + 34, py(MAPA.portao.z) - 4, 10, 6);
     this.add(O.placa(), px(4), py(90), { tipo: "placa" });

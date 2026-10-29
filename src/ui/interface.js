@@ -455,7 +455,7 @@ export class Interface {
     };
     const areas = [
       ["patio", "Pátio azul"], ["lago", "Lago"], ["terraco", "Piscina"], ["casa", "Casa amarela"], ["cachoeira", "Cachoeira"],
-      ["refeitorio", "Refeitório*"], ["quadra", "Quadra*"], ["fogueira", "Fogueira*"], ["alojamento", "Alojamento e camarim*"], ["portao", "Portão*"],
+      ["refeitorio", "Refeitório*"], ["quadra", "Quadra de basquete*"], ["fogueira", "Fogueira*"], ["alojamento", "Alojamento e camarim*"], ["portao", "Portão*"],
     ];
     for (const [k, nome] of areas) { const a = MAPA[k]; marca(px(a.x), py(a.z) + (k === "casa" ? 30 : 0), nome); }
     marca(px(MAPA.letreiro.x), py(MAPA.letreiro.z) - 20, j.revelado ? "Letreiro HOLLYWOOD" : "Lonas misteriosas");

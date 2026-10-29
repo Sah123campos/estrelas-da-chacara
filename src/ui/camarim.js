@@ -12,9 +12,9 @@ import { criarCanvas } from "../arte/pixel.js";
 import { fileToCanvas, detectLandmarks, startCamera, stopCamera, captureFrame } from "../rosto/captura.js";
 
 const ABAS = [
+  { id: "foto", nome: "📷 Seu rosto" },
   { id: "corpo", nome: "Corpo" },
   { id: "rosto", nome: "Rosto" },
-  { id: "foto", nome: "Sua foto" },
   { id: "cabelo", nome: "Cabelo" },
   { id: "roupas", nome: "Roupas" },
   { id: "acessorios", nome: "Acessórios" },
@@ -46,6 +46,8 @@ export class Camarim {
     $("cam-nativa").onclick = () => { this.fecharCamera(); $("arquivo-camera").click(); };
     $("cam-clique").onclick = () => this.tirarFoto();
     $("cam-cancelar").onclick = () => this.fecharCamera();
+    $("cam-palco-foto").onclick = () => { this.app.audio.sfx("clique"); this.abrirCamera(); };
+    $("cam-palco-galeria").onclick = () => { this.app.audio.sfx("clique"); $("arquivo-foto").click(); };
   }
 
   get revelado() {
@@ -58,7 +60,7 @@ export class Camarim {
     this.original = structuredClone(ap);
     this.aoPronto = aoPronto;
     this.aoVoltar = aoVoltar;
-    this.aba = modo === "novo" ? "corpo" : "roupas";
+    this.aba = modo === "novo" || !this.app.foto ? "foto" : "roupas";
     $("cam-titulo").textContent = modo === "novo" ? "Crie seu personagem" : "Camarim";
     $("cam-pronto").textContent = modo === "novo" ? "Começar!" : "Pronto!";
     $("camarim").hidden = false;
