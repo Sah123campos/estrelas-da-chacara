@@ -2,198 +2,257 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#0d0f17">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#140c24">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Estrelas da Chácara</title>
+  <meta name="description" content="Um RPG em pixel art na chácara do acampamento. Crie seu personagem com o seu rosto, converse com todo mundo e descubra o tema secreto.">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <script type="importmap">
-  { "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/" } }
-  </script>
+  <link rel="preload" href="assets/fontes/PixelifySans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <canvas id="game" aria-label="Cena 3D do jogo"></canvas>
+  <div id="app">
+    <canvas id="tela" aria-label="Cenário do jogo"></canvas>
 
-  <!-- Carregamento -->
-  <section id="loading" class="screen show" aria-live="polite">
-    <div class="loading-inner">
-      <div class="logo"><span class="star">✦</span> Estrelas <em>da</em> Chácara</div>
-      <div class="bar"><i id="loadBar"></i></div>
-      <p id="loadText">Preparando o tapete vermelho…</p>
+    <!-- Carregando -->
+    <div id="carregando" class="tela-cheia">
+      <div class="logo"><span class="estrela">★</span> Estrelas <em>da</em> Chácara</div>
+      <div class="barra"><i id="barra-carga"></i></div>
+      <p id="texto-carga">Montando a chácara pixel por pixel…</p>
     </div>
-  </section>
 
-  <!-- Menu principal -->
-  <section id="menu" class="screen">
-    <div class="menu-panel">
-      <div class="logo big"><span class="star">✦</span> Estrelas <em>da</em> Chácara</div>
-      <p class="tagline" id="tagline">Um RPG social no acampamento. Converse com todo mundo e descubra o tema secreto.</p>
-      <nav class="menu-buttons">
-        <button data-act="continue" id="btnContinue" class="btn primary">Continuar</button>
-        <button data-act="new" class="btn" id="btnNew">Novo jogo</button>
-        <button data-act="customize" class="btn" id="btnCustomize">Personalizar personagem</button>
-        <button data-act="settings" class="btn">Configurações</button>
-        <button data-act="credits" class="btn ghost">Créditos</button>
-      </nav>
-    </div>
-  </section>
-
-  <!-- Criação de personagem / guarda-roupa -->
-  <section id="creator" class="screen">
-    <header class="creator-top">
-      <button class="icon-btn" id="crBack" aria-label="Voltar">←</button>
-      <h2 id="crTitle">Crie seu personagem</h2>
-      <button class="btn primary small" id="crDone">Salvar e jogar</button>
-    </header>
-    <div class="creator-view">
-      <div class="view-tools">
-        <button class="chip" id="viewBody">Corpo inteiro</button>
-        <button class="chip" id="viewFace">Rosto</button>
-        <button class="chip" id="viewSpin">↻ Girar</button>
-      </div>
-      <p class="hint" id="crHint">Arraste para girar · role ou faça pinça para aproximar</p>
-    </div>
-    <aside class="creator-panel">
-      <nav class="tabs" id="crTabs" role="tablist"></nav>
-      <div class="tab-body" id="crBody"></div>
-    </aside>
-  </section>
-
-  <!-- HUD de exploração -->
-  <section id="hud" class="layer">
-    <div class="hud-top">
-      <div class="hud-left"><div class="zone" id="zoneName"></div><div class="clues" id="clues" hidden></div></div>
-      <div class="hud-buttons">
-        <button class="icon-btn" id="hudWardrobe" title="Guarda-roupa (R)" aria-label="Guarda-roupa">👗</button>
-        <button class="icon-btn" id="hudFull" title="Tela cheia" aria-label="Tela cheia">⛶</button>
-        <button class="icon-btn" id="hudMenu" title="Menu (Esc)" aria-label="Menu">☰</button>
-      </div>
-    </div>
-    <canvas id="minimap" width="300" height="300" aria-label="Mini mapa"></canvas>
-    <div class="prompt" id="prompt"><kbd>E</kbd><span id="promptText"></span></div>
-    <div class="fps" id="fps"></div>
-    <div class="touch-controls" id="touchControls">
-      <div class="joystick" id="joy"><div class="knob" id="joyKnob"></div></div>
-      <div class="touch-buttons">
-        <button class="round-btn" id="tRun" aria-label="Correr">🏃</button>
-        <button class="round-btn big" id="tInteract" aria-label="Interagir">💬</button>
-      </div>
-    </div>
-    <p class="help-desktop" id="helpDesktop">WASD mover · Shift correr · arraste o mouse para girar a câmera · E interagir · R guarda-roupa · Esc menu</p>
-  </section>
-
-  <!-- Revelação do tema -->
-  <section id="reveal" class="layer" aria-live="assertive">
-    <div class="reveal-box">
-      <p class="reveal-pre">O tema do acampamento é…</p>
-      <h1 class="reveal-word">HOLLYWOOD</h1>
-      <p class="reveal-sub">Prepare o seu melhor look: a chácara virou tapete vermelho! ★</p>
-    </div>
-  </section>
-
-  <!-- Diálogo -->
-  <section id="dialog" class="layer">
-    <div class="dialog-box">
-      <div class="dialog-name" id="dlgName"></div>
-      <p class="dialog-text" id="dlgText"></p>
-      <div class="dialog-options" id="dlgOptions"></div>
-      <button class="dialog-close" id="dlgClose" aria-label="Encerrar conversa">✕</button>
-    </div>
-  </section>
-
-  <!-- Pausa -->
-  <section id="pause" class="screen dim">
-    <div class="modal">
-      <h2>Pausa</h2>
-      <nav class="menu-buttons">
-        <button class="btn primary" data-act="resume">Continuar</button>
-        <button class="btn" data-act="wardrobe">Guarda-roupa</button>
-        <button class="btn" data-act="settings">Configurações</button>
-        <button class="btn" data-act="save">Salvar</button>
-        <button class="btn" data-act="fullscreen">Tela cheia</button>
-        <button class="btn ghost" data-act="mainmenu">Menu principal</button>
-      </nav>
-    </div>
-  </section>
-
-  <!-- Configurações -->
-  <section id="settings" class="screen dim">
-    <div class="modal wide">
-      <h2>Configurações</h2>
-      <div class="settings-grid" id="settingsGrid"></div>
-      <div class="row-end">
-        <button class="btn danger small" id="btnDeleteData">Excluir dados salvos</button>
-        <button class="btn primary small" id="btnSettingsClose">Fechar</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Créditos -->
-  <section id="credits" class="screen dim">
-    <div class="modal">
-      <h2>Créditos</h2>
-      <div class="credits-text">
-        <p><b>Estrelas da Chácara</b> — primeira versão jogável.</p>
-        <p>Motor 3D: <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (licença MIT).</p>
-        <p>Personagens, roupas, cenário, texturas e sons foram gerados por código neste projeto — sem modelos de terceiros.</p>
-        <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da pasta "FAZENDA". As áreas marcadas como provisórias ainda não têm referência.</p>
-        <p>Os personagens têm nomes de brincadeira e não representam as celebridades reais.</p>
-      </div>
-      <button class="btn primary small" data-close>Fechar</button>
-    </div>
-  </section>
-
-  <!-- Consentimento / câmera -->
-  <section id="camModal" class="screen dim">
-    <div class="modal">
-      <h2>Usar a câmera</h2>
-      <div id="camConsent">
-        <p>A câmera será usada <b>apenas</b> para tirar uma foto do seu rosto e aplicá-la ao seu personagem.</p>
-        <ul class="privacy">
-          <li>A foto fica salva só neste aparelho (no armazenamento do navegador).</li>
-          <li>Nada é enviado para a internet.</li>
-          <li>Você pode trocar ou apagar a foto quando quiser.</li>
-        </ul>
-        <p class="note" id="camFallbackMsg" hidden>A câmera ao vivo não está disponível aqui. Use a câmera do aparelho: no celular ela abre o app de câmera; no computador, escolha uma foto.</p>
-        <div class="row-end">
-          <button class="btn ghost small" data-close>Cancelar</button>
-          <button class="btn small" id="camNative">Câmera do aparelho</button>
-          <button class="btn primary small" id="camAllow">Permitir câmera</button>
-        </div>
-      </div>
-      <div id="camLive" hidden>
-        <div class="cam-frame"><video id="camVideo" playsinline muted></video><div class="cam-oval"></div></div>
-        <p class="hint">Centralize o rosto no contorno, olhando para a câmera, com boa luz.</p>
-        <div class="row-end">
-          <button class="btn ghost small" id="camCancel">Cancelar</button>
-          <button class="btn primary small" id="camShoot">📸 Tirar foto</button>
+    <!-- Título -->
+    <div id="titulo" class="tela-cheia" hidden>
+      <div class="titulo-caixa moldura">
+        <div class="logo grande"><span class="estrela">★</span> Estrelas <em>da</em> Chácara</div>
+        <p class="sub" id="titulo-sub">Um acampamento. Uma chácara. Um tema que ninguém quer contar…<br>Converse com todo mundo e descubra o segredo.</p>
+        <div class="menu" id="menu-titulo">
+          <button class="btn principal" data-acao="continuar" id="btn-continuar">Continuar</button>
+          <button class="btn" data-acao="novo">Novo jogo</button>
+          <button class="btn" data-acao="camarim">Camarim (personagem)</button>
+          <button class="btn" data-acao="config">Configurações</button>
+          <button class="btn fraco" data-acao="creditos">Créditos</button>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Confirmação genérica -->
-  <section id="confirm" class="screen dim">
-    <div class="modal">
-      <h2 id="cfTitle"></h2>
-      <p id="cfText"></p>
-      <div class="row-end">
-        <button class="btn ghost small" id="cfNo">Cancelar</button>
-        <button class="btn primary small" id="cfYes">Confirmar</button>
+    <!-- HUD -->
+    <div id="hud" hidden>
+      <div class="hud-esq">
+        <div id="hud-eu" class="moldura-fina" title="Você">
+          <canvas id="hud-retrato" width="64" height="64"></canvas>
+          <span id="hud-nome"></span>
+        </div>
+        <div id="objetivo" class="objetivo"><span class="objetivo-rotulo">Objetivo</span><span id="objetivo-texto"></span><span id="objetivo-pistas" class="pistas"></span></div>
+      </div>
+      <div class="hud-botoes">
+        <button id="btn-diario-hud" class="btn-icone" aria-label="Diário de pistas (J)" title="Diário de pistas (J)"><span class="ico ico-diario"></span></button>
+        <button id="btn-camarim-hud" class="btn-icone" aria-label="Camarim (R)" title="Camarim (R)"><span class="ico ico-cabide"></span></button>
+        <button id="btn-mapa-hud" class="btn-icone" aria-label="Mapa (M)" title="Mapa (M)"><span class="ico ico-mapa"></span></button>
+        <button id="btn-som" class="btn-icone" aria-label="Som" title="Som"><span class="ico ico-som"></span></button>
+        <button id="btn-pausa" class="btn-icone" aria-label="Pausa (Esc)" title="Pausa (Esc)"><span class="ico ico-pausa"></span></button>
+      </div>
+      <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="prompt-texto"></span></div>
+      <div id="dicas-teclado" class="dicas-teclado">
+        <span><kbd>WASD</kbd> andar</span><span><kbd>Shift</kbd> correr</span><span><kbd>E</kbd> interagir</span><span><kbd>Q</kbd> acenar</span><span><kbd>J</kbd> pistas</span><span><kbd>R</kbd> camarim</span><span><kbd>M</kbd> mapa</span>
       </div>
     </div>
-  </section>
 
-  <div id="toasts" aria-live="polite"></div>
-  <input type="file" id="fileInput" accept="image/*" hidden>
-  <input type="file" id="fileCapture" accept="image/*" capture="user" hidden>
+    <!-- Controles de toque -->
+    <div id="toque" hidden>
+      <div id="zona-joystick"></div>
+      <div id="joystick" hidden><div id="joystick-pino"></div></div>
+      <button id="btn-interagir" class="btn-toque btn-grande" aria-label="Interagir"><span class="ico ico-balao"></span></button>
+      <button id="btn-correr" class="btn-toque" aria-label="Correr"><span class="ico ico-correr"></span></button>
+      <button id="btn-diario" class="btn-toque" aria-label="Diário"><span class="ico ico-diario"></span></button>
+      <button id="btn-camarim" class="btn-toque" aria-label="Camarim"><span class="ico ico-cabide"></span></button>
+    </div>
 
+    <!-- Diálogo -->
+    <div id="dialogo" class="moldura" hidden>
+      <div class="retrato moldura-fina" id="dlg-retrato-caixa"><canvas id="dlg-retrato" width="64" height="64"></canvas></div>
+      <div class="dialogo-corpo">
+        <div id="dlg-nome" class="placa-nome"></div>
+        <p id="dlg-texto"></p>
+        <div id="dlg-opcoes" class="opcoes"></div>
+      </div>
+      <div class="retrato eu moldura-fina" id="dlg-eu-caixa" hidden><canvas id="dlg-eu" width="64" height="64"></canvas></div>
+      <div class="dialogo-seta" id="dlg-seta" aria-hidden="true"></div>
+    </div>
+
+    <!-- Aviso rápido -->
+    <div id="aviso" class="aviso" hidden></div>
+
+    <!-- Diário de pistas -->
+    <div id="diario" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <button class="fechar" data-fechar aria-label="Fechar">×</button>
+        <h2>Diário de pistas</h2>
+        <p class="nota">Qual é o tema secreto do acampamento? Cada pessoa sabe um pedacinho.</p>
+        <ul id="lista-pistas" class="lista-pistas"></ul>
+        <h3>Achados pela chácara</h3>
+        <ul id="lista-extras" class="lista-pistas extras"></ul>
+        <p class="nota" id="diario-dica"></p>
+      </div>
+    </div>
+
+    <!-- Enigma das lonas -->
+    <div id="enigma" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <button class="fechar" data-fechar aria-label="Fechar">×</button>
+        <h2>As lonas do morro</h2>
+        <p id="enigma-texto"></p>
+        <div id="enigma-caixas" class="caixas-letras" aria-hidden="true"></div>
+        <input id="enigma-entrada" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Digite a palavra de 9 letras">
+        <p id="enigma-retorno" class="retorno" aria-live="polite"></p>
+        <div class="linha-botoes">
+          <button class="btn fraco" data-fechar>Voltar</button>
+          <button class="btn principal" id="enigma-ok">Revelar!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revelação -->
+    <div id="revelacao" hidden>
+      <div class="rev-caixa">
+        <p class="rev-pre">O tema do acampamento é…</p>
+        <h1 class="rev-palavra" id="rev-palavra">HOLLYWOOD</h1>
+        <p class="rev-sub">A chácara virou tapete vermelho! Novas peças da <b>Coleção Calçada da Fama</b> foram liberadas no camarim. ★</p>
+        <button class="btn principal" id="rev-ok">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div id="mapa" class="painel-tela" hidden>
+      <div class="moldura painel largo">
+        <button class="fechar" data-fechar aria-label="Fechar">×</button>
+        <h2>Mapa da chácara</h2>
+        <div class="mapa-caixa"><canvas id="mapa-canvas" width="432" height="484"></canvas><div id="mapa-rotulos"></div></div>
+        <p class="nota">Áreas marcadas com * ainda são provisórias (sem foto de referência).</p>
+      </div>
+    </div>
+
+    <!-- Pausa -->
+    <div id="pausa" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <h2>Pausa</h2>
+        <div class="menu">
+          <button class="btn principal" data-acao="voltar">Continuar</button>
+          <button class="btn" data-acao="camarim">Camarim</button>
+          <button class="btn" data-acao="diario">Diário de pistas</button>
+          <button class="btn" data-acao="mapa">Mapa</button>
+          <button class="btn" data-acao="config">Configurações</button>
+          <button class="btn" data-acao="tela-cheia">Tela cheia</button>
+          <button class="btn fraco" data-acao="menu">Menu principal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurações -->
+    <div id="config" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <button class="fechar" data-fechar aria-label="Fechar">×</button>
+        <h2>Configurações</h2>
+        <div class="config-linha"><span>Zoom da câmera</span><div class="grupo-chips" id="cfg-zoom"></div></div>
+        <div class="config-linha"><span>Som e música</span><button class="chip" id="cfg-som"></button></div>
+        <div class="config-linha"><span>Vibração (celular)</span><button class="chip" id="cfg-vibra"></button></div>
+        <div class="config-linha"><span>Dicas de teclado</span><button class="chip" id="cfg-dicas"></button></div>
+        <div class="linha-botoes">
+          <button class="btn perigo" id="cfg-apagar">Apagar dados salvos</button>
+          <button class="btn principal" data-fechar>Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Créditos -->
+    <div id="creditos" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <button class="fechar" data-fechar aria-label="Fechar">×</button>
+        <h2>Créditos</h2>
+        <div class="texto-longo">
+          <p><b>Estrelas da Chácara</b> — RPG em pixel art.</p>
+          <p>Toda a arte (personagens, roupas, cenário), a música e os sons são gerados por código neste projeto.</p>
+          <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da chácara. Áreas sem foto estão marcadas como provisórias.</p>
+          <p>Fonte Pixelify Sans (SIL Open Font License). Motor e estilo de interface baseados nos jogos do mesmo autor.</p>
+          <p>Os personagens têm nomes de brincadeira e não representam as celebridades reais.</p>
+        </div>
+        <button class="btn principal" data-fechar>Fechar</button>
+      </div>
+    </div>
+
+    <!-- Camarim (criação de personagem) -->
+    <div id="camarim" hidden>
+      <div class="cam-topo">
+        <button class="btn-icone" id="cam-voltar" aria-label="Voltar"><span class="ico ico-voltar"></span></button>
+        <h2 id="cam-titulo">Camarim</h2>
+        <button class="btn principal pequeno" id="cam-pronto">Pronto!</button>
+      </div>
+      <div class="cam-palco">
+        <div class="cam-cortina"></div>
+        <div class="cam-retrato moldura-fina"><canvas id="cam-retrato" width="64" height="64"></canvas></div>
+        <div class="cam-boneco"><canvas id="cam-boneco" width="88" height="44"></canvas></div>
+        <div class="cam-ferramentas">
+          <button class="chip" id="cam-girar">↻ Girar</button>
+          <button class="chip" id="cam-andar">Andar</button>
+          <button class="chip" id="cam-acenar">Acenar</button>
+        </div>
+      </div>
+      <div class="cam-painel moldura">
+        <nav class="abas" id="cam-abas" role="tablist"></nav>
+        <div class="cam-corpo" id="cam-corpo"></div>
+      </div>
+    </div>
+
+    <!-- Câmera / consentimento -->
+    <div id="modal-camera" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <h2>Tirar foto do rosto</h2>
+        <div id="cam-consentimento">
+          <p>A câmera será usada <b>apenas</b> para tirar uma foto do seu rosto e colocá-la no seu personagem.</p>
+          <ul class="privacidade">
+            <li>A foto fica salva só neste aparelho (no navegador).</li>
+            <li>Nada é enviado para a internet.</li>
+            <li>Você pode trocar ou apagar a foto quando quiser.</li>
+          </ul>
+          <p class="nota" id="cam-sem-ao-vivo" hidden>A câmera ao vivo não está disponível aqui. Use a câmera do aparelho: no celular ela abre o app de câmera; no computador, escolha uma foto.</p>
+          <div class="linha-botoes">
+            <button class="btn fraco" data-fechar>Cancelar</button>
+            <button class="btn" id="cam-nativa">Câmera do aparelho</button>
+            <button class="btn principal" id="cam-permitir">Permitir câmera</button>
+          </div>
+        </div>
+        <div id="cam-ao-vivo" hidden>
+          <div class="cam-video"><video id="cam-video" playsinline muted></video><div class="cam-oval"></div></div>
+          <p class="nota">Centralize o rosto no contorno, olhando para a câmera, com boa luz.</p>
+          <div class="linha-botoes">
+            <button class="btn fraco" id="cam-cancelar">Cancelar</button>
+            <button class="btn principal" id="cam-clique">Tirar foto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmação -->
+    <div id="confirmar" class="painel-tela" hidden>
+      <div class="moldura painel">
+        <h2 id="conf-titulo"></h2>
+        <p id="conf-texto"></p>
+        <div class="linha-botoes">
+          <button class="btn fraco" id="conf-nao">Cancelar</button>
+          <button class="btn principal" id="conf-sim">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="arquivo-foto" accept="image/*" hidden>
+    <input type="file" id="arquivo-camera" accept="image/*" capture="user" hidden>
+  </div>
   <noscript>Este jogo precisa de JavaScript ativado.</noscript>
   <script type="module" src="src/main.js"></script>
 </body>

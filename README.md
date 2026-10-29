@@ -1,89 +1,130 @@
-# Estrelas da Chácara — RPG social 3D (primeira versão jogável)
+# Estrelas da Chácara — RPG em pixel art
 
-Jogo web 3D em terceira pessoa ambientado na chácara do acampamento. Você cria um personagem
-com a foto do próprio rosto, escolhe looks de tapete vermelho e explora a chácara conversando
-com personagens divertidos.
+Jogo web em 2D (pixel art, vista de cima) na chácara do acampamento. Você cria o seu personagem
+com **a foto do seu próprio rosto**, monta o look no camarim e explora a chácara conversando com
+todo mundo para descobrir **o tema secreto do acampamento**.
+
+O estilo e o motor seguem os outros jogos do mesmo autor (como *O Maior Amor*): tela em baixa
+resolução ampliada por fator inteiro, fonte Pixelify Sans, molduras pixeladas, música e sons
+sintetizados no navegador e controles de toque.
 
 ## Como rodar
 
-O jogo é feito de arquivos estáticos (HTML + JavaScript). Não precisa instalar nada além de
-um servidor web simples, porque o navegador não carrega módulos JavaScript abrindo o arquivo direto.
+São só arquivos estáticos. Use qualquer servidor web simples (o navegador não carrega módulos
+JavaScript abrindo o arquivo direto):
 
 ```bash
 cd chacara-rpg
 python3 -m http.server 8080
 ```
 
-Depois abra `http://localhost:8080` no Chrome (ou outro navegador moderno).
-Para testar no celular na mesma rede Wi-Fi, use `http://IP-DO-COMPUTADOR:8080`.
+Abra `http://localhost:8080`. No GitHub Pages basta publicar a pasta (raiz do repositório).
 
-> A **câmera** do navegador só funciona em `https://` ou em `localhost`. Em outro endereço
-> sem HTTPS, use a opção **Galeria** (no celular ela também oferece tirar foto).
-
-Para publicar na internet, basta enviar a pasta inteira para qualquer hospedagem de site estático
-(GitHub Pages, Netlify, Vercel, etc.).
+> A **câmera** ao vivo só funciona em `https://` ou em `localhost`. Fora disso use
+> **Escolher da galeria** ou **Câmera do aparelho** (no celular abre o app de câmera).
 
 ## Controles
 
 | Computador | Celular |
 |---|---|
-| **WASD** / setas: andar | Joystick (canto inferior esquerdo) |
-| **Shift**: correr | Botão 🏃 (ou empurrar o joystick até o fim) |
-| **Arrastar o mouse**: girar a câmera | Arrastar o dedo na tela |
-| **Roda do mouse**: zoom | Pinça com dois dedos |
-| **E**: interagir / conversar | Botão 💬 |
-| **R**: guarda-roupa | Botão 👗 |
-| **Esc**: menu | Botão ☰ |
-| **1–4** / setas + Enter: escolher respostas | Tocar na resposta |
+| **WASD** / setas: andar | Joystick (aparece onde o polegar encosta, lado esquerdo) |
+| **Shift**: correr | Botão de correr (ou empurrar o joystick até o fim) |
+| **E** / Espaço / Enter: interagir, avançar diálogo | Botão de balão |
+| **1–9** ou setas + Enter: escolher resposta | Tocar na resposta |
+| **Q**: acenar | — |
+| **J**: diário de pistas | Botão de diário |
+| **R**: camarim | Botão de cabide |
+| **M**: mapa | Pausa → Mapa |
+| **Esc**: pausa | Botão de pausa |
+
+## O seu rosto no jogo
+
+Na aba **Sua foto** do camarim, escolha uma foto ou tire uma na hora (o jogo pede permissão antes
+de abrir a câmera). O jogo encontra olhos e boca, alinha o rosto e o transforma em pixel art:
+
+- **Retrato grande** (64×64) nos diálogos, no camarim e no canto da tela: o rosto da foto com o
+  cabelo, chapéu, óculos, brincos e roupa desenhados por cima.
+- **Boneco** (22×38) andando pelo mapa: o rosto da foto reduzido e realçado.
+- Ajustes de aproximação, posição e brilho, e o botão "usar o tom de pele da foto".
+- Dá para usar a foto só no retrato, nos dois, ou desligar.
+
+**Privacidade:** a foto fica só no aparelho (IndexedDB do navegador), nunca é enviada para a
+internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configurações → Apagar dados).
+
+## Camarim (personalização)
+
+- **Corpo:** feminino/masculino, 3 alturas, 3 portes, 10 tons de pele + qualquer cor.
+- **Rosto:** 4 formatos, 5 tipos de olhos e cor dos olhos, sobrancelhas, nariz, boca, barba/bigode
+  (6), sardas, blush, pinta, cílios, delineado, batom e sombra.
+- **Cabelo:** 18 penteados, qualquer cor e mechas/luzes.
+- **Roupas:** parte de cima, casaco, parte de baixo, vestido/macacão, meias e calçado. Cada peça
+  aceita **qualquer cor** e **14 padrões de tecido** (cetim, veludo, lantejoula, metálico, listras,
+  risca de giz, xadrez, poá, jeans, couro, tricô, oncinha, floral…).
+- **Acessórios:** chapéus, óculos, pescoço (gravatas, colares, estola), brincos, pulso, luvas e item na mão.
+- **Looks prontos** e **nome** (com sorteio de "nomes de estrela").
+- As miniaturas mostram cada peça **em você** (com o seu rosto).
+- Peças e looks **secretos** (Coleção Calçada da Fama) aparecem como `???` até o tema ser descoberto.
+
+## O mistério do tema
+
+1. Quatro personagens têm um **!** sobre a cabeça: cada um conta uma pista quando você pergunta.
+2. Há achados extras pela chácara (a palha perto do murinho azul, o quiosque da piscina, a porta
+   da casa amarela).
+3. No morro ao lado da casa amarela há **nove formas cobertas por lonas**. Com as pistas, vá até lá
+   e digite a palavra.
+4. Acertou: as lonas voam, o letreiro **HOLLYWOOD** aparece com fogos e holofotes, o tapete vermelho
+   surge no gramado, as estrelas da calçada aparecem no pátio, os personagens ganham falas novas e o
+   camarim libera a coleção secreta.
 
 ## Onde editar
 
 | O quê | Arquivo |
 |---|---|
-| **Personagens (NPCs)**: nomes, local, roupa, comportamento e diálogos | `src/npc/npcData.js` |
-| **Mapa**: posições de construções, árvores, caminhos, áreas e objetos | `src/world/mapData.js` |
-| **Guarda-roupa**: roupas, looks prontos, cabelos e cores | `src/character/wardrobe.js` |
+| **Personagens (NPCs)**: nome, local, roupa, comportamento e diálogos | `src/dados/npcs.js` |
+| **Mapa**: posições (em metros) de construções, árvores, caminhos e objetos | `src/dados/mapa.js` |
+| **Camarim**: roupas, cabelos, cores, padrões e looks | `src/dados/guardaroupa.js` |
+| **Palavra secreta**, velocidade, zoom | `src/config.js` |
 
-Para adicionar uma pessoa nova, copie um bloco de `NPCS` em `npcData.js`, troque `id`, `name`,
-`location` e as falas. Nenhum outro arquivo precisa mudar.
+Para adicionar uma pessoa, copie um bloco de `NPCS` em `npcs.js` e troque `id`, `nome`, `local`,
+`aparencia` e as falas.
 
 ## Organização do código
 
 ```
-src/main.js                 inicialização, estados do jogo e laço principal
-src/core/                   renderização/configurações, câmera, entrada, colisões, áudio, jogador
-src/world/                  mapa (dados), terreno, construções, vegetação, texturas procedurais
-src/character/character.js  montagem do personagem (corpo, alfaiataria, lapelas 3D, botões, barras) e animação
-src/character/materials.js  biblioteca PBR: mapas de relevo/rugosidade/cor por tipo de tecido e material (cacheados)
-src/character/hair.js       cabelos montados com mechas, cachos em espiral e coques
-src/character/accessories.js chapéus, óculos, joias, gravatas, sapatos e mãos com geometria própria
-src/character/garments.js   pintura das roupas no tronco + relevo de costuras, pences e lapelas
-src/character/face.js       foto/rosto projetado na cabeça 3D
-src/npc/                    cadastro dos NPCs, gerenciador e motor de diálogos
-src/ui/                     telas: criação, estúdio 3D, diálogo, HUD, configurações
-src/save/storage.js         salvamento (localStorage + IndexedDB para a foto)
-vendor/three/               three.js r185 (MIT), incluído localmente
+src/main.js            inicialização, título, camarim, salvar, configurações, laço principal
+src/jogo.js            mundo, jogador, NPCs, câmera, interações, pistas e a cena da revelação
+src/arte/pixel.js      ferramentas de pixel art (cores, ruído, Pixmap) — as mesmas de O Maior Amor
+src/arte/personagem.js boneco em camadas: corpo, roupas, cabelo, chapéu, óculos, rosto/foto (4 direções)
+src/arte/retrato.js    retrato 64×64 com a foto do jogador ou rosto desenhado
+src/arte/tecido.js     padrões de tecido
+src/arte/cenario.js    pinta o chão da chácara, colisões e a lista de objetos
+src/arte/objetos.js    palmeiras, casa amarela, toboágua, balaustrada, cachoeira, lonas e letras…
+src/rosto/             foto: leitura, detecção aproximada do rosto, câmera e conversão para pixel art
+src/motor/             tela (escala inteira), entrada (teclado/toque), motor de diálogos
+src/audio/             sintetizador (de O Maior Amor) + músicas e efeitos próprios
+src/ui/                interface (HUD, diálogos, diário, enigma, mapa), camarim e controles de toque
+src/salvar.js          salvamento local (localStorage + IndexedDB para a foto)
 ```
+
+Teste rápido: `?debug&pos=piscina` começa o jogo direto num ponto do mapa (`patio`, `lago`,
+`piscina`, `casa`, `cachoeira`, `morro`, `cozinha`, `quadra`, `fogueira`, `alojamento`, `portao`).
 
 ## Versão em arquivo único
 
-`python3 build-artifact.py` (depois de `npm install`) gera `dist/estrelas-da-chacara.html`, com tudo
-embutido (código, estilos e three.js). É a versão publicada como página no claude.ai.
+`npm install && python3 build-artifact.py` gera `dist/estrelas-da-chacara.html`, com tudo
+embutido (código, estilos e fonte).
 
 ## Referências usadas no mapa
 
-- **Analisadas:** fotos de drone DJI_0336, DJI_0337, DJI_0338 e DJI_0339 (pasta "FAZENDA").
-  Mostram: gramado em declive com palmeiras-reais e uma touceira de palmeiras finas, o lago, a casa amarela
-  de telhado escuro na colina, o pátio e a mureta de concreto azul, a piscina com balaústre branco e pilares
-  vermelhos, o toboágua branco/azul, um quiosque de telha e os postes de luz.
-- **Não analisados:** 25 vídeos DJI (DJI_0311 a DJI_0335, de 120 MB a 1,4 GB). O conector do Google Drive
-  só baixa arquivos de até 10 MB.
-- Em `src/world/mapData.js`, cada elemento tem `fonte: 'foto' | 'estimado' | 'provisorio'`.
-  Refeitório, quadra, fogueira, alojamento e portão são **provisórios**; a cachoeira existe (informação do usuário),
-  mas a **posição é provisória**.
+- **Analisadas:** fotos de drone DJI_0336 a DJI_0339 (pasta "FAZENDA"): gramado com palmeiras-reais e
+  uma touceira de palmeiras finas, o lago, a casa amarela na colina, o pátio e o murinho de concreto azul,
+  o monte de palha seca, o terraço da piscina com balaustrada branca e pilares rosados, o toboágua azul,
+  o quiosque de telha e os postes de madeira.
+- **Não analisados:** os vídeos DJI (de 120 MB a 1,4 GB) — o conector do Google Drive só baixa arquivos de até 10 MB.
+- Em `src/dados/mapa.js`, cada elemento tem `fonte: 'foto' | 'estimado' | 'provisorio'`.
+  Refeitório, quadra, fogueira, alojamento, portão e o local das lonas são **provisórios**; a cachoeira
+  existe (informação do usuário), mas a **posição é provisória**. No mapa do jogo essas áreas têm `*`.
 
-## A revelação do tema
+## Versão 3D anterior
 
-O tema do acampamento começa em segredo. Cada um dos 4 personagens dá uma pista quando você pergunta
-sobre o tema. Com as 4 pistas, o letreiro **HOLLYWOOD** sobe na colina ao lado da casa amarela,
-com fogos e holofotes. O progresso fica salvo no aparelho.
+A versão 3D (three.js) continua no histórico do Git, no commit `0fd1e34`.
