@@ -54,3 +54,19 @@ export const ENDERECOS_LEITURA = {
   acessos: `https://abacus.jasoncameron.dev/get/${ESPACO}/acessos`,
   pessoas: `https://abacus.jasoncameron.dev/get/${ESPACO}/pessoas`,
 };
+
+// Envia o NOME do jogador (só o nome) para o Formulário Google do organizador,
+// uma vez por nome em cada aparelho. As respostas ficam na planilha do formulário.
+const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSeCihUJv2HxXsUFlpRNNkiwDaSXlPKDjP3hjLRiTB-cJkZ0Fg/formResponse";
+const CAMPO_NOME = "entry.1125356489";
+const CHAVE_NOME = "chacara.nomeEnviado.v1";
+
+export function enviarNome(nome) {
+  nome = (nome || "").trim();
+  if (!nome || location.protocol === "file:" || /^(localhost|127\.)/.test(location.hostname)) return;
+  try { if (localStorage.getItem(CHAVE_NOME) === nome) return; } catch { /* segue */ }
+  const dados = new URLSearchParams({ [CAMPO_NOME]: nome.slice(0, 60) });
+  fetch(FORM, { method: "POST", mode: "no-cors", body: dados, credentials: "omit", referrerPolicy: "no-referrer" })
+    .then(() => { try { localStorage.setItem(CHAVE_NOME, nome); } catch { /* ok */ } })
+    .catch(() => { /* sem internet: tenta na próxima vez */ });
+}

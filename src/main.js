@@ -11,7 +11,7 @@ import { processarFoto } from "./rosto/rosto.js";
 import { blobToCanvas, canvasToBlob, detectLandmarks } from "./rosto/captura.js";
 import { carregarJogo, salvarJogo, carregarConfig, salvarConfig, salvarFoto, carregarFoto, apagarFoto, apagarTudo } from "./salvar.js";
 import { DEBUG, ALTURAS } from "./config.js";
-import { contarVisita } from "./contador.js";
+import { contarVisita, enviarNome } from "./contador.js";
 
 const espera = () => new Promise((r) => setTimeout(r, 0));
 
@@ -166,6 +166,7 @@ class App {
     this.salvar();
     this.salvo = carregarJogo();
     this.verificarOrientacao();
+    enviarNome(this.ap.nome);
     if (!this.jogo.estado.flags.has("intro_vista")) {
       this.jogo.estado.flags.add("intro_vista");
       this.ui.esconderHud(true);

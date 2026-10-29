@@ -553,6 +553,10 @@ export class Camarim {
     i.placeholder = "Seu nome";
     i.oninput = () => { this.ap.nome = i.value; };
     s.append(i);
+    const av = document.createElement("p");
+    av.className = "aviso-foto";
+    av.textContent = "O nome que você escolher é enviado ao organizador do acampamento, só para saber quem jogou. A foto nunca sai do aparelho.";
+    s.append(av);
     const b = document.createElement("button");
     b.className = "btn";
     b.style.marginTop = "8px";
