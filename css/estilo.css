@@ -354,3 +354,7 @@ input[type="color"] { width: 34px; height: 30px; border: 2px solid #4a3a6a; padd
 /* jogo desenhado deitado com o celular em pé */
 body.girado #app { width: 100vh; height: 100vw; inset: auto; left: 0; top: 0; transform-origin: top left; transform: rotate(90deg) translateY(-100%); }
 @supports (height: 100dvh) { body.girado #app { width: 100dvh; } }
+.cam-nome-topo { display: flex; align-items: center; gap: 6px; color: var(--ouro); font-size: 15px; white-space: nowrap; }
+.cam-nome-topo input { width: min(220px, 40vw); font-size: 17px; padding: 5px 8px; background: #0c0716; color: #fff6dc; border: 3px solid var(--ouro); }
+.cam-nome-topo input.falta { animation: tremer 0.4s; border-color: #ff6a6a; }
+@media (max-width: 640px) { .cam-topo { flex-wrap: wrap; } .cam-topo h2 { font-size: 17px; } .cam-nome-topo { order: 5; width: 100%; } .cam-nome-topo input { flex: 1; width: auto; } }

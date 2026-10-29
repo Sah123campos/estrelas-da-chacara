@@ -38,6 +38,7 @@ export class Camarim {
     this.cacheMini = new Map();
     $("cam-voltar").onclick = () => this.voltar();
     $("cam-pronto").onclick = () => this.pronto();
+    $("cam-nome").addEventListener("input", (e) => { this.ap.nome = e.target.value; e.target.classList.remove("falta"); });
     $("cam-girar").onclick = () => { this.giro = !this.giro; this.botoes(); };
     $("cam-andar").onclick = () => { this.anim = this.anim === "andar" ? "parado" : "andar"; this.botoes(); };
     $("cam-acenar").onclick = () => { this.anim = this.anim === "acenar" ? "parado" : "acenar"; this.botoes(); };
@@ -65,6 +66,8 @@ export class Camarim {
     $("cam-titulo").textContent = modo === "novo" ? "Crie seu personagem" : "Camarim";
     $("cam-pronto").textContent = modo === "novo" ? "Começar!" : "Pronto!";
     $("camarim").hidden = false;
+    $("cam-nome").value = this.ap.nome || "";
+    if (modo === "novo" && !this.ap.nome) setTimeout(() => $("cam-nome").focus(), 300);
     this.cacheMini.clear();
     this.atualizarPersonagem();
     this.desenharAbas();
@@ -95,8 +98,11 @@ export class Camarim {
 
   pronto() {
     if (!this.ap.nome?.trim()) {
-      this.ap.nome = NOMES_ESTRELA[Math.floor(Math.random() * NOMES_ESTRELA.length)];
-      this.app.ui.aviso(`Você ganhou um nome de estrela: <b>${this.ap.nome}</b> (dá para trocar na aba Nome).`, 3600);
+      const n = $("cam-nome");
+      n.classList.remove("falta"); void n.offsetWidth; n.classList.add("falta");
+      n.focus();
+      this.app.ui.aviso("✍️ <b>Digite o seu nome</b> lá em cima antes de começar!", 2600);
+      return;
     }
     this.app.audio.sfx("escolha");
     this.fechar();
@@ -551,7 +557,7 @@ export class Camarim {
     i.maxLength = 22;
     i.value = this.ap.nome || "";
     i.placeholder = "Seu nome";
-    i.oninput = () => { this.ap.nome = i.value; };
+    i.oninput = () => { this.ap.nome = i.value; $("cam-nome").value = i.value; };
     s.append(i);
     const av = document.createElement("p");
     av.className = "aviso-foto";
@@ -561,7 +567,7 @@ export class Camarim {
     b.className = "btn";
     b.style.marginTop = "8px";
     b.textContent = "★ Sortear um nome de estrela";
-    b.onclick = () => { this.ap.nome = NOMES_ESTRELA[Math.floor(Math.random() * NOMES_ESTRELA.length)]; i.value = this.ap.nome; };
+    b.onclick = () => { this.ap.nome = NOMES_ESTRELA[Math.floor(Math.random() * NOMES_ESTRELA.length)]; i.value = this.ap.nome; $("cam-nome").value = this.ap.nome; };
     s.append(b);
     if (this.modo !== "novo") {
       const s2 = this.secao(box, "Recomeçar o visual");
