@@ -56,17 +56,20 @@ export const ENDERECOS_LEITURA = {
 };
 
 // Envia o NOME do jogador (só o nome) para o Formulário Google do organizador,
-// uma vez por nome em cada aparelho. As respostas ficam na planilha do formulário.
+// toda vez que a pessoa entra para jogar (cada envio = uma linha com data e hora na planilha).
+// Para não contar duas vezes uma recarga rápida, espera 5 minutos entre envios do mesmo nome.
 const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSeCihUJv2HxXsUFlpRNNkiwDaSXlPKDjP3hjLRiTB-cJkZ0Fg/formResponse";
 const CAMPO_NOME = "entry.1125356489";
-const CHAVE_NOME = "chacara.nomeEnviado.v1";
+const CHAVE_NOME = "chacara.nomeEnviado.v2";
 
 export function enviarNome(nome) {
   nome = (nome || "").trim();
   if (!nome || location.protocol === "file:" || /^(localhost|127\.)/.test(location.hostname)) return;
-  try { if (localStorage.getItem(CHAVE_NOME) === nome) return; } catch { /* segue */ }
+  let ultimo = {};
+  try { ultimo = JSON.parse(localStorage.getItem(CHAVE_NOME) || "{}"); } catch { /* segue */ }
+  if (ultimo.nome === nome && Date.now() - (ultimo.em || 0) < 5 * 60 * 1000) return;
   const dados = new URLSearchParams({ [CAMPO_NOME]: nome.slice(0, 60) });
   fetch(FORM, { method: "POST", mode: "no-cors", body: dados, credentials: "omit", referrerPolicy: "no-referrer" })
-    .then(() => { try { localStorage.setItem(CHAVE_NOME, nome); } catch { /* ok */ } })
+    .then(() => { try { localStorage.setItem(CHAVE_NOME, JSON.stringify({ nome, em: Date.now() })); } catch { /* ok */ } })
     .catch(() => { /* sem internet: tenta na próxima vez */ });
 }
