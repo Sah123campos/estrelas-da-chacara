@@ -2,6 +2,12 @@
 // esquerdo) e botões grandes à direita. Suporta vários dedos ao mesmo tempo.
 const $ = (id) => document.getElementById(id);
 
+// Converte a posição do dedo para as coordenadas do jogo (que pode estar girado 90°).
+function ponto(e) {
+  if (document.body.classList.contains("girado")) return { x: e.clientY, y: window.innerWidth - e.clientX };
+  return { x: e.clientX, y: e.clientY };
+}
+
 export class ControlesToque {
   constructor(jogo) {
     this.jogo = jogo;
@@ -70,9 +76,10 @@ export class ControlesToque {
     if (this.ponteiro !== null) return;
     e.preventDefault();
     this.ponteiro = e.pointerId;
-    this.centro = { x: e.clientX, y: e.clientY };
-    this.base.style.left = `${e.clientX}px`;
-    this.base.style.top = `${e.clientY}px`;
+    const pt = ponto(e);
+    this.centro = { x: pt.x, y: pt.y };
+    this.base.style.left = `${pt.x}px`;
+    this.base.style.top = `${pt.y}px`;
     this.base.hidden = false;
     this.pino.style.transform = "translate(0,0)";
     try {
@@ -85,8 +92,9 @@ export class ControlesToque {
   mover(e) {
     if (e.pointerId !== this.ponteiro) return;
     e.preventDefault();
-    let dx = e.clientX - this.centro.x;
-    let dy = e.clientY - this.centro.y;
+    const pt = ponto(e);
+    let dx = pt.x - this.centro.x;
+    let dy = pt.y - this.centro.y;
     const d = Math.hypot(dx, dy);
     // Se o dedo vai longe, a base acompanha (joystick "flutuante").
     if (d > this.raio * 1.6) {
@@ -95,8 +103,8 @@ export class ControlesToque {
       this.centro.y += (dy / d) * excesso;
       this.base.style.left = `${this.centro.x}px`;
       this.base.style.top = `${this.centro.y}px`;
-      dx = e.clientX - this.centro.x;
-      dy = e.clientY - this.centro.y;
+      dx = pt.x - this.centro.x;
+      dy = pt.y - this.centro.y;
     }
     const lim = Math.min(1, this.raio / Math.max(1, Math.hypot(dx, dy)));
     this.pino.style.transform = `translate(${dx * lim}px, ${dy * lim}px)`;

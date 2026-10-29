@@ -39,14 +39,12 @@ Abra `http://localhost:8080`. No GitHub Pages basta publicar a pasta (raiz do re
 
 ## Celular: tela cheia e deitado
 
-- **Android:** ao começar a jogar, o jogo entra em tela cheia e trava a tela deitada sozinho.
-  Se o celular estiver em pé, aparece o aviso "Gire o celular" com o botão **Tela cheia e deitar**.
-- **iPhone:** o Safari não deixa nenhum site entrar em tela cheia nem travar a rotação. O aviso explica:
-  1. desligar o cadeado de rotação na Central de Controle;
-  2. girar o iPhone;
-  3. para tela cheia: Compartilhar → **Adicionar à Tela de Início** e abrir pelo ícone (abre sem as barras
-     do Safari, como um aplicativo).
-- Dá para tocar em "Jogar em pé mesmo". O camarim e o menu funcionam em pé normalmente.
+- Se o celular estiver **em pé** durante o jogo, o jogo passa a ser desenhado **deitado** (girado 90°):
+  é só virar o celular de lado. Funciona em qualquer celular, mesmo com a rotação automática travada,
+  e também no iPhone. O menu e o camarim continuam em pé. Dá para desligar em Configurações.
+- **Android:** ao começar, o jogo também tenta entrar em tela cheia e travar a tela deitada.
+- **iPhone:** o Safari não deixa sites entrarem em tela cheia. Para jogar sem as barras do Safari:
+  Compartilhar → **Adicionar à Tela de Início** e abrir pelo ícone "Estrelas".
 
 ## O seu rosto no jogo
 

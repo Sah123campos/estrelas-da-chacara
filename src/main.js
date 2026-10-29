@@ -113,7 +113,7 @@ class App {
     $("toque").hidden = true;
     $("dialogo").hidden = true;
     $("titulo").hidden = false;
-    $("girar").hidden = true;
+    this.verificarOrientacao();
     $("btn-continuar").hidden = !this.salvo?.ap;
     this.atualizarTitulo();
     this.audio.tocar("titulo");
@@ -214,6 +214,7 @@ class App {
     const voltar = j.modo === "dialogo" ? "explorar" : "explorar";
     j.modo = "camarim";
     $("hud").hidden = true;
+    this.verificarOrientacao();
     $("toque").hidden = true;
     this.audio.tocar("camarim");
     this.camarim.abrir(modo, this.ap, {
@@ -250,6 +251,7 @@ class App {
   // ---------- configurações ----------
   ligarConfig() {
     $("cfg-som").onclick = () => this.alternarSom();
+    $("cfg-girar").onclick = () => { this.config.girar = this.config.girar === false; this.gravarConfig(); this.verificarOrientacao(); };
     $("cfg-vibra").onclick = () => { this.config.vibracao = !this.config.vibracao; this.gravarConfig(); };
     $("cfg-dicas").onclick = () => { this.config.dicas = !this.config.dicas; document.body.classList.toggle("sem-dicas", !this.config.dicas); this.gravarConfig(); };
     $("cfg-apagar").onclick = () => this.ui.confirmar("Apagar tudo", "Apagar o progresso, o visual e a foto salvos neste aparelho? Não dá para desfazer.", async () => {
@@ -276,6 +278,7 @@ class App {
       z.append(b);
     }
     const lig = (el, v) => { el.textContent = v ? "Ligado" : "Desligado"; el.classList.toggle("ativo", v); };
+    lig($("cfg-girar"), this.config.girar !== false);
     lig($("cfg-som"), this.config.som);
     lig($("cfg-vibra"), this.config.vibracao);
     lig($("cfg-dicas"), this.config.dicas);
@@ -326,13 +329,25 @@ class App {
     if (iphone && instalado) $("girar-ios").querySelector("li:last-child").hidden = true;
   }
 
-  // Mostra o aviso "gire o celular" enquanto joga em pé (o camarim e o menu funcionam em pé).
+  // Celular em pé durante o jogo: o jogo passa a ser desenhado deitado (girado 90°),
+  // então é só virar o celular — funciona mesmo com a rotação automática travada e no iPhone.
+  // O menu e o camarim continuam em pé.
   verificarOrientacao() {
     const emPe = window.innerHeight > window.innerWidth;
-    const jogando = !$("hud").hidden || this.jogo?.modo === "cena";
-    const mostrar = this.ehCelular() && emPe && jogando && !this.jogarEmPe;
-    $("girar").hidden = !mostrar;
-    if (this.jogo && mostrar && this.jogo.modo === "explorar") this.entrada.limpar();
+    const jogando = !$("hud").hidden || this.jogo?.modo === "cena" || this.jogo?.modo === "toboagua";
+    const girar = this.ehCelular() && emPe && jogando && this.config.girar !== false;
+    const estava = document.body.classList.contains("girado");
+    $("girar").hidden = true;
+    if (girar !== estava) {
+      document.body.classList.toggle("girado", girar);
+      this.toque?.soltar?.();
+      this.tela.ajustar();
+      if (girar && !this.avisouGiro) {
+        this.avisouGiro = true;
+        this.ui.aviso("📱↻ <b>Vire o celular de lado</b> para jogar deitado.", 3500);
+        if (/iP(hone|od)/.test(navigator.userAgent) && !navigator.standalone) setTimeout(() => this.ui.aviso("iPhone: para tela cheia, toque em Compartilhar → <b>Adicionar à Tela de Início</b> e abra pelo ícone.", 5000), 3700);
+      }
+    }
   }
 
   telaCheia() {

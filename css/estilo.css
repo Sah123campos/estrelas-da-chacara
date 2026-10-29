@@ -350,3 +350,7 @@ input[type="color"] { width: 34px; height: 30px; border: 2px solid #4a3a6a; padd
 .girar-ios { text-align: left; } .girar-ios ol { padding-left: 20px; margin: 6px 0 10px; line-height: 1.4; } .girar-ios li { margin-bottom: 5px; }
 #girar .girar-caixa { max-height: 94vh; overflow: auto; }
 #girar { z-index: 45; }
+
+/* jogo desenhado deitado com o celular em pé */
+body.girado #app { width: 100vh; height: 100vw; inset: auto; left: 0; top: 0; transform-origin: top left; transform: rotate(90deg) translateY(-100%); }
+@supports (height: 100dvh) { body.girado #app { width: 100dvh; } }
