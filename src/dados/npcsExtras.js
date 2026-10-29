@@ -148,7 +148,7 @@ export const EXTRAS = [
   }),
   npc({
     id: "almerao", nome: "Almerão Smith", local: { x: 4, z: 14 }, comp: { tipo: "patrulha", pontos: [[4, 14], [12, 2], [6, -12], [-8, -6], [-4, 16]] },
-    ap: { genero: "m", porte: 2, pele: "#9a6440", cabelo: "cacheado", corCabelo: "#141010", barba: "bigode", oculos: "aviador", boca: "canto", cima: "camiseta_preta", baixo: "jeans", calcado: "tenis", mao: "camera" },
+    ap: { genero: "m", porte: 2, pele: "#9a6440", cabelo: "cacheado", corCabelo: "#141010", barba: "nenhuma", oculos: "aviador", boca: "canto", cima: "camiseta_preta", baixo: "jeans", calcado: "tenis", mao: "camera" },
     falas: ["Gravando! Sorria que você tá no vídeo do acampamento!", "Essa luz da tarde tá perfeita pra gravação. Fica parado aí… isso!"],
     opcoes: [
       { label: "Canta uma música!", texto: "♪ Salte da cama, salte dessa cama, salte da camaaaa! ♪", depois: { label: "Canta outra!", texto: "♪ BORA ACORDARRR! ♪", fim: "Hahaha, acordei!" } },
