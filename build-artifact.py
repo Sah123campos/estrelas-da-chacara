@@ -8,6 +8,9 @@ head = re.search(r'<head>(.*?)</head>', s, re.S).group(1)
 body = re.search(r'<body>(.*?)</body>', s, re.S).group(1)
 title = re.search(r'<title>.*?</title>', head).group(0)
 fonts = re.search(r'<link href="https://fonts.googleapis.com[^>]*>', head).group(0)
+import base64
+svg = open('favicon.svg', 'rb').read()
+fonts = '<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,' + base64.b64encode(svg).decode() + '">\n' + fonts
 css = open('css/style.css', encoding='utf-8').read()
 js = open('dist/bundle.js', encoding='utf-8').read().replace('</script', '<\\/script')
 body = re.sub(r'\s*<script type="module" src="src/main.js"></script>', '', body)

@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { fabric } from '../world/textures.js';
 import { quality } from '../core/settings.js';
+import { kindMaps, kindTile } from './materials.js';
 
 export const TORSO_W = 1024, TORSO_H = 512;
 const CX = TORSO_W / 2;
@@ -223,6 +224,23 @@ export function paintTop(ctx, spec, skin) {
   }
 }
 
+// Bordas da lapela em coordenadas do canvas do tronco (usadas na pintura e na lapela 3D).
+export function lapelEdges(side, style, vBottom) {
+  const topX = CX + side * 70, botX = CX, botY = vBottom;
+  const inner = [], outer = [];
+  const N = 20;
+  for (let i = 0; i <= N; i++) { const t = i / N; inner.push([topX + (botX - topX) * t, botY * t]); }
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    let w = 70 * Math.pow(1 - t, 0.7) + 6, dy = 0;
+    if (style === 'notch' && t > 0.3 && t < 0.4) w *= 0.55;
+    if (style === 'peak' && t > 0.25 && t < 0.4) { w *= 1.35; dy = -(0.4 - t) * 60; }
+    if (style === 'shawl') w = 62 * Math.pow(1 - t, 0.9) + 6;
+    outer.push([inner[i][0] + side * w, inner[i][1] + dy]);
+  }
+  return { inner, outer };
+}
+
 function lapelPath(ctx, side, style, vBottom) {
   // side: -1 esquerda da imagem, 1 direita
   const topX = CX + side * 70, botX = CX, botY = vBottom;
@@ -271,7 +289,7 @@ export function paintJacket(ctx, jacket, topSpec, skin, length) {
     }
     return;
   }
-  const vBottom = length === 'waist' ? 300 : 360;
+  const vBottom = JACKET_VBOTTOM[length] || 360;
   // abertura em V: pinta a peça de baixo
   ctx.save();
   ctx.beginPath(); ctx.moveTo(CX - 72, 0); ctx.lineTo(CX + 72, 0); ctx.lineTo(CX, vBottom); ctx.closePath(); ctx.clip();
@@ -300,19 +318,146 @@ export function paintJacket(ctx, jacket, topSpec, skin, length) {
     ctx.restore();
   }
   // botões
-  const btn = new THREE.Color(jacket.lapelSatin ? '#111' : jacket.color).multiplyScalar(0.7).getStyle();
-  ctx.fillStyle = btn;
-  for (const y of [vBottom + 30, vBottom + 100]) { if (y < TORSO_H - 10) { ctx.beginPath(); ctx.arc(CX + 6, y, 9, 0, Math.PI * 2); ctx.fill(); } }
-  // lenço de bolso
-  ctx.fillStyle = '#f7f5ef';
-  ctx.beginPath(); ctx.moveTo(CX + 150, 175); ctx.lineTo(CX + 165, 150); ctx.lineTo(CX + 180, 165); ctx.lineTo(CX + 195, 148); ctx.lineTo(CX + 205, 175); ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(CX + 140, 175); ctx.lineTo(CX + 215, 175); ctx.stroke();
+  // bolso do peito (o lenço é 3D)
+  ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(CX + 140, 176); ctx.lineTo(CX + 215, 172); ctx.stroke();
   // linha central abaixo do V
   ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(CX, vBottom); ctx.lineTo(CX - 4, TORSO_H); ctx.stroke();
 }
 
+export const JACKET_VBOTTOM = { waist: 300, hip: 360, knee: 360 };
+export function jacketButtons(jacket) {
+  if (!jacket || jacket.lapel === 'none') return [];
+  const vb = JACKET_VBOTTOM[jacket.length] || 360;
+  return [vb + 30, vb + 100].filter(y => y < TORSO_H - 10).map(y => [CX + 6, y]);
+}
+
 export function newTorsoCanvas() {
   const c = document.createElement('canvas'); c.width = TORSO_W; c.height = TORSO_H;
   return c;
+}
+
+
+// ---------- relevo do tronco (costuras, pences, lapelas, trama) ----------
+
+const tileCanvasCache = new Map();
+function tileCanvas(kind, which) {
+  const key = kind + which;
+  if (tileCanvasCache.has(key)) return tileCanvasCache.get(key);
+  const m = kindMaps(kind), N = m.N, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d', { willReadFrequently: true }), img = x.createImageData(N, N), src = which === 'h' ? m.h : m.alb;
+  for (let i = 0; i < N * N; i++) {
+    const v = which === 'h' ? src[i] * 255 : Math.min(255, Math.max(0, (src[i] - 0.5) * 255 + 0));
+    img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v; img.data[i * 4 + 3] = 255;
+  }
+  x.putImageData(img, 0, 0);
+  tileCanvasCache.set(key, c);
+  return c;
+}
+const TORSO_CIRC = 0.98, TORSO_HM = 0.495;
+function tilePattern(ctx, kind, which, W, H) {
+  const c = tileCanvas(kind, which), tilePx = kindTile(kind) / TORSO_CIRC * W;
+  const pat = ctx.createPattern(c, 'repeat');
+  pat.setTransform?.(new DOMMatrix().scaleSelf(tilePx / c.width, (kindTile(kind) / TORSO_HM * H) / c.height));
+  return pat;
+}
+
+// Fibra/trama multiplicada sobre a cor pintada (mesma escala das mangas e calças).
+export function weaveColor(ctx, kind) {
+  const W = ctx.canvas.width, H = ctx.canvas.height;
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = tilePattern(ctx, kind, 'a', W, H);
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+// Gera mapas normal + rugosidade do tronco. `res` = 1 (1024x512) ou 0.5.
+export function torsoRelief({ kind, jacket, top, skinNeck, res = 1, roughBase = 0.78, lapelRough = 0.3 }) {
+  const W = Math.round(TORSO_W * res), H = Math.round(TORSO_H * res), k = res;
+  const hc = document.createElement('canvas'); hc.width = W; hc.height = H;
+  const h = hc.getContext('2d', { willReadFrequently: true });
+  h.fillStyle = 'rgb(128,128,128)'; h.fillRect(0, 0, W, H);
+  // trama
+  h.save(); h.globalAlpha = 0.5; h.fillStyle = tilePattern(h, kind, 'h', W, H); h.fillRect(0, 0, W, H); h.restore();
+  h.save(); h.scale(k, k);
+  const groove = (pts, width = 3, dark = 70, light = 170) => {
+    h.lineCap = 'round'; h.lineJoin = 'round';
+    h.strokeStyle = `rgb(${light},${light},${light})`; h.lineWidth = width * 2.2; h.globalAlpha = 0.5;
+    h.beginPath(); pts.forEach(([x, y], i) => i ? h.lineTo(x, y) : h.moveTo(x, y)); h.stroke();
+    h.strokeStyle = `rgb(${dark},${dark},${dark})`; h.lineWidth = width; h.globalAlpha = 0.9;
+    h.beginPath(); pts.forEach(([x, y], i) => i ? h.lineTo(x, y) : h.moveTo(x, y)); h.stroke();
+    h.globalAlpha = 1;
+  };
+  // costuras laterais e das costas
+  for (const sx of [TORSO_W * 0.25, TORSO_W * 0.75]) groove([[sx, 0], [sx, TORSO_H]]);
+  groove([[2, 0], [2, TORSO_H]], 2); groove([[TORSO_W - 2, 0], [TORSO_W - 2, TORSO_H]], 2);
+  // pesponto (linha tracejada ao lado da costura)
+  h.setLineDash([6, 5]);
+  for (const sx of [TORSO_W * 0.25 + 7, TORSO_W * 0.75 - 7]) groove([[sx, 0], [sx, TORSO_H]], 1.2, 95, 150);
+  h.setLineDash([]);
+  if (jacket && jacket.lapel !== 'none') {
+    const vb = JACKET_VBOTTOM[jacket.length] || 360;
+    // pences frontais (alfaiataria)
+    for (const s of [-1, 1]) groove([[CX + s * 160, 230], [CX + s * 150, 380], [CX + s * 156, TORSO_H]], 2.2);
+    // costura de encaixe da lapela e bolso do peito
+    for (const s of [-1, 1]) { const { outer } = lapelEdges(s, jacket.lapel, vb); groove(outer, 2.4); }
+    groove([[CX + 140, 176], [CX + 215, 172]], 3);
+    // casa de botão na lapela
+    groove([[CX + 95, 70], [CX + 115, 66]], 2);
+  } else if (jacket) {
+    groove([[CX, 0], [CX, TORSO_H]], 4, 60, 190);           // zíper
+    h.fillStyle = 'rgb(100,100,100)'; h.fillRect(0, TORSO_H - 60, TORSO_W, 4);
+  } else if (top && top.neck === 'collar') {
+    groove([[CX - 10, 20], [CX - 10, TORSO_H]], 2); groove([[CX + 10, 20], [CX + 10, TORSO_H]], 2);
+  }
+  // dobras na cintura e sob os braços (onde o tecido se acumula)
+  h.globalAlpha = 0.35;
+  for (const base of [TORSO_W * 0.25, TORSO_W * 0.75]) {
+    for (let i = 0; i < 4; i++) {
+      const y = TORSO_H * (0.78 + i * 0.05), dx = 40 + i * 10;
+      groove([[base - dx, y + 10], [base, y - 6], [base + dx, y + 10]], 5, 95, 165);
+    }
+    for (let i = 0; i < 3; i++) groove([[base - 30, 18 + i * 22], [base, 36 + i * 22], [base + 30, 18 + i * 22]], 4, 100, 160);
+  }
+  h.globalAlpha = 1;
+  // pele do decote: lisa
+  if (skinNeck) { paintNecklineMask(h, skinNeck); }
+  h.restore();
+  const img = h.getImageData(0, 0, W, H);
+  // altura (não-repetível nas bordas verticais é aceitável: as bordas são costuras)
+  const hf = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) hf[i] = img.data[i * 4] / 255;
+  const nrm = heightToNormalRect(hf, W, H, 5 * k + 2);
+  const nc = document.createElement('canvas'); nc.width = W; nc.height = H;
+  nc.getContext('2d').putImageData(new ImageData(nrm, W, H), 0, 0);
+  // rugosidade
+  const rc = document.createElement('canvas'); rc.width = W / 4; rc.height = H / 4;
+  const r = rc.getContext('2d');
+  const g = Math.round(roughBase * 255);
+  r.fillStyle = `rgb(${g},${g},${g})`; r.fillRect(0, 0, rc.width, rc.height);
+  r.save(); r.scale(rc.width / TORSO_W, rc.height / TORSO_H);
+  if (jacket && jacket.lapel !== 'none') {
+    const vb = JACKET_VBOTTOM[jacket.length] || 360, lg = Math.round(lapelRough * 255);
+    for (const s of [-1, 1]) { r.fillStyle = `rgb(${lg},${lg},${lg})`; lapelPath(r, s, jacket.lapel, vb); r.fill(); }
+  }
+  if (skinNeck) { const sg = Math.round(0.55 * 255); paintNeckline(r, skinNeck, `rgb(${sg},${sg},${sg})`); }
+  r.restore();
+  const toTex = (c, srgb = false) => { const t = new THREE.CanvasTexture(c); t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.anisotropy = 8; t.wrapS = THREE.RepeatWrapping; return t; };
+  return { normal: toTex(nc), rough: toTex(rc) };
+}
+
+function paintNecklineMask(ctx, neck) { paintNeckline(ctx, neck, 'rgb(128,128,128)'); }
+
+function heightToNormalRect(h, W, H, strength) {
+  const out = new Uint8ClampedArray(W * H * 4);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const xm = (x - 1 + W) % W, xp = (x + 1) % W, ym = Math.max(0, y - 1), yp = Math.min(H - 1, y + 1);
+    const dx = (h[y * W + xp] - h[y * W + xm]) * strength, dy = (h[yp * W + x] - h[ym * W + x]) * strength;
+    let nx = -dx, ny = dy, nz = 1; const l = Math.hypot(nx, ny, nz);
+    const i = (y * W + x) * 4;
+    out[i] = (nx / l * 0.5 + 0.5) * 255; out[i + 1] = (ny / l * 0.5 + 0.5) * 255; out[i + 2] = (nz / l * 0.5 + 0.5) * 255; out[i + 3] = 255;
+  }
+  return out;
 }

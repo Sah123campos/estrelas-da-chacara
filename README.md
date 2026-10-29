@@ -53,7 +53,12 @@ Para adicionar uma pessoa nova, copie um bloco de `NPCS` em `npcData.js`, troque
 src/main.js                 inicialização, estados do jogo e laço principal
 src/core/                   renderização/configurações, câmera, entrada, colisões, áudio, jogador
 src/world/                  mapa (dados), terreno, construções, vegetação, texturas procedurais
-src/character/              personagem 3D, roupas, cabelo, rosto/foto, guarda-roupa
+src/character/character.js  montagem do personagem (corpo, alfaiataria, lapelas 3D, botões, barras) e animação
+src/character/materials.js  biblioteca PBR: mapas de relevo/rugosidade/cor por tipo de tecido e material (cacheados)
+src/character/hair.js       cabelos montados com mechas, cachos em espiral e coques
+src/character/accessories.js chapéus, óculos, joias, gravatas, sapatos e mãos com geometria própria
+src/character/garments.js   pintura das roupas no tronco + relevo de costuras, pences e lapelas
+src/character/face.js       foto/rosto projetado na cabeça 3D
 src/npc/                    cadastro dos NPCs, gerenciador e motor de diálogos
 src/ui/                     telas: criação, estúdio 3D, diálogo, HUD, configurações
 src/save/storage.js         salvamento (localStorage + IndexedDB para a foto)
@@ -76,3 +81,9 @@ embutido (código, estilos e three.js). É a versão publicada como página no c
 - Em `src/world/mapData.js`, cada elemento tem `fonte: 'foto' | 'estimado' | 'provisorio'`.
   Refeitório, quadra, fogueira, alojamento e portão são **provisórios**; a cachoeira existe (informação do usuário),
   mas a **posição é provisória**.
+
+## A revelação do tema
+
+O tema do acampamento começa em segredo. Cada um dos 4 personagens dá uma pista quando você pergunta
+sobre o tema. Com as 4 pistas, o letreiro **HOLLYWOOD** sobe na colina ao lado da casa amarela,
+com fogos e holofotes. O progresso fica salvo no aparelho.

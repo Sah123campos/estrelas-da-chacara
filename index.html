@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#0d0f17">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Estrelas da Chácara</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
@@ -30,7 +33,7 @@
   <section id="menu" class="screen">
     <div class="menu-panel">
       <div class="logo big"><span class="star">✦</span> Estrelas <em>da</em> Chácara</div>
-      <p class="tagline">Um RPG social no acampamento — com tapete vermelho no meio do mato.</p>
+      <p class="tagline" id="tagline">Um RPG social no acampamento. Converse com todo mundo e descubra o tema secreto.</p>
       <nav class="menu-buttons">
         <button data-act="continue" id="btnContinue" class="btn primary">Continuar</button>
         <button data-act="new" class="btn" id="btnNew">Novo jogo</button>
@@ -65,7 +68,7 @@
   <!-- HUD de exploração -->
   <section id="hud" class="layer">
     <div class="hud-top">
-      <div class="zone" id="zoneName"></div>
+      <div class="hud-left"><div class="zone" id="zoneName"></div><div class="clues" id="clues" hidden></div></div>
       <div class="hud-buttons">
         <button class="icon-btn" id="hudWardrobe" title="Guarda-roupa (R)" aria-label="Guarda-roupa">👗</button>
         <button class="icon-btn" id="hudFull" title="Tela cheia" aria-label="Tela cheia">⛶</button>
@@ -83,6 +86,15 @@
       </div>
     </div>
     <p class="help-desktop" id="helpDesktop">WASD mover · Shift correr · arraste o mouse para girar a câmera · E interagir · R guarda-roupa · Esc menu</p>
+  </section>
+
+  <!-- Revelação do tema -->
+  <section id="reveal" class="layer" aria-live="assertive">
+    <div class="reveal-box">
+      <p class="reveal-pre">O tema do acampamento é…</p>
+      <h1 class="reveal-word">HOLLYWOOD</h1>
+      <p class="reveal-sub">Prepare o seu melhor look: a chácara virou tapete vermelho! ★</p>
+    </div>
   </section>
 
   <!-- Diálogo -->

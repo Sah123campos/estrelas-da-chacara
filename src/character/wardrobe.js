@@ -47,7 +47,7 @@ export const TOPS = [
   { id: 'regata', name: 'Regata canelada', color: '#f1ece2', neck: 'scoop', sleeves: 'none', tags: ['camisetas', 'casual'], g: 'u' },
   { id: 'havaiana', name: 'Camisa havaiana', color: '#0f6e8c', pattern: 'floral', neck: 'collar', sleeves: 'short', tags: ['tema', 'casual'], g: 'u' },
   { id: 'xadrez', name: 'Camisa xadrez caipira', color: '#b22222', pattern: 'plaid', patternColor: '#1f2a44', neck: 'collar', sleeves: 'long', tags: ['tema', 'casual'], g: 'u' },
-  { id: 'polo', name: 'Polo de clube', color: '#2a4d3a', neck: 'collar', sleeves: 'short', tags: ['casual'], g: 'u' },
+  { id: 'polo', name: 'Polo de clube', color: '#2a4d3a', fabric: 'jersey', neck: 'collar', sleeves: 'short', tags: ['casual'], g: 'u' },
 ];
 
 export const OUTERS = [
@@ -58,7 +58,7 @@ export const OUTERS = [
   { id: 'smoking_azul', name: 'Smoking azul-meia-noite', color: '#131b36', pattern: 'velvet', lapel: 'peak', lapelColor: '#0a0f20', lapelSatin: true, length: 'hip', tags: ['smoking', 'gala'], g: 'u' },
   { id: 'terno_cinza', name: 'Terno risca de giz', color: '#3b3f46', pattern: 'pinstripe', patternColor: '#c8c8c8', lapel: 'notch', length: 'hip', tags: ['ternos', 'social'], g: 'm' },
   { id: 'terno_marinho', name: 'Terno azul-marinho', color: '#1b2a4a', lapel: 'notch', length: 'hip', tags: ['ternos', 'social'], g: 'u' },
-  { id: 'terno_bege', name: 'Terno bege de linho', color: '#d8c7a3', lapel: 'notch', length: 'hip', tags: ['ternos', 'casual'], g: 'u' },
+  { id: 'terno_bege', name: 'Terno bege de linho', color: '#d8c7a3', fabric: 'linen', lapel: 'notch', length: 'hip', tags: ['ternos', 'casual'], g: 'u' },
   { id: 'blazer_lantejoula', name: 'Blazer de lantejoula dourada', color: '#c9a14a', pattern: 'sequin', lapel: 'peak', lapelColor: '#b08a36', length: 'hip', tags: ['celeb', 'tapete'], g: 'u' },
   { id: 'blazer_rosa', name: 'Blazer rosa estreia', color: '#e38aa8', lapel: 'peak', length: 'hip', tags: ['celeb', 'tapete'], g: 'u' },
   { id: 'blazer_pied', name: 'Blazer pied-de-poule', color: '#eeeeee', pattern: 'houndstooth', lapel: 'notch', length: 'hip', tags: ['celeb', 'social'], g: 'u' },
@@ -66,7 +66,7 @@ export const OUTERS = [
   { id: 'jeans', name: 'Jaqueta jeans', color: '#4a6c99', pattern: 'denim', lapel: 'none', length: 'waist', tags: ['jaquetas', 'casual'], g: 'u' },
   { id: 'bomber', name: 'Bomber de cetim verde', color: '#2f5a3e', pattern: 'satin', lapel: 'none', length: 'waist', tags: ['jaquetas', 'celeb'], g: 'u' },
   { id: 'trench', name: 'Trench coat caramelo', color: '#b78a52', lapel: 'notch', length: 'knee', tags: ['jaquetas', 'celeb'], g: 'u' },
-  { id: 'casaco_pele', name: 'Casaco felpudo de estrela', color: '#f1ede6', pattern: 'velvet', lapel: 'shawl', length: 'knee', tags: ['jaquetas', 'tapete'], g: 'f' },
+  { id: 'casaco_pele', name: 'Casaco felpudo de estrela', color: '#f1ede6', pattern: 'velvet', fabric: 'felt', lapel: 'shawl', length: 'knee', tags: ['jaquetas', 'tapete'], g: 'f' },
 ];
 
 export const BOTTOMS = [
@@ -79,7 +79,7 @@ export const BOTTOMS = [
   { id: 'jeans_claro', name: 'Jeans claro', kind: 'pants', color: '#7d9cc4', pattern: 'denim', tags: ['calcas', 'casual'], g: 'u' },
   { id: 'pantalona', name: 'Pantalona de cetim', kind: 'pants', wide: true, color: '#e6cfa7', pattern: 'satin', tags: ['calcas', 'celeb'], g: 'f' },
   { id: 'couro_calca', name: 'Calça de couro', kind: 'pants', color: '#141110', pattern: 'leather', tags: ['calcas', 'celeb'], g: 'u' },
-  { id: 'bermuda', name: 'Bermuda de linho', kind: 'shorts', color: '#d8c7a3', tags: ['calcas', 'casual', 'tema'], g: 'u' },
+  { id: 'bermuda', name: 'Bermuda de linho', kind: 'shorts', color: '#d8c7a3', fabric: 'linen', tags: ['calcas', 'casual', 'tema'], g: 'u' },
   { id: 'saia_lapis', name: 'Saia lápis preta', kind: 'skirt', length: 0.55, flare: 0.0, color: '#121214', tags: ['saias', 'social'], g: 'f' },
   { id: 'saia_midi', name: 'Saia midi plissada', kind: 'skirt', length: 0.62, flare: 0.09, color: '#c9a14a', pattern: 'satin', tags: ['saias', 'celeb'], g: 'f' },
   { id: 'mini_couro', name: 'Minissaia de couro', kind: 'skirt', length: 0.3, flare: 0.03, color: '#141110', pattern: 'leather', tags: ['saias', 'casual'], g: 'f' },
@@ -155,6 +155,22 @@ export const JEWELRY = [
   { id: 'colar_flores', name: 'Colar havaiano de flores', kind: 'lei', color: '#ff6f59' },
 ];
 
+// Meias (aparecem quando as pernas ficam à mostra: saias, vestidos e bermudas).
+export const LEGWEAR = [
+  { id: 'nenhum', name: 'Sem meia' },
+  { id: 'meia_fume', name: 'Meia-calça fumê', color: '#1a1a20' },
+  { id: 'meia_nude', name: 'Meia-calça nude', color: '#d9a888' },
+  { id: 'arrastao', name: 'Meia arrastão', color: '#111114', fishnet: true },
+];
+
+// Luvas (as de ópera vão até o cotovelo, clássico de tapete vermelho).
+export const GLOVES = [
+  { id: 'nenhum', name: 'Sem luvas' },
+  { id: 'opera_pretas', name: 'Luvas de ópera pretas', kind: 'opera', color: '#0d0d10', fabric: 'satin' },
+  { id: 'opera_brancas', name: 'Luvas de ópera brancas', kind: 'opera', color: '#f5f3ee', fabric: 'satin' },
+  { id: 'couro_curtas', name: 'Luvas de couro', kind: 'short', color: '#3b2414', fabric: 'leather' },
+];
+
 // Looks prontos (combinações completas).
 export const LOOKS = [
   { id: 'look_oscar', name: 'Noite do Oscar', g: 'm', set: { top: 'camisa_branca', outer: 'smoking_preto', neck: 'gravata_borboleta', bottom: 'calca_smoking', dress: 'nenhum', shoes: 'oxford', jewelry: 'relogio_ouro', glasses: 'nenhum', hat: 'nenhum' } },
@@ -162,7 +178,7 @@ export const LOOKS = [
   { id: 'look_cannes', name: 'Riviera de Cannes', g: 'm', set: { top: 'gola_alta_creme', outer: 'terno_bege', neck: 'nenhum', bottom: 'calca_branca', dress: 'nenhum', shoes: 'mocassim', jewelry: 'relogio_ouro', glasses: 'aviador', hat: 'nenhum' } },
   { id: 'look_rockstar', name: 'Rockstar no after', g: 'u', set: { top: 'camiseta_preta', outer: 'couro', neck: 'nenhum', bottom: 'jeans_escuro', dress: 'nenhum', shoes: 'tenis_branco', jewelry: 'corrente_ouro', glasses: 'wayfarer', hat: 'nenhum' } },
   { id: 'look_sereia', name: 'Diva dourada', g: 'f', set: { dress: 'sereia_lantejoula', outer: 'nenhum', neck: 'nenhum', shoes: 'salto_dourado', jewelry: 'brincos', glasses: 'nenhum', hat: 'nenhum' } },
-  { id: 'look_baile', name: 'Baile de gala', g: 'f', set: { dress: 'baile_vermelho', outer: 'nenhum', neck: 'nenhum', shoes: 'salto_vermelho', jewelry: 'gargantilha', glasses: 'nenhum', hat: 'nenhum' } },
+  { id: 'look_baile', name: 'Baile de gala', g: 'f', set: { dress: 'baile_vermelho', outer: 'nenhum', neck: 'nenhum', shoes: 'salto_vermelho', jewelry: 'gargantilha', glasses: 'nenhum', hat: 'nenhum', gloves: 'opera_pretas' } },
   { id: 'look_esmeralda', name: 'Tapete esmeralda', g: 'f', set: { dress: 'cetim_esmeralda', outer: 'nenhum', neck: 'nenhum', shoes: 'salto_dourado', jewelry: 'brincos', glasses: 'gatinho', hat: 'nenhum' } },
   { id: 'look_power', name: 'Power suit rosa', g: 'f', set: { top: 'top_cetim', outer: 'blazer_rosa', neck: 'nenhum', bottom: 'pantalona', dress: 'nenhum', shoes: 'salto_preto', jewelry: 'colar_perolas', glasses: 'nenhum', hat: 'nenhum' } },
   { id: 'look_turista', name: 'Turista da chácara', g: 'u', set: { top: 'havaiana', outer: 'nenhum', neck: 'nenhum', bottom: 'bermuda', dress: 'nenhum', shoes: 'chinelo', jewelry: 'colar_flores', glasses: 'coracao', hat: 'palha' } },
@@ -171,9 +187,12 @@ export const LOOKS = [
   { id: 'look_macacao', name: 'Macacão de estreia', g: 'u', set: { dress: 'macacao_preto', outer: 'nenhum', neck: 'nenhum', shoes: 'salto_preto', jewelry: 'gargantilha', glasses: 'nenhum', hat: 'nenhum' } },
 ];
 
+// Looks que não citam meias/luvas tiram essas peças.
+for (const l of LOOKS) { l.set.gloves ??= 'nenhum'; l.set.legwear ??= 'nenhum'; }
+
 export const SLOTS = {
   top: TOPS, outer: OUTERS, bottom: BOTTOMS, dress: DRESSES, neck: NECKWEAR,
-  shoes: SHOES, glasses: GLASSES, hat: HATS, jewelry: JEWELRY,
+  shoes: SHOES, glasses: GLASSES, hat: HATS, jewelry: JEWELRY, legwear: LEGWEAR, gloves: GLOVES,
 };
 
 export function findItem(slot, id) {
@@ -203,6 +222,8 @@ export const ACCESSORY_CATEGORIES = [
   { id: 'hat', name: 'Chapéus', slot: 'hat' },
   { id: 'jewelry', name: 'Relógios & joias', slot: 'jewelry' },
   { id: 'neck', name: 'Gravatas', slot: 'neck' },
+  { id: 'gloves', name: 'Luvas', slot: 'gloves' },
+  { id: 'legwear', name: 'Meias', slot: 'legwear' },
 ];
 
 export function itemsForCategory(cat) {
@@ -239,5 +260,7 @@ export function defaultAppearance(gender = 'm') {
     glasses: 'nenhum',
     hat: 'nenhum',
     jewelry: m ? 'relogio_ouro' : 'brincos',
+    gloves: 'nenhum',
+    legwear: 'nenhum',
   };
 }

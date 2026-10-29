@@ -134,3 +134,77 @@ export function hash3(x, y, z) {
   const s = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
   return s - Math.floor(s);
 }
+
+// ---------- utilidades para o upgrade visual ----------
+
+// Escala as UVs para METROS (u ao redor, v ao longo), para os materiais compartilhados
+// terem a mesma densidade de textura em qualquer peça.
+export function metricUV(geo, su, sv) {
+  const uv = geo.attributes.uv;
+  if (!uv) return geo;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv);
+  uv.needsUpdate = true;
+  return geo;
+}
+
+// Membro com perfil anatômico. rFn(t) -> raio (t = 0 no topo, 1 embaixo).
+// opts: folds [{t, amp, n, width}] dobras radiais; crease: vinco frontal (calças);
+//       flatten: achata em z; cap: arredonda as pontas; seg/rings: resolução.
+export function shapedLimb(rFn, length, opts = {}) {
+  const seg = opts.seg || 18, rings = opts.rings || 22;
+  const r0 = rFn(0), r1 = rFn(1);
+  const pts = [];
+  const capN = opts.cap === false ? 0 : 5;
+  for (let i = 0; i <= capN; i++) { const a = (i / Math.max(1, capN)) * Math.PI / 2; if (capN) pts.push([Math.sin(a) * r0, Math.cos(a) * r0 * 0.7, -1]); }
+  for (let i = 1; i < rings; i++) { const t = i / rings; pts.push([rFn(t), -length * t, t]); }
+  for (let i = 0; i <= capN; i++) { const a = (i / Math.max(1, capN)) * Math.PI / 2; if (capN) pts.push([Math.cos(a) * r1, -length - Math.sin(a) * r1 * 0.7, 2]); }
+  if (!capN) { pts.unshift([r0, 0, 0]); pts.push([r1, -length, 1]); }
+  pts.reverse();
+  const geo = new THREE.LatheGeometry(pts.map(p => new THREE.Vector2(Math.max(0.0005, p[0]), p[1])), seg, Math.PI);
+  const pos = geo.attributes.position;
+  const folds = opts.folds || [];
+  for (let k = 0; k < pos.count; k++) {
+    let x = pos.getX(k), y = pos.getY(k), z = pos.getZ(k);
+    const t = Math.min(1, Math.max(0, -y / length));
+    const ang = Math.atan2(x, z);           // 0 = frente (+z)
+    let s = 1;
+    for (const f of folds) {
+      const d = (t - f.t) / (f.width || 0.12);
+      if (Math.abs(d) < 1.5) {
+        const fall = Math.exp(-d * d * 2);
+        // dobras concentradas na parte interna da articulação (frente para cotovelo/joelho atrás)
+        const side = f.side === 'back' ? Math.max(0, -Math.cos(ang)) : (f.side === 'front' ? Math.max(0, Math.cos(ang)) : 1);
+        s += f.amp * fall * side * Math.sin(d * Math.PI * (f.n || 3) + ang * (f.twist || 2));
+      }
+    }
+    if (opts.crease) s += opts.crease * Math.exp(-(ang * ang) / 0.02) * (t > 0.05 && t < 0.97 ? 1 : 0);
+    x *= s; z *= s * (opts.flatten || 1);
+    pos.setXYZ(k, x, y, z);
+  }
+  geo.computeVertexNormals();
+  const avgR = (r0 + r1 + rFn(0.5) * 2) / 4;
+  return metricUV(geo, Math.PI * 2 * avgR, length + (r0 + r1) * 0.7);
+}
+
+// Barra/acabamento: anel com espessura (evita bordas "infinitamente finas").
+export function hemRing(radius, thick, depthScale = 1, seg = 28) {
+  const g = new THREE.TorusGeometry(radius, thick, 6, seg);
+  g.rotateX(Math.PI / 2);
+  if (depthScale !== 1) g.scale(1, 1, depthScale);
+  return metricUV(g, Math.PI * 2 * radius, thick * Math.PI * 2);
+}
+
+// Profundidade (z) da superfície frontal da cabeça num ponto (x, y) — usada para óculos e brincos.
+let frontLUT = null;
+export function headFrontZ(x, y) {
+  if (!frontLUT) {
+    frontLUT = [];
+    for (let i = 0; i <= 60; i++) for (let j = 0; j <= 60; j++) {
+      const th = (0.2 + 0.65 * i / 60) * Math.PI, ph = (-1.4 + 2.8 * j / 60);
+      frontLUT.push(headPoint(th, ph));
+    }
+  }
+  let best = null, bd = 1e9;
+  for (const p of frontLUT) { const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd && p.z > 0) { bd = d; best = p; } }
+  return best ? best.z : HEAD.rz;
+}

@@ -32,9 +32,11 @@ export const NPCS = [
     dialogue: {
       entry: [{ if: { visits: 2 }, node: 'denovo' }, { node: 'start' }],
       nodes: {
+        pista: { text: 'Ninguém me contou… mas mandaram eu decorar falas e ensaiar meu melhor ângulo. Isso é coisa de CINEMA, {jogador}.', options: [{ label: 'Primeira pista: cinema!', end: true, set: 'pista_davi_dicaprio' }] },
         start: {
           text: ['Shhh… olha esse lago, {jogador}. Imenso. Gelado. Perigoso.', 'Você também sente? Esse lago tem a energia de um transatlântico.'],
           options: [
+            { label: 'Qual é o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_davi_dicaprio' } },
             { label: 'É um laguinho de chácara, Davi.', next: 'laguinho' },
             { label: 'Quer que eu abra os braços na ponta do píer?', next: 'pier' },
             { label: 'Belo smoking!', next: 'smoking', if: { outfitTag: 'gala' } },
@@ -60,6 +62,7 @@ export const NPCS = [
         denovo: {
           text: ['Você voltou! Igual a maré. Igual o arrependimento de não ter dividido aquela porta.', 'De novo por aqui? O lago chama, né?'],
           options: [
+            { label: 'Qual é o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_davi_dicaprio' } },
             { label: 'Já falou com a Thais na cozinha?', next: 'thais' },
             { label: 'Me conta de novo do Atlântico.', next: 'start' },
             { label: 'Fui!', end: true },
@@ -82,9 +85,11 @@ export const NPCS = [
     dialogue: {
       entry: [{ if: { flag: 'taylor_musica' }, node: 'fan' }, { node: 'start' }],
       nodes: {
+        pista: { text: 'Pista número um: tapete VERMELHO. Pista número dois: estrelas… na calçada. Faz sentido pra você?', options: [{ label: 'Tapete vermelho e estrelas…', end: true, set: 'pista_taylor_frisso' }] },
         start: {
           text: ['Oiii! Você chegou bem na hora do meu show de beira de piscina!', 'Shhh, tô compondo! Rima com "toboágua"… "mágoa"! Perfeito.'],
           options: [
+            { label: 'Você sabe o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_taylor_frisso' } },
             { label: 'Que música é essa?', next: 'musica' },
             { label: 'Você vai entrar na piscina de lantejoula?', next: 'piscina' },
             { label: 'Dança comigo!', next: 'danca', action: 'dance' },
@@ -109,7 +114,8 @@ export const NPCS = [
         },
         fan: {
           text: 'Minha fã número um voltou! Já tô na versão acústica da música do toboágua.',
-          options: [{ label: 'Me dá um autógrafo?', next: 'autografo' }, { label: 'Depois eu volto!', end: true }],
+          options: [
+            { label: 'Você sabe o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_taylor_frisso' } },{ label: 'Me dá um autógrafo?', next: 'autografo' }, { label: 'Depois eu volto!', end: true }],
         },
         autografo: { text: 'Assinei na sua alma. É mais fácil que achar caneta aqui na chácara.', options: [{ label: 'Valeu!', end: true }] },
       },
@@ -128,9 +134,11 @@ export const NPCS = [
     dialogue: {
       entry: [{ if: { visits: 2 }, node: 'denovo' }, { node: 'start' }],
       nodes: {
+        pista: { text: 'Encomendaram pipoca para trezentas pessoas e um telão. Pensa num lugar famoso por pipoca, telão e estreia…', options: [{ label: 'Pipoca e telão. Anotado!', end: true, set: 'pista_thais_grande' }] },
         start: {
           text: ['Aaaaah♪! Desculpa, eu sempre solto um agudo quando o feijão ferve.', 'Bem-vindo ao refeitório! Aqui a gente canta, cozinha e não deixa ninguém repetir sobremesa. Mentira, deixa sim.'],
           options: [
+            { label: 'Qual é o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_thais_grande' } },
             { label: 'O que tem pro almoço?', next: 'almoco' },
             { label: 'Canta aquela nota bem alta!', next: 'nota' },
             { label: 'Posso tocar o sino?', next: 'sino' },
@@ -152,6 +160,7 @@ export const NPCS = [
         denovo: {
           text: 'Voltou com fome, né? Eu conheço essa cara.',
           options: [
+            { label: 'Qual é o tema do acampamento?', next: 'pista', if: { notFlag: 'pista_thais_grande' } },
             { label: 'O Davi disse que seu pão de queijo é enorme.', next: 'pao' },
             { label: 'Só vim dar oi!', end: true, action: 'wave' },
           ],
@@ -173,9 +182,11 @@ export const NPCS = [
     dialogue: {
       entry: [{ if: { outfitTag: 'tema' }, node: 'tema' }, { node: 'start' }],
       nodes: {
+        pista: { text: 'Vi uns caras subindo o morro do lado da casa amarela com letras brancas GIGANTES. Nove letras. A primeira é H.', options: [{ label: 'Nove letras… começa com H!', end: true, set: 'pista_samuel_pitt' }] },
         start: {
           text: ['E aí… (vira em câmera lenta) …beleza?', 'Tô treinando minha caminhada de cena de filme entre as palmeiras. Fica comigo no enquadramento.'],
           options: [
+            { label: 'Viu algo estranho por aqui?', next: 'pista', if: { notFlag: 'pista_samuel_pitt' } },
             { label: 'Por que você anda tão devagar?', next: 'devagar' },
             { label: 'Quantas palmeiras tem aqui?', next: 'palmeiras' },
             { label: 'Me ensina a pose de galã.', next: 'pose', action: 'wave' },

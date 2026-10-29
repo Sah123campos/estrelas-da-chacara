@@ -43,7 +43,7 @@ class Game {
     const r = this.renderer;
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.0;
-    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFShadowMap;
     setMaxAnisotropy(Math.min(8, r.capabilities.getMaxAnisotropy()));
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); toast('O 3D foi interrompido pelo aparelho. Recarregue a página para continuar — seu personagem está salvo.', 'err', 8000); });
 
@@ -51,6 +51,7 @@ class Game {
     this.camera = new THREE.PerspectiveCamera(settings.fov, 1, 0.1, q.drawDistance + 400);
     this.input = new Input(canvas);
     this.studio = new Studio();
+    this.studio.initEnvironment(r);
     this.save = loadSave();
     this.dlgState = new DialogueState(this.save?.dialogue);
     this.app = this.save?.appearance ? { ...defaultAppearance(this.save.appearance.gender), ...this.save.appearance } : defaultAppearance('m');
@@ -106,6 +107,9 @@ class Game {
     await frame();
     this.clock = new THREE.Clock();
     this.t = 0;
+    if (this.dlgState.flags.has('tema_revelado')) this.world.sign.showInstant();
+    this._lastClues = undefined;
+    this._updateClues();
     this._loop();
     show('loading', false);
     if (this.save?.appearance) this.toMenu();
@@ -138,7 +142,7 @@ class Game {
         await this.saveGame(true);
         this.creator.close();
         this._attachPlayerToWorld();
-        if (mode === 'new') { this.controller.place(MAP.spawn.x, MAP.spawn.z, MAP.spawn.rotY); this.cam.snapBehind(MAP.spawn.rotY); this.dlgState = new DialogueState(); }
+        if (mode === 'new') { this.controller.place(MAP.spawn.x, MAP.spawn.z, MAP.spawn.rotY); this.cam.snapBehind(MAP.spawn.rotY); this.dlgState = new DialogueState(); this._lastClues = 0; this._updateClues(); }
         this.play();
         if (mode === 'new') setTimeout(() => toast(isTouch ? 'Use o joystick para andar e arraste a tela para girar a câmera.' : 'WASD para andar · arraste o mouse para girar a câmera · E para conversar.', '', 6000), 600);
       },
@@ -271,6 +275,7 @@ class Game {
       this._talkingNpc = null;
       this._interactCooldown = 0.35;
       if (this.state === 'dialog') this.setState('play');
+      this._updateClues(true);
       this._persist();
     };
     this.dialog.onAction = (action) => {
@@ -281,6 +286,33 @@ class Game {
       if (action === 'bell') this._ringBell();
     };
     addEventListener('error', e => { if (!this._errShown) { this._errShown = true; console.error(e.error || e); toast('Ocorreu um erro, mas o jogo continua. Se algo parar, recarregue a página.', 'err', 5000); } });
+  }
+
+  // ---------- pistas e revelação do tema ----------
+  _updateClues(fromDialog = false) {
+    const ids = this.npcs.list.map(n => n.def.id);
+    const got = ids.filter(id => this.dlgState.flags.has('pista_' + id)).length;
+    const revealed = this.dlgState.flags.has('tema_revelado');
+    const el = $('#clues');
+    el.hidden = got === 0;
+    el.innerHTML = revealed ? '<span>Tema: <b style="color:var(--gold)">HOLLYWOOD</b> ★</span>'
+      : `<span>Pistas do tema</span><span class="st">${ids.map((_, i) => i < got ? '<b>★</b>' : '☆').join('')}</span>`;
+    $('#tagline').textContent = revealed ? 'Tema revelado: HOLLYWOOD! Vista seu melhor look de estrela e aproveite a chácara.' : 'Um RPG social no acampamento. Converse com todo mundo e descubra o tema secreto.';
+    if (fromDialog && got > (this._lastClues ?? got)) toast(got < ids.length ? `★ Pista ${got} de ${ids.length}! Converse com os outros para descobrir o tema.` : '★ Todas as pistas! Olhe para a colina…', 'ok', 4000);
+    this._lastClues = got;
+    if (got >= ids.length && !revealed && fromDialog) setTimeout(() => this._startReveal(), 900);
+  }
+
+  _startReveal() {
+    if (this.dlgState.flags.has('tema_revelado')) return;
+    this.dlgState.flags.add('tema_revelado');
+    this._persist();
+    this.world.sign.start();
+    this._revealT = 0;
+    this._revealCam = { from: this.camera.position.clone() };
+    audio.bell();
+    setTimeout(() => show('reveal'), 600);
+    setTimeout(() => { show('reveal', false); this._updateClues(); }, 9000);
   }
 
   _ringBell() {
@@ -397,6 +429,15 @@ class Game {
       if (this._playerDance > 0) this._playerDance -= dt;
       this.player.update(dt, { speed: this.controller.speed, talk: this.state === 'dialog' && !!this._talkingNpc, dance: this._playerDance > 0 && this.controller.speed < 0.3 });
       this.cam.update(dt, pos, this.player.height);
+      if (this._revealT !== undefined && this._revealT < 10) {
+        // câmera cinematográfica olhando o letreiro na colina
+        this._revealT += dt;
+        const k = Math.min(1, this._revealT / 1.5) * (this._revealT > 8.5 ? Math.max(0, 1 - (this._revealT - 8.5) / 1.5) : 1);
+        const fp = this.world.sign.focusPoint, vp = this.world.sign.viewPoint;
+        this.camera.position.lerp(vp, k);
+        const look = new THREE.Vector3().lerpVectors(this.cam.smoothTarget, fp, k);
+        this.camera.lookAt(look);
+      }
       if (playing) {
         const f = this._findInteraction();
         this.hud.setPrompt(f ? (f.npc ? `Conversar com ${f.npc.def.name}` : f.obj.label) : null);

@@ -17,8 +17,8 @@ const TABS = [
   { id: 'acessorios', name: 'Acessórios' },
   { id: 'nome', name: 'Nome' },
 ];
-const SLOT_LABEL = { top: 'Parte de cima', outer: 'Casaco', bottom: 'Parte de baixo', dress: 'Vestido', neck: 'Pescoço', shoes: 'Calçado', glasses: 'Óculos', hat: 'Chapéu', jewelry: 'Joia' };
-const TOGGLE_SLOTS = new Set(['outer', 'dress', 'neck', 'glasses', 'hat', 'jewelry']);
+const SLOT_LABEL = { top: 'Parte de cima', outer: 'Casaco', bottom: 'Parte de baixo', dress: 'Vestido', neck: 'Pescoço', shoes: 'Calçado', glasses: 'Óculos', hat: 'Chapéu', jewelry: 'Joia', gloves: 'Luvas', legwear: 'Meias' };
+const TOGGLE_SLOTS = new Set(['outer', 'dress', 'neck', 'glasses', 'hat', 'jewelry', 'gloves', 'legwear']);
 const FUN_NAMES = ['Leo Di Chácara', 'Meryl Fogueira', 'Brad Pitanga', 'Angelina Jolinha', 'Will Smithão', 'Keanu Rifas', 'Emma Pedra', 'Zendaia do Lago', 'Tom Cruzeiro', 'Anne Rathaway'];
 
 const thumbCache = new Map();

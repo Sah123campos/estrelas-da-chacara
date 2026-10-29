@@ -5,6 +5,7 @@ import { heightAt, buildTerrain, buildDistantHills, buildPath } from './terrain.
 import { BUILDERS, buildPoles, buildLakeBench } from './builders.js';
 import { buildVegetation } from './vegetation.js';
 import { tex } from './textures.js';
+import { buildHollywoodSign } from './hollywoodSign.js';
 
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => r()));
 
@@ -113,6 +114,8 @@ export async function buildWorld(scene, renderer, quality, onProgress = () => {}
   onProgress(0.8, 'Vegetação');
   await nextFrame();
 
+  const sign = buildHollywoodSign(ctx);
+
   for (const it of MAP.interactables) ctx.points.set('int_' + it.id, new THREE.Vector3(it.x, heightAt(it.x, it.z), it.z));
 
   group.traverse(o => { if (o.isMesh && o.receiveShadow === false && o.name !== 'sky') o.receiveShadow = true; });
@@ -127,9 +130,10 @@ export async function buildWorld(scene, renderer, quality, onProgress = () => {}
 
   const focus = new THREE.Vector3();
   return {
-    ctx, sun, hemi, terrain, groundHeight,
+    ctx, sun, hemi, terrain, groundHeight, sign,
     update(dt, t, target) {
       for (const u of ctx.updaters) u(dt, t);
+      sign.update(dt, t);
       if (target) {
         focus.copy(target);
         sun.position.set(focus.x + 40, focus.y + 70, focus.z + 30);

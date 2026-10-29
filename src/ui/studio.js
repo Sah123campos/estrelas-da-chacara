@@ -1,5 +1,6 @@
 // Estúdio 3D da criação de personagem: palco iluminado, câmera com zoom e giro.
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 
 export class Studio {
   constructor() {
@@ -12,9 +13,9 @@ export class Studio {
     const bg = new THREE.CanvasTexture(c); bg.colorSpace = THREE.SRGBColorSpace;
     this.scene.background = bg;
     this.camera = new THREE.PerspectiveCamera(32, 1, 0.05, 100);
-    this.scene.add(new THREE.HemisphereLight('#fff4e6', '#3a2a40', 1.3));
-    const key = new THREE.DirectionalLight('#fff1dd', 2.6); key.position.set(2.5, 4, 4); key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0005; key.shadow.normalBias = 0.02;
+    this.scene.add(new THREE.HemisphereLight('#fff1dc', '#3a2a40', 0.72));
+    const key = new THREE.DirectionalLight('#fff1dd', 2.4); key.position.set(2.5, 4, 4); key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.015; key.shadow.radius = 3;
     Object.assign(key.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: 0.5, far: 15 });
     this.scene.add(key);
     const fill = new THREE.DirectionalLight('#b9c8ff', 0.9); fill.position.set(-3, 2, 2); this.scene.add(fill);
@@ -37,6 +38,16 @@ export class Studio {
     this.spin = false;
     this.height = 1.75;
     this.offsetX = 0;
+  }
+
+  // Ambiente de estúdio para reflexos (metais, cetim, couro, joias).
+  initEnvironment(renderer) {
+    try {
+      const pm = new THREE.PMREMGenerator(renderer);
+      this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+      this.scene.environmentIntensity = 0.3;
+      pm.dispose();
+    } catch (e) { console.warn('Sem ambiente de estúdio', e); }
   }
 
   setAspect(w, h, panelFraction = 0, portrait = false) {
