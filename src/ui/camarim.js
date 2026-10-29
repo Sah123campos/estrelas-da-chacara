@@ -10,6 +10,7 @@ import {
 } from "../dados/guardaroupa.js";
 import { criarCanvas } from "../arte/pixel.js";
 import { fileToCanvas, detectLandmarks, startCamera, stopCamera, captureFrame } from "../rosto/captura.js";
+import { AjusteFoto } from "./ajusteFoto.js";
 
 const ABAS = [
   { id: "foto", nome: "📷 Seu rosto" },
@@ -42,11 +43,11 @@ export class Camarim {
     $("cam-acenar").onclick = () => { this.anim = this.anim === "acenar" ? "parado" : "acenar"; this.botoes(); };
     $("arquivo-foto").addEventListener("change", (e) => { this.receberArquivo(e.target.files[0]); e.target.value = ""; });
     $("arquivo-camera").addEventListener("change", (e) => { this.receberArquivo(e.target.files[0]); e.target.value = ""; });
-    $("cam-permitir").onclick = () => this.ligarCamera();
+    this.ajuste = new AjusteFoto(app);
     $("cam-nativa").onclick = () => { this.fecharCamera(); $("arquivo-camera").click(); };
     $("cam-clique").onclick = () => this.tirarFoto();
     $("cam-cancelar").onclick = () => this.fecharCamera();
-    $("cam-palco-foto").onclick = () => { this.app.audio.sfx("clique"); this.abrirCamera(); };
+    $("cam-palco-foto").onclick = () => this.abrirCamera();
     $("cam-palco-galeria").onclick = () => { this.app.audio.sfx("clique"); $("arquivo-foto").click(); };
   }
 
@@ -329,38 +330,22 @@ export class Camarim {
     if (foto.proc) c2.getContext("2d").putImageData(new ImageData(foto.proc.retrato.d, 64, 64), 0, 0);
     const legenda = document.createElement("span");
     legenda.className = "aviso-foto";
-    legenda.textContent = "Original → pixel art. Use os ajustes para encaixar olhos e boca no lugar.";
+    legenda.textContent = "Original → pixel art. Se não ficou certinho, toque em Ajustar a posição do rosto.";
     pv.append(c1, c2, legenda);
     s.append(pv);
     const s2 = this.secao(box, "Onde usar a foto");
     this.chips(s2, [{ id: "usar", nome: "No retrato e no boneco" }, { id: "retrato", nome: "Só no retrato" }, { id: "nao", nome: "Não usar" }],
       !ap.foto.usar ? "nao" : ap.foto.noBoneco ? "usar" : "retrato",
       (v) => this.mudar({ foto: { ...ap.foto, usar: v !== "nao", noBoneco: v === "usar" } }));
-    const s3 = this.secao(box, "Ajustar o enquadramento");
-    const faixa = (rotulo, chave, min, max, passo) => {
-      const d = document.createElement("div");
-      d.className = "faixa";
-      const l = document.createElement("label");
-      l.textContent = rotulo;
-      const r = document.createElement("input");
-      r.type = "range";
-      r.min = min; r.max = max; r.step = passo;
-      r.value = ap.foto[chave] ?? (chave === "zoom" ? 1 : 0);
-      r.oninput = () => {
-        this.ap.foto = { ...this.ap.foto, [chave]: parseFloat(r.value) };
-        this.app.reprocessarFoto(this.ap);
-        this.atualizarPersonagem();
-        if (foto.proc) c2.getContext("2d").putImageData(new ImageData(this.app.foto.proc.retrato.d, 64, 64), 0, 0);
-      };
-      d.append(l, r);
-      s3.append(d);
-    };
-    faixa("Aproximar", "zoom", 0.6, 1.6, 0.02);
-    faixa("Esquerda/direita", "dx", -10, 10, 0.5);
-    faixa("Cima/baixo", "dy", -10, 10, 0.5);
-    faixa("Brilho", "brilho", -0.5, 0.5, 0.02);
+    const s3 = this.secao(box, "Encaixar o rosto");
+    const aj = document.createElement("button");
+    aj.className = "btn principal";
+    aj.textContent = "✋ Ajustar a posição do rosto";
+    aj.onclick = () => this.posicionar(foto.canvas, foto.marcos, false);
+    s3.append(aj);
     const b = document.createElement("button");
     b.className = "btn pequeno";
+    b.style.marginTop = "8px";
     b.textContent = "Usar o tom de pele da foto no corpo";
     b.onclick = () => this.mudar({ pele: this.app.foto.proc.pele });
     s3.append(b);
@@ -377,39 +362,74 @@ export class Camarim {
     }
   }
 
+  // Toda foto nova (câmera ou galeria) passa pela tela de posicionar o rosto.
   async usarCanvasFoto(canvas) {
     const marcos = await detectLandmarks(canvas);
-    this.ap.foto = { noBoneco: true, brilho: 0, ...(this.ap.foto || {}), usar: true, zoom: 1, dx: 0, dy: 0 };
-    await this.app.definirFoto(canvas, marcos, this.ap);
-    this.ap.pele = this.app.foto.proc.pele;
-    this.app.audio.sfx("foto");
-    this.app.ui.aviso(marcos.method === "padrao" ? "Foto aplicada! Não achei o rosto direitinho: use os ajustes de enquadramento." : "Foto aplicada! O tom de pele do corpo foi ajustado pela foto.", 3600);
-    this.cacheMini.clear();
-    this.atualizarPersonagem();
-    this.aba = "foto";
-    this.desenharAbas();
-    this.desenharCorpo();
+    this.posicionar(canvas, marcos, true);
+  }
+
+  posicionar(canvas, marcos, nova) {
+    this.ajuste.abrir(canvas, marcos, this.ap, {
+      aoConfirmar: async (m, brilho) => {
+        this.ap.foto = { noBoneco: true, ...(this.ap.foto || {}), usar: true, zoom: 1, dx: 0, dy: 0, brilho };
+        if (nova) await this.app.definirFoto(canvas, m, this.ap);
+        else { this.app.foto.marcos = m; this.ap.foto.marcos = m; this.app.reprocessarFoto(this.ap); }
+        if (nova) this.ap.pele = this.app.foto.proc.pele;
+        this.app.audio.sfx("foto");
+        this.app.ui.aviso(nova ? "Foto aplicada! O tom de pele do corpo foi ajustado pela foto." : "Posição do rosto ajustada!", 3000);
+        this.cacheMini.clear();
+        this.atualizarPersonagem();
+        this.aba = "foto";
+        this.desenharAbas();
+        this.desenharCorpo();
+      },
+    });
+  }
+
+  // Câmera ao vivo só funciona em página segura e quando o navegador deixa (em algumas
+  // páginas incorporadas, como a prévia do claude.ai, ela é bloqueada).
+  podeAoVivo() {
+    if (!navigator.mediaDevices?.getUserMedia || !window.isSecureContext) return false;
+    const fp = document.featurePolicy || document.permissionsPolicy;
+    if (fp?.allowsFeature && !fp.allowsFeature("camera")) return false;
+    return true;
   }
 
   abrirCamera() {
-    $("cam-consentimento").hidden = false;
-    $("cam-ao-vivo").hidden = true;
-    const temAoVivo = !!navigator.mediaDevices?.getUserMedia && window.isSecureContext;
-    $("cam-sem-ao-vivo").hidden = temAoVivo;
-    $("cam-permitir").hidden = !temAoVivo;
+    const toque = this.app.toqueAtivo || matchMedia("(pointer: coarse)").matches;
+    if (!this.podeAoVivo()) {
+      // no celular, abre direto o app de câmera do aparelho
+      if (toque) { $("arquivo-camera").click(); return; }
+      this.mostrarErroCamera("Este navegador (ou esta página incorporada) não deixa usar a câmera ao vivo. Abra o jogo pelo site (GitHub Pages) para usar a câmera, ou escolha uma foto da galeria.");
+      $("modal-camera").hidden = false;
+      return;
+    }
+    $("cam-erro").hidden = true;
+    $("cam-ao-vivo").hidden = false;
+    $("cam-clique").hidden = false;
+    $("cam-nativa").textContent = toque ? "Abrir a câmera do aparelho" : "Escolher da galeria";
     $("modal-camera").hidden = false;
+    this.ligarCamera();
+  }
+
+  mostrarErroCamera(txt) {
+    $("cam-ao-vivo").hidden = true;
+    $("cam-clique").hidden = true;
+    $("cam-erro").hidden = false;
+    $("cam-erro").textContent = txt;
+    const toque = this.app.toqueAtivo || matchMedia("(pointer: coarse)").matches;
+    $("cam-nativa").textContent = toque ? "Abrir a câmera do aparelho" : "Escolher da galeria";
   }
 
   async ligarCamera() {
     try {
       await startCamera($("cam-video"));
-      $("cam-consentimento").hidden = true;
-      $("cam-ao-vivo").hidden = false;
     } catch (e) {
       console.warn(e);
-      $("cam-sem-ao-vivo").hidden = false;
-      $("cam-sem-ao-vivo").textContent = "Não foi possível abrir a câmera (permissão negada ou indisponível). Use \"Câmera do aparelho\" ou escolha uma foto da galeria.";
-      $("cam-permitir").hidden = true;
+      const negou = e && (e.name === "NotAllowedError" || e.name === "SecurityError");
+      this.mostrarErroCamera(negou
+        ? "A câmera foi bloqueada. Toque no cadeado/ícone ao lado do endereço do site e permita a câmera, ou use o botão abaixo."
+        : "Não encontrei uma câmera disponível. Use o botão abaixo para escolher uma foto.");
     }
   }
 

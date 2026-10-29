@@ -39,6 +39,7 @@
           <button class="btn" data-acao="config">Configurações</button>
           <button class="btn fraco" data-acao="creditos">Créditos</button>
         </div>
+        <p class="contador" id="contador-titulo"></p>
       </div>
     </div>
 
@@ -183,6 +184,8 @@
           <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da chácara. Áreas sem foto estão marcadas como provisórias.</p>
           <p>Fonte Pixelify Sans (SIL Open Font License). Motor e estilo de interface baseados nos jogos do mesmo autor.</p>
           <p>Os personagens têm nomes de brincadeira e não representam as celebridades reais.</p>
+          <p class="contador" id="contador-creditos">Contando acessos…</p>
+          <p class="nota">O contador só envia um "+1" para um serviço de contagem; nenhum nome, foto ou dado pessoal sai do aparelho.</p>
         </div>
         <button class="btn principal" data-fechar>Fechar</button>
       </div>
@@ -215,31 +218,53 @@
       </div>
     </div>
 
-    <!-- Câmera / consentimento -->
+    <!-- Câmera ao vivo -->
     <div id="modal-camera" class="painel-tela" hidden>
       <div class="moldura painel">
         <h2>Tirar foto do rosto</h2>
-        <div id="cam-consentimento">
-          <p>A câmera será usada <b>apenas</b> para tirar uma foto do seu rosto e colocá-la no seu personagem.</p>
-          <ul class="privacidade">
-            <li>A foto fica salva só neste aparelho (no navegador).</li>
-            <li>Nada é enviado para a internet.</li>
-            <li>Você pode trocar ou apagar a foto quando quiser.</li>
-          </ul>
-          <p class="nota" id="cam-sem-ao-vivo" hidden>A câmera ao vivo não está disponível aqui. Use a câmera do aparelho: no celular ela abre o app de câmera; no computador, escolha uma foto.</p>
-          <div class="linha-botoes">
-            <button class="btn fraco" data-fechar>Cancelar</button>
-            <button class="btn" id="cam-nativa">Câmera do aparelho</button>
-            <button class="btn principal" id="cam-permitir">Permitir câmera</button>
+        <p class="nota privacidade-linha">A câmera é usada só para esta foto. A foto fica neste aparelho e nunca vai para a internet.</p>
+        <div id="cam-ao-vivo">
+          <div class="cam-video">
+            <video id="cam-video" playsinline muted></video>
+            <svg class="cam-molde" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs><mask id="furo"><rect width="300" height="300" fill="#fff"/><ellipse cx="150" cy="132" rx="84" ry="98" fill="#000"/></mask></defs>
+              <rect width="300" height="300" fill="rgba(0,0,0,0.45)" mask="url(#furo)"/>
+              <ellipse cx="150" cy="132" rx="84" ry="98" fill="none" stroke="#f2c14e" stroke-width="3" stroke-dasharray="9 6"/>
+              <circle cx="115" cy="122" r="8" fill="rgba(242,193,78,0.3)" stroke="#fff" stroke-width="2"/>
+              <circle cx="185" cy="122" r="8" fill="rgba(242,193,78,0.3)" stroke="#fff" stroke-width="2"/>
+              <line x1="132" y1="178" x2="168" y2="178" stroke="#fff" stroke-width="3"/>
+            </svg>
+            <p class="cam-dica">Encaixe o rosto no contorno: <b>olhos nas bolinhas</b> e <b>boca na linha</b>.</p>
           </div>
         </div>
-        <div id="cam-ao-vivo" hidden>
-          <div class="cam-video"><video id="cam-video" playsinline muted></video><div class="cam-oval"></div></div>
-          <p class="nota">Centralize o rosto no contorno, olhando para a câmera, com boa luz.</p>
-          <div class="linha-botoes">
-            <button class="btn fraco" id="cam-cancelar">Cancelar</button>
-            <button class="btn principal" id="cam-clique">Tirar foto</button>
+        <p class="nota" id="cam-erro" hidden></p>
+        <div class="linha-botoes">
+          <button class="btn fraco" id="cam-cancelar">Cancelar</button>
+          <button class="btn" id="cam-nativa">Abrir a câmera do aparelho</button>
+          <button class="btn principal" id="cam-clique">📸 Tirar foto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posicionar o rosto (câmera ou galeria) -->
+    <div id="modal-ajuste" class="painel-tela" hidden>
+      <div class="moldura painel largo">
+        <h2>Posicione o seu rosto</h2>
+        <p class="nota">Arraste a foto, aproxime e gire até os <b>olhos ficarem nas bolinhas</b> e a <b>boca na linha</b>. No celular, use dois dedos para aproximar e girar.</p>
+        <div class="aj-area">
+          <canvas id="aj-canvas" width="300" height="300"></canvas>
+          <div class="aj-lado">
+            <div class="aj-previa moldura-fina"><canvas id="aj-previa" width="64" height="64"></canvas></div>
+            <span class="nota">Como vai ficar</span>
+            <div class="faixa"><label for="aj-zoom">Aproximar</label><input type="range" id="aj-zoom" min="0.3" max="4" step="0.02" value="1"></div>
+            <div class="faixa"><label for="aj-giro">Girar</label><input type="range" id="aj-giro" min="-45" max="45" step="1" value="0"></div>
+            <div class="faixa"><label for="aj-brilho">Brilho</label><input type="range" id="aj-brilho" min="-0.5" max="0.5" step="0.02" value="0"></div>
+            <button class="btn pequeno fraco" id="aj-auto">Voltar ao automático</button>
           </div>
+        </div>
+        <div class="linha-botoes">
+          <button class="btn fraco" id="aj-cancelar">Cancelar</button>
+          <button class="btn principal" id="aj-ok">Ficou certinho!</button>
         </div>
       </div>
     </div>

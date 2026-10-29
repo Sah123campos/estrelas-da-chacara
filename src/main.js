@@ -11,6 +11,7 @@ import { processarFoto } from "./rosto/rosto.js";
 import { blobToCanvas, canvasToBlob, detectLandmarks } from "./rosto/captura.js";
 import { carregarJogo, salvarJogo, carregarConfig, salvarConfig, salvarFoto, carregarFoto, apagarFoto, apagarTudo } from "./salvar.js";
 import { DEBUG, ALTURAS } from "./config.js";
+import { contarVisita } from "./contador.js";
 
 const espera = () => new Promise((r) => setTimeout(r, 0));
 
@@ -66,6 +67,7 @@ class App {
       if (b) { this.audio.iniciar(); this.audio.sfx("clique"); this.acaoTitulo(b.dataset.acao); }
     });
     this.ligarConfig();
+    this.mostrarContador();
     $("carregando").hidden = true;
     this.irParaTitulo();
     if (DEBUG) window.__app = this;
@@ -89,6 +91,17 @@ class App {
     this.toqueAtivo = sim;
     $("app").classList.toggle("toque-ativo", sim);
     $("toque").hidden = !sim || $("hud").hidden;
+  }
+
+  // ---------- contador de acessos ----------
+  async mostrarContador() {
+    const r = await contarVisita();
+    const fmt = (n) => (typeof n === "number" ? n.toLocaleString("pt-BR") : "—");
+    const txt = r ? `👀 ${fmt(r.pessoas)} pessoas já jogaram · ${fmt(r.acessos)} acessos` : "";
+    $("contador-titulo").textContent = txt;
+    $("contador-creditos").textContent = r
+      ? `Pessoas diferentes que jogaram: ${fmt(r.pessoas)} · Vezes que o jogo foi aberto: ${fmt(r.acessos)}`
+      : "O contador de acessos funciona quando o jogo é aberto pelo site (GitHub Pages).";
   }
 
   // ---------- título ----------

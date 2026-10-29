@@ -45,7 +45,12 @@ de abrir a câmera). O jogo encontra olhos e boca, alinha o rosto e o transforma
 - **Retrato grande** (64×64) nos diálogos, no camarim e no canto da tela: o rosto da foto com o
   cabelo, chapéu, óculos, brincos e roupa desenhados por cima.
 - **Boneco** (22×38) andando pelo mapa: o rosto da foto reduzido e realçado.
-- Ajustes de aproximação, posição e brilho, e o botão "usar o tom de pele da foto".
+- Ao tirar a foto, a câmera mostra um **molde do rosto** (olhos nas bolinhas, boca na linha).
+- Toda foto (câmera ou galeria) abre a tela **Posicione o seu rosto**: arraste, aproxime e gire até encaixar,
+  vendo a prévia em pixel art ao vivo. Dá para reabrir depois em "Ajustar a posição do rosto".
+- Brilho e o botão "usar o tom de pele da foto".
+- A câmera ao vivo precisa do site em `https://` (GitHub Pages). Na prévia do claude.ai o navegador
+  bloqueia a câmera: no celular o jogo abre direto o app de câmera do aparelho; no computador use a galeria.
 - Dá para usar a foto só no retrato, nos dois, ou desligar.
 
 **Privacidade:** a foto fica só no aparelho (IndexedDB do navegador), nunca é enviada para a
@@ -85,6 +90,16 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 4. Acertou: as lonas voam, o letreiro **HOLLYWOOD** aparece com fogos e holofotes, o tapete vermelho
    surge no gramado, as estrelas da calçada aparecem no pátio, os personagens ganham falas novas e o
    camarim libera a coleção secreta.
+
+## Contador de acessos
+
+`src/contador.js` conta quantas vezes o jogo foi aberto e quantas pessoas (aparelhos) diferentes jogaram.
+Ele só envia um "+1" para um serviço público de contagem (abacus.jasoncameron.dev, com counterapi.dev de reserva);
+nenhum nome, foto ou dado pessoal sai do aparelho. Aberturas pelo computador local (`localhost`) não contam.
+
+- No jogo: aparece embaixo do menu inicial e em **Créditos**.
+- Direto no navegador: `https://abacus.jasoncameron.dev/get/estrelas-da-chacara-sah123campos/pessoas`
+  e `.../acessos`.
 
 ## Onde editar
 
