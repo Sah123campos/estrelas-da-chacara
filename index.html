@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0d0f17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Estrelas da Chácara</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+  { "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/" } }
+  </script>
+</head>
+<body>
+  <canvas id="game" aria-label="Cena 3D do jogo"></canvas>
+
+  <!-- Carregamento -->
+  <section id="loading" class="screen show" aria-live="polite">
+    <div class="loading-inner">
+      <div class="logo"><span class="star">✦</span> Estrelas <em>da</em> Chácara</div>
+      <div class="bar"><i id="loadBar"></i></div>
+      <p id="loadText">Preparando o tapete vermelho…</p>
+    </div>
+  </section>
+
+  <!-- Menu principal -->
+  <section id="menu" class="screen">
+    <div class="menu-panel">
+      <div class="logo big"><span class="star">✦</span> Estrelas <em>da</em> Chácara</div>
+      <p class="tagline">Um RPG social no acampamento — com tapete vermelho no meio do mato.</p>
+      <nav class="menu-buttons">
+        <button data-act="continue" id="btnContinue" class="btn primary">Continuar</button>
+        <button data-act="new" class="btn" id="btnNew">Novo jogo</button>
+        <button data-act="customize" class="btn" id="btnCustomize">Personalizar personagem</button>
+        <button data-act="settings" class="btn">Configurações</button>
+        <button data-act="credits" class="btn ghost">Créditos</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Criação de personagem / guarda-roupa -->
+  <section id="creator" class="screen">
+    <header class="creator-top">
+      <button class="icon-btn" id="crBack" aria-label="Voltar">←</button>
+      <h2 id="crTitle">Crie seu personagem</h2>
+      <button class="btn primary small" id="crDone">Salvar e jogar</button>
+    </header>
+    <div class="creator-view">
+      <div class="view-tools">
+        <button class="chip" id="viewBody">Corpo inteiro</button>
+        <button class="chip" id="viewFace">Rosto</button>
+        <button class="chip" id="viewSpin">↻ Girar</button>
+      </div>
+      <p class="hint" id="crHint">Arraste para girar · role ou faça pinça para aproximar</p>
+    </div>
+    <aside class="creator-panel">
+      <nav class="tabs" id="crTabs" role="tablist"></nav>
+      <div class="tab-body" id="crBody"></div>
+    </aside>
+  </section>
+
+  <!-- HUD de exploração -->
+  <section id="hud" class="layer">
+    <div class="hud-top">
+      <div class="zone" id="zoneName"></div>
+      <div class="hud-buttons">
+        <button class="icon-btn" id="hudWardrobe" title="Guarda-roupa (R)" aria-label="Guarda-roupa">👗</button>
+        <button class="icon-btn" id="hudFull" title="Tela cheia" aria-label="Tela cheia">⛶</button>
+        <button class="icon-btn" id="hudMenu" title="Menu (Esc)" aria-label="Menu">☰</button>
+      </div>
+    </div>
+    <canvas id="minimap" width="300" height="300" aria-label="Mini mapa"></canvas>
+    <div class="prompt" id="prompt"><kbd>E</kbd><span id="promptText"></span></div>
+    <div class="fps" id="fps"></div>
+    <div class="touch-controls" id="touchControls">
+      <div class="joystick" id="joy"><div class="knob" id="joyKnob"></div></div>
+      <div class="touch-buttons">
+        <button class="round-btn" id="tRun" aria-label="Correr">🏃</button>
+        <button class="round-btn big" id="tInteract" aria-label="Interagir">💬</button>
+      </div>
+    </div>
+    <p class="help-desktop" id="helpDesktop">WASD mover · Shift correr · arraste o mouse para girar a câmera · E interagir · R guarda-roupa · Esc menu</p>
+  </section>
+
+  <!-- Diálogo -->
+  <section id="dialog" class="layer">
+    <div class="dialog-box">
+      <div class="dialog-name" id="dlgName"></div>
+      <p class="dialog-text" id="dlgText"></p>
+      <div class="dialog-options" id="dlgOptions"></div>
+      <button class="dialog-close" id="dlgClose" aria-label="Encerrar conversa">✕</button>
+    </div>
+  </section>
+
+  <!-- Pausa -->
+  <section id="pause" class="screen dim">
+    <div class="modal">
+      <h2>Pausa</h2>
+      <nav class="menu-buttons">
+        <button class="btn primary" data-act="resume">Continuar</button>
+        <button class="btn" data-act="wardrobe">Guarda-roupa</button>
+        <button class="btn" data-act="settings">Configurações</button>
+        <button class="btn" data-act="save">Salvar</button>
+        <button class="btn" data-act="fullscreen">Tela cheia</button>
+        <button class="btn ghost" data-act="mainmenu">Menu principal</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Configurações -->
+  <section id="settings" class="screen dim">
+    <div class="modal wide">
+      <h2>Configurações</h2>
+      <div class="settings-grid" id="settingsGrid"></div>
+      <div class="row-end">
+        <button class="btn danger small" id="btnDeleteData">Excluir dados salvos</button>
+        <button class="btn primary small" id="btnSettingsClose">Fechar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Créditos -->
+  <section id="credits" class="screen dim">
+    <div class="modal">
+      <h2>Créditos</h2>
+      <div class="credits-text">
+        <p><b>Estrelas da Chácara</b> — primeira versão jogável.</p>
+        <p>Motor 3D: <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (licença MIT).</p>
+        <p>Personagens, roupas, cenário, texturas e sons foram gerados por código neste projeto — sem modelos de terceiros.</p>
+        <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da pasta "FAZENDA". As áreas marcadas como provisórias ainda não têm referência.</p>
+        <p>Os personagens têm nomes de brincadeira e não representam as celebridades reais.</p>
+      </div>
+      <button class="btn primary small" data-close>Fechar</button>
+    </div>
+  </section>
+
+  <!-- Consentimento / câmera -->
+  <section id="camModal" class="screen dim">
+    <div class="modal">
+      <h2>Usar a câmera</h2>
+      <div id="camConsent">
+        <p>A câmera será usada <b>apenas</b> para tirar uma foto do seu rosto e aplicá-la ao seu personagem.</p>
+        <ul class="privacy">
+          <li>A foto fica salva só neste aparelho (no armazenamento do navegador).</li>
+          <li>Nada é enviado para a internet.</li>
+          <li>Você pode trocar ou apagar a foto quando quiser.</li>
+        </ul>
+        <p class="note" id="camFallbackMsg" hidden>A câmera ao vivo não está disponível aqui. Use a câmera do aparelho: no celular ela abre o app de câmera; no computador, escolha uma foto.</p>
+        <div class="row-end">
+          <button class="btn ghost small" data-close>Cancelar</button>
+          <button class="btn small" id="camNative">Câmera do aparelho</button>
+          <button class="btn primary small" id="camAllow">Permitir câmera</button>
+        </div>
+      </div>
+      <div id="camLive" hidden>
+        <div class="cam-frame"><video id="camVideo" playsinline muted></video><div class="cam-oval"></div></div>
+        <p class="hint">Centralize o rosto no contorno, olhando para a câmera, com boa luz.</p>
+        <div class="row-end">
+          <button class="btn ghost small" id="camCancel">Cancelar</button>
+          <button class="btn primary small" id="camShoot">📸 Tirar foto</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confirmação genérica -->
+  <section id="confirm" class="screen dim">
+    <div class="modal">
+      <h2 id="cfTitle"></h2>
+      <p id="cfText"></p>
+      <div class="row-end">
+        <button class="btn ghost small" id="cfNo">Cancelar</button>
+        <button class="btn primary small" id="cfYes">Confirmar</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="toasts" aria-live="polite"></div>
+  <input type="file" id="fileInput" accept="image/*" hidden>
+  <input type="file" id="fileCapture" accept="image/*" capture="user" hidden>
+
+  <noscript>Este jogo precisa de JavaScript ativado.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
