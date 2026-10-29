@@ -180,6 +180,17 @@ export class Interface {
     if (pistaExtra) setTimeout(() => this.aviso("✎ <b>Achado anotado no diário de pistas</b>", 2600), 400);
   }
 
+  // Falas em sequência de um personagem (ex.: o jogador no ônibus).
+  fala({ nome, retrato, textos, aoFim }) {
+    this.dlg = { tipo: "fala", textos, i: 0, aoFim, voz: "jogador" };
+    $("dialogo").classList.remove("sem-retrato");
+    this.desenharRetrato("dlg-retrato", retrato);
+    $("dlg-nome").textContent = nome;
+    $("dialogo").hidden = false;
+    this.prompt(null);
+    this.escrever(textos[0]);
+  }
+
   desenharRetrato(id, img) {
     const c = $(id);
     const x = c.getContext("2d");
@@ -211,7 +222,7 @@ export class Interface {
       const antes = d.mostrado;
       d.mostrado = Math.min(texto.length, d.mostrado + n);
       el.textContent = texto.slice(0, d.mostrado);
-      if (d.tipo === "npc" && /\S/.test(texto.slice(antes, d.mostrado)) && antes % 2 === 0) this.app.audio.blip(d.npc.id);
+      if ((d.tipo === "npc" || d.tipo === "fala") && /\S/.test(texto.slice(antes, d.mostrado)) && antes % 2 === 0) this.app.audio.blip(d.tipo === "npc" ? d.npc.id : d.voz);
       if (d.mostrado >= texto.length) this.completar();
     }, 16);
   }
@@ -267,6 +278,12 @@ export class Interface {
     if (!d) return;
     if (!d.completo) return this.completar();
     if (d.tipo === "msg") this.fecharDialogo();
+    if (d.tipo === "fala") {
+      d.i++;
+      if (d.i >= d.textos.length) return this.fecharDialogo();
+      this.app.audio.sfx("clique");
+      this.escrever(d.textos[d.i]);
+    }
   }
 
   fecharDialogo() {
@@ -300,6 +317,7 @@ export class Interface {
     if (k === "Escape") {
       e.preventDefault();
       if (d.tipo === "msg") return this.fecharDialogo();
+      if (d.tipo === "fala") { d.i = d.textos.length; return this.fecharDialogo(); }
       const tchau = d.opcoes?.findIndex((o) => o.end);
       if (tchau >= 0 && d.completo) this.escolher(tchau);
     }

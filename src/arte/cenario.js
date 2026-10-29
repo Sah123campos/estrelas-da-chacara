@@ -361,6 +361,18 @@ export class Cenario {
         piso(x, y, 1);
       }
     }
+    // estrada de terra que passa na frente do portão (por onde o ônibus chega)
+    {
+      const y0 = py(95.6), y1 = py(99.6);
+      for (let y = y0; y < y1; y++) for (let x = 0; x < W; x++) {
+        let c = hash(x, y, 31) > 0.9 ? rgb("#c8a87a") : hash(x, y, 32) < 0.08 ? rgb("#7a5a3a") : rgb("#a8865a");
+        const k = y - y0;
+        if (k === 7 || k === 8 || k === 22 || k === 23) c = escurecer(c, 0.14); // marcas de pneu
+        if (k < 2 || k > y1 - y0 - 3) { if (hash(x, y, 33) > 0.5) continue; }
+        set(x, y, c);
+        piso(x, y, 1);
+      }
+    }
     // chão de terra batida na frente de construções
     const terreiro = (x, z, w, d) => {
       for (let y = py(z); y < py(z + d); y++) for (let xx = px(x); xx < px(x + w); xx++) { if (hash(xx >> 1, y >> 1, 4) > 0.12) set(xx, y, hash(xx, y, 2) > 0.85 ? rgb("#c8a87a") : rgb("#b8966a")); piso(xx, y, 1); }

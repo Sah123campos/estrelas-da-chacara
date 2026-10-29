@@ -83,6 +83,7 @@ export function processarFoto(foto, marcos, ajuste = {}, formato = "oval") {
   const dados = bx.getImageData(0, 0, RETRATO, RETRATO).data;
 
   const brilho = (ajuste.brilho || 0) * 0.25;
+  limparBordas(dados, formato);
   const pm = new Pixmap(RETRATO, RETRATO);
   for (let y = 0; y < RETRATO; y++) {
     for (let x = 0; x < RETRATO; x++) {
@@ -109,6 +110,34 @@ function tom([r, g, b], brilho = 0) {
   sat[0] = Math.min(1, sat[0] * 1.02);
   sat[2] = sat[2] * 0.97;
   return [...sat.map((v) => Math.round(v * 23) / 23 * 255), 255];
+}
+
+// Nas bordas do rosto a foto às vezes mostra o fundo (parede branca, céu...). Esses pontos
+// claros/diferentes da pele, perto da borda, viram pele — assim não fica "ponta branca".
+function limparBordas(d, formato) {
+  const hex = amostraPele(d);
+  const pele = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  const lumP = 0.299 * pele[0] + 0.587 * pele[1] + 0.114 * pele[2];
+  for (let y = 0; y < RETRATO; y++) {
+    for (let x = 0; x < RETRATO; x++) {
+      if (!dentroRosto(x, y, formato)) continue;
+      const u = (x + 0.5 - 32) / 15;
+      const v = (y + 0.5 - 29) / 17;
+      const borda = u * u + v * v > 0.5 || v < -0.4;
+      if (!borda) continue;
+      const i = (y * RETRATO + x) * 4;
+      const c = [d[i], d[i + 1], d[i + 2]];
+      const lum = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+      const dist = Math.hypot(c[0] - pele[0], c[1] - pele[1], c[2] - pele[2]);
+      const sat = Math.max(...c) - Math.min(...c);
+      const fundoClaro = lum > lumP + 35 && dist > 60;
+      const fundoCinza = sat < 18 && dist > 70 && lum > lumP - 50;
+      if (fundoClaro || fundoCinza) {
+        const sombra = 1 - Math.max(0, u) * 0.18 - Math.max(0, v - 0.6) * 0.2;
+        d[i] = pele[0] * sombra; d[i + 1] = pele[1] * sombra; d[i + 2] = pele[2] * sombra;
+      }
+    }
+  }
 }
 
 function amostraPele(d) {

@@ -168,7 +168,11 @@ class App {
     this.verificarOrientacao();
     if (!this.jogo.estado.flags.has("intro_vista")) {
       this.jogo.estado.flags.add("intro_vista");
-      setTimeout(() => this.ui.mensagem("Bem-vindo(a) à chácara!", `Oi, ${this.ap.nome || "estrela"}! Você acabou de chegar pelo portão da chácara. O acampamento tem um TEMA SECRETO e ninguém conta qual é… Suba o caminho, converse com quem tem ! sobre a cabeça, junte as pistas e descubra o mistério.`), 600);
+      this.ui.esconderHud(true);
+      this.jogo.iniciarChegada(() => {
+        this.salvar();
+        this.ui.aviso("★ <b>Bem-vindo(a) à chácara!</b> Converse com quem tem <b>!</b> sobre a cabeça e descubra o tema secreto.", 4200);
+      });
     }
   }
 
@@ -334,7 +338,7 @@ class App {
   // O menu e o camarim continuam em pé.
   verificarOrientacao() {
     const emPe = window.innerHeight > window.innerWidth;
-    const jogando = !$("hud").hidden || this.jogo?.modo === "cena" || this.jogo?.modo === "toboagua";
+    const jogando = !$("hud").hidden || ["cena", "toboagua", "chegada"].includes(this.jogo?.modo);
     const girar = this.ehCelular() && emPe && jogando && this.config.girar !== false;
     const estava = document.body.classList.contains("girado");
     $("girar").hidden = true;

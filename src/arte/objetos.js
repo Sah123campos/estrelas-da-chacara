@@ -582,3 +582,97 @@ export function cesta(lado = -1) {
   o.aroDx = ax - px0;
   return o;
 }
+
+// Ônibus do acampamento visto de lado, indo para a direita (q = quadro das rodas).
+export function onibus(q = 0, portaAberta = false) {
+  const W = 104;
+  const H = 44;
+  const pm = new Pixmap(W, H);
+  const base = H - 6;
+  // carroceria
+  for (let y = 4; y < base; y++) for (let x = 2; x < W - 2; x++) {
+    let c = "#f4f2ea";
+    if (y < 7) c = "#ffffff";
+    if (y > base - 9 && y < base - 5) c = "#2a6ad0"; // faixa azul
+    if (y === base - 9) c = "#f2c14e";
+    if (y >= base - 3) c = "#c8c4bc";
+    if (x > W - 10 && y < base - 12) c = y < 9 ? "#ffffff" : "#e8e6e0"; // frente
+    pm.set(x, y, c);
+  }
+  // cantos arredondados
+  for (const [x, y] of [[2, 4], [3, 4], [2, 5], [W - 3, 4], [W - 4, 4], [W - 3, 5]]) pm.apagar(x, y);
+  // janelas com passageiros
+  for (let k = 0; k < 7; k++) {
+    const x0 = 6 + k * 12;
+    for (let y = 9; y < 19; y++) for (let x = x0; x < x0 + 9; x++) pm.set(x, y, y < 11 ? "#9ad4f0" : "#3a6a9a");
+    if (k % 2 === 0 || k === 5) { for (let y = 13; y < 19; y++) for (let x = x0 + 3; x < x0 + 7; x++) pm.set(x, y, y < 16 ? "#3a2418" : "#c98e62"); }
+  }
+  // para-brisa
+  for (let y = 9; y < 21; y++) for (let x = W - 9; x < W - 3; x++) pm.set(x, y, y < 12 ? "#c8ecff" : "#5a9ac8");
+  // porta (perto da frente)
+  const px0 = W - 22;
+  for (let y = 9; y < base - 1; y++) for (let x = px0; x < px0 + 9; x++) {
+    if (portaAberta) pm.set(x, y, y < base - 4 ? "#2a2a34" : "#8a8a94");
+    else pm.set(x, y, x === px0 + 4 ? "#c8c4bc" : y < 22 ? "#9ad4f0" : "#e8e6e0");
+  }
+  // letreiro do acampamento
+  for (let x = 8; x < 50; x++) for (let y = 21; y < 25; y++) pm.set(x, y, "#16161a");
+  for (let x = 10; x < 48; x += 2) pm.set(x, 22 + ((x >> 1) % 2), "#ffd84a");
+  // farol e para-choque
+  pm.set(W - 3, base - 7, "#fff3a0"); pm.set(W - 3, base - 6, "#fff3a0");
+  for (let x = W - 6; x < W - 1; x++) pm.set(x, base - 2, "#6a6a74");
+  // rodas
+  for (const cx of [20, W - 26]) {
+    for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) {
+      const d = Math.hypot(x, y);
+      if (d > 5.4) continue;
+      let c = d > 3.6 ? "#1a1a20" : d > 1.5 ? "#8a8a94" : "#c8c8d0";
+      if (d > 1.5 && d <= 3.6 && ((Math.round(Math.atan2(y, x) * 2 / Math.PI + q) % 2 + 2) % 2 === 0)) c = "#5a5a64";
+      pm.set(cx + x, base + y - 1, c);
+    }
+  }
+  return pronto(pm, W >> 1, H - 1, null);
+}
+
+// Interior do ônibus (cena de abertura), na resolução da tela.
+export function interiorOnibus(x, w, h, t) {
+  // paisagem passando pelas janelas
+  const jy0 = Math.round(h * 0.16);
+  const jy1 = Math.round(h * 0.52);
+  const g = x.createLinearGradient(0, jy0, 0, jy1);
+  g.addColorStop(0, "#6ab8f0"); g.addColorStop(1, "#bfe6ff");
+  x.fillStyle = g;
+  x.fillRect(0, jy0, w, jy1 - jy0);
+  const morro = (vel, alt, cor, freq) => {
+    x.fillStyle = cor;
+    for (let i = 0; i < w; i++) {
+      const xx = i + t * vel;
+      const y = jy1 - alt - Math.sin(xx * freq) * alt * 0.4 - Math.sin(xx * freq * 2.3) * alt * 0.2;
+      x.fillRect(i, Math.round(y), 1, jy1 - Math.round(y));
+    }
+  };
+  morro(8, h * 0.12, "#7ab060", 0.02);
+  morro(30, h * 0.07, "#4f8a34", 0.045);
+  // palmeiras e postes passando rápido
+  for (let k = 0; k < 6; k++) {
+    const xx = ((k * 97 - t * 90) % (w + 60) + w + 60) % (w + 60) - 30;
+    x.fillStyle = k % 3 ? "#bdb7aa" : "#6a4a30";
+    x.fillRect(Math.round(xx), jy0 + 10, 3, jy1 - jy0 - 10);
+    if (k % 3) { x.fillStyle = "#3d7a32"; for (let f = -3; f <= 3; f++) x.fillRect(Math.round(xx) + f * 4 - 2, jy0 + 8 + Math.abs(f) * 2, 6, 3); }
+  }
+  // paredes, janelas e teto
+  x.fillStyle = "#d8d4cc"; x.fillRect(0, 0, w, jy0);
+  x.fillStyle = "#c0bcb4"; x.fillRect(0, jy0 - 3, w, 3);
+  x.fillStyle = "#e8e4dc"; x.fillRect(0, jy1, w, h - jy1);
+  x.fillStyle = "#a8a49c";
+  for (let k = 0; k <= 5; k++) x.fillRect(Math.round((k * w) / 5) - 3, jy0, 6, jy1 - jy0);
+  for (let k = 0; k < w; k += 40) { x.fillStyle = "#fff8dc"; x.fillRect(k + 14, 6, 14, 3); }
+  // corredor e bancos azuis
+  x.fillStyle = "#6a6a74"; x.fillRect(0, h - Math.round(h * 0.12), w, h);
+  for (let k = 0; k < 4; k++) {
+    const bx = Math.round(w * 0.04 + k * (w * 0.25));
+    x.fillStyle = "#1e4a8a"; x.fillRect(bx, Math.round(h * 0.5), Math.round(w * 0.2), Math.round(h * 0.2));
+    x.fillStyle = "#2a6ad0"; x.fillRect(bx + 2, Math.round(h * 0.5) + 2, Math.round(w * 0.2) - 4, 5);
+    x.fillStyle = "#16386a"; x.fillRect(bx, Math.round(h * 0.7), Math.round(w * 0.2), Math.round(h * 0.06));
+  }
+}

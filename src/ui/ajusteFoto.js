@@ -143,8 +143,8 @@ export class AjusteFoto {
     this.pendente = true;
     requestAnimationFrame(() => {
       this.pendente = false;
-      this.desenhar();
       this.previa();
+      this.desenhar();
     });
   }
 
@@ -162,23 +162,21 @@ export class AjusteFoto {
     x.imageSmoothingEnabled = true;
     x.drawImage(this.foto, 0, 0);
     x.restore();
-    // escurece fora do rosto
-    const R = MOLDE.rosto;
+    // escurece tudo o que NÃO vai aparecer no personagem (o que fica claro é exatamente
+    // a parte da foto que vira o rosto; o resto é coberto pelo cabelo/roupa desenhados)
+    const ox = V / 2 - 32 * G;
+    const oy = OLHO_Y - CANON.olhoE.y * G;
     x.save();
-    x.fillStyle = "rgba(8,4,16,0.55)";
-    x.beginPath();
-    x.rect(0, 0, V, V);
-    x.ellipse(R.x, R.y, R.rx, R.ry, 0, 0, Math.PI * 2, true);
-    x.fill("evenodd");
+    x.fillStyle = "rgba(8,4,16,0.62)";
+    x.fillRect(0, 0, V, Math.max(0, oy));
+    x.fillRect(0, oy + 64 * G, V, V);
+    x.fillRect(0, oy, Math.max(0, ox), 64 * G);
+    x.fillRect(ox + 64 * G, oy, V, 64 * G);
+    if (this.mascara) {
+      x.imageSmoothingEnabled = false;
+      x.drawImage(this.mascara, ox, oy, 64 * G, 64 * G);
+    }
     x.restore();
-    // molde
-    x.strokeStyle = "#f2c14e";
-    x.lineWidth = 2.5;
-    x.setLineDash([7, 5]);
-    x.beginPath();
-    x.ellipse(R.x, R.y, R.rx, R.ry, 0, 0, Math.PI * 2);
-    x.stroke();
-    x.setLineDash([]);
     for (const o of [MOLDE.olhoE, MOLDE.olhoD]) {
       x.beginPath();
       x.arc(o.x, o.y, 7, 0, Math.PI * 2);
@@ -207,6 +205,18 @@ export class AjusteFoto {
     this.proc = processarFoto(this.foto, this.marcos(), ap.foto, ap.formato);
     ap.pele = this.proc.pele;
     const r = desenharRetrato(ap, { fotoRetrato: this.proc.retrato });
+    // máscara: onde a foto aparece de verdade no retrato final
+    if (!this.mascara) { this.mascara = document.createElement("canvas"); this.mascara.width = 64; this.mascara.height = 64; }
+    const mc = this.mascara.getContext("2d");
+    const md = mc.createImageData(64, 64);
+    for (let y = 0; y < 64; y++) for (let xx = 0; xx < 64; xx++) {
+      const f = this.proc.retrato.get(xx, y);
+      const q = r.get(xx, y);
+      const visivel = f && q && f[0] === q[0] && f[1] === q[1] && f[2] === q[2];
+      const i = (y * 64 + xx) * 4;
+      if (!visivel) { md.data[i] = 8; md.data[i + 1] = 4; md.data[i + 2] = 16; md.data[i + 3] = 158; }
+    }
+    mc.putImageData(md, 0, 0);
     const c = $("aj-previa").getContext("2d");
     c.clearRect(0, 0, 64, 64);
     c.putImageData(new ImageData(r.d, 64, 64), 0, 0);

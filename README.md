@@ -55,6 +55,8 @@ de abrir a câmera). O jogo encontra olhos e boca, alinha o rosto e o transforma
   cabelo, chapéu, óculos, brincos e roupa desenhados por cima.
 - **Boneco** (22×38) andando pelo mapa: o rosto da foto reduzido e realçado.
 - Ao tirar a foto, a câmera mostra um **molde do rosto** (olhos nas bolinhas, boca na linha).
+- Na tela de posicionar, a parte clara é exatamente o que vira o rosto (o resto é coberto pelo cabelo e pela
+  roupa desenhados). Pontas de fundo claro (parede, céu) na borda do rosto viram pele automaticamente.
 - Toda foto (câmera ou galeria) abre a tela **Posicione o seu rosto**: arraste, aproxime e gire até encaixar,
   vendo a prévia em pixel art ao vivo. Dá para reabrir depois em "Ajustar a posição do rosto".
 - Brilho e o botão "usar o tom de pele da foto".
@@ -81,7 +83,8 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 
 ## Na chácara
 
-- Você chega pelo **portão** e sobe o caminho até a chácara.
+- O jogo começa **dentro do ônibus** do acampamento: o personagem conta que está curioso com o tema e ansioso
+  pelo que Deus tem preparado. O ônibus para na estrada em frente ao **portão**, você desce e o ônibus vai embora.
 - Dá para **sentar no murinho azul** (borda da plataforma de concreto azul das fotos).
 - O **toboágua** desce até a piscina: aperte E na escadinha, escorregue, caia na água e nade um pouco.
 - Na **quadra de basquete** tem duas cestas e uma bola: chegue perto da bola e aperte E para arremessar.

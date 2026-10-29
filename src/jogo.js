@@ -8,6 +8,7 @@ import { NPCS } from "./dados/npcs.js";
 import { aparenciaPadrao } from "./dados/guardaroupa.js";
 import { EstadoHistoria, Conversa } from "./motor/conversa.js";
 import { hash, criarCanvas } from "./arte/pixel.js";
+import { onibus, interiorOnibus } from "./arte/objetos.js";
 
 export const PISTAS = NPCS.filter((n) => !n.bebe).map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
 export const TEXTO_PISTAS = {
@@ -215,6 +216,7 @@ export class Jogo {
     if (this.modo === "explorar") this.atualizarExplorar(dt);
     else if (this.modo === "cena") this.atualizarCena(dt);
     else if (this.modo === "toboagua") this.atualizarToboagua(dt);
+    else if (this.modo === "chegada") this.atualizarChegada(dt);
     else if (this.modo === "titulo") {
       this.camTitulo += dt;
       const k = this.camTitulo * 0.05;
@@ -474,6 +476,105 @@ export class Jogo {
     });
   }
 
+  // ---------- abertura: chegando de ônibus ----------
+  iniciarChegada(aoFim) {
+    const j = this.jogador;
+    this.modo = "chegada";
+    this.ui.prompt(null);
+    this.chegada = { fase: "dentro", t: 0, aoFim };
+    if (!this.passageiros) {
+      const aps = [
+        { ...aparenciaPadrao("f"), vestido: "nenhum", cima: "listrada", baixo: "jeans", cabelo: "cachos_longos", corCabelo: "#2e1c12", pele: "#a86f47" },
+        { ...aparenciaPadrao("m"), casaco: "nenhum", cima: "havaiana", baixo: "bermuda", pescoco: "nenhum", cabelo: "black", pele: "#6b3f24", calcado: "tenis" },
+        { ...aparenciaPadrao("m"), casaco: "jaqueta_jeans", cima: "camiseta", baixo: "jeans", pescoco: "nenhum", cabelo: "curto", corCabelo: "#d6b37a", pele: "#f6d7c3", chapeu: "bone" },
+      ];
+      this.passageiros = aps.map((ap) => gerarFolha(ap));
+    }
+    const nome = j.ap.nome || "Você";
+    this.ui.fala({
+      nome,
+      retrato: j.retrato,
+      textos: [
+        "(O ônibus do acampamento balança pela estrada de terra. Lá fora passam pastos, palmeiras e um céu azul enorme.)",
+        "Finalmente! Acampamento na chácara… Dá pra sentir que esse fim de semana vai ser especial.",
+        "Senhor, eu tô indo de coração aberto. Tô ansioso(a) pra ver o que o Senhor tem preparado pra mim lá.",
+        "E esse TEMA? Ninguém quer contar! Todo mundo só fala \"você vai ver…\" e dá risada.",
+        "Já sei: vou conversar com todo mundo até alguém deixar escapar uma pista. Olha… o portão! Chegamos!",
+      ],
+      aoFim: () => {
+        const c = this.chegada;
+        c.fase = "chegando";
+        c.t = 0;
+        c.bx = -60;
+        c.parada = px(MAPA.portao.x) + 3 - 34; // porta do ônibus na frente do caminho
+        this.ui.esconderHud(false);
+        j.oculto = true;
+        j.x = px(MAPA.portao.x) + 3;
+        j.y = py(97.2);
+        this.cam.x = px(MAPA.portao.x);
+        this.cam.y = py(92);
+      },
+    });
+  }
+
+  atualizarChegada(dt) {
+    const c = this.chegada;
+    const j = this.jogador;
+    c.t += dt;
+    const yOnibus = py(98.8);
+    if (c.fase === "dentro") return;
+    if (c.fase === "chegando") {
+      const alvo = c.parada;
+      c.bx += Math.max(8, (alvo - c.bx) * 1.8) * dt;
+      if (c.bx >= alvo - 0.5) { c.bx = alvo; c.fase = "descer"; c.t = 0; this.audio.sfx("abrir"); }
+    } else if (c.fase === "descer") {
+      if (c.t > 0.5 && j.oculto) { j.oculto = false; j.dir = "cima"; }
+      if (!j.oculto) {
+        j.pose = "andar";
+        j.t += dt;
+        j.y -= 40 * dt;
+        if (j.y <= py(MAPA.inicio.z)) { j.y = py(MAPA.inicio.z); c.fase = "partindo"; c.t = 0; }
+      }
+    } else if (c.fase === "partindo") {
+      j.pose = "parado";
+      j.dir = "baixo";
+      c.bx += (30 + c.t * 90) * dt;
+      if (c.t > 0.6 && !c.acenou) { c.acenou = true; j.acenarAte = this.tempo + 1.5; }
+      if (j.acenarAte > this.tempo) j.pose = "acenar";
+      if (c.bx > c.parada + this.tela.w * 0.7 + 60) {
+        this.chegada = null;
+        this.modo = "explorar";
+        j.dir = "cima";
+        this.entrada.limpar();
+        c.aoFim?.();
+      }
+    }
+    c.y = yOnibus;
+    this.seguirCamera(dt, { x: px(MAPA.portao.x), y: py(93) });
+  }
+
+  desenharInteriorOnibus() {
+    const ctx = this.ctx;
+    const W = this.tela.w;
+    const H = this.tela.h;
+    const t = this.tempo;
+    const bob = Math.round(Math.sin(t * 9) * 0.6 + Math.sin(t * 2.3) * 0.5);
+    ctx.save();
+    ctx.translate(0, bob);
+    interiorOnibus(ctx, W, H, t);
+    // passageiros e o jogador sentados nos bancos (em escala 2x)
+    const banco = (k) => Math.round(W * 0.04 + k * (W * 0.25) + W * 0.1);
+    const yb = Math.round(H * 0.5) + 8;
+    const q = (folha) => ctx.drawImage(folha.canvas, 7 * LARG, 0, LARG, ALT, -LARG, -ALT * 2 + 10, LARG * 2, ALT * 2);
+    const sentar = (folha, k) => { ctx.save(); ctx.translate(banco(k), yb); q(folha); ctx.restore(); };
+    ctx.imageSmoothingEnabled = false;
+    sentar(this.passageiros[0], 0);
+    sentar(this.jogador.folha, 1);
+    sentar(this.passageiros[1], 2);
+    sentar(this.passageiros[2], 3);
+    ctx.restore();
+  }
+
   // ---------- toboágua ----------
   iniciarToboagua() {
     const tb = this.cen.toboagua;
@@ -699,6 +800,7 @@ export class Jogo {
 
   // ---------- desenho ----------
   desenhar() {
+    if (this.chegada?.fase === "dentro") return this.desenharInteriorOnibus();
     const ctx = this.ctx;
     const W = this.tela.w;
     const H = this.tela.h;
@@ -744,7 +846,12 @@ export class Jogo {
       if (x0 > cx + W || y0 > cy + H || x0 + o.w < cx || y0 + o.h < cy + -0) continue;
       lista.push(o);
     }
-    const atores = [this.jogador, ...this.npcsVisiveis];
+    const atores = [...(this.jogador.oculto ? [] : [this.jogador]), ...this.npcsVisiveis];
+    if (this.chegada && this.chegada.fase !== "dentro") {
+      const c = this.chegada;
+      const spr = onibus(Math.floor(this.tempo * 10) % 2, c.fase === "descer");
+      lista.push({ ...spr, x: Math.round(c.bx), y: c.y, opaco: true });
+    }
     for (const a of atores) if (Math.abs(a.x - this.cam.x) < W && Math.abs(a.y - this.cam.y) < H) lista.push(a);
     const prof = (o) => (o.chao ? -1e9 : o.frente ? 1e9 : o.y);
     lista.sort((a, b) => prof(a) - prof(b));
@@ -763,7 +870,7 @@ export class Jogo {
       }
       // fica translúcido se estiver na frente do jogador
       let alfa = 1;
-      if (o.h > 34 && j.y < o.y - 2 && j.y > o.y - oy && Math.abs(j.x - o.x) < (o.ox + 4) && j.x > o.x - ox && j.x < o.x - ox + o.w) alfa = 0.55;
+      if (!o.opaco && o.h > 34 && j.y < o.y - 2 && j.y > o.y - oy && Math.abs(j.x - o.x) < (o.ox + 4) && j.x > o.x - ox && j.x < o.x - ox + o.w) alfa = 0.55;
       if (alfa < 1) ctx.globalAlpha = alfa;
       ctx.drawImage(img, Math.round(o.x - ox - cx), Math.round(o.y - oy - cy));
       ctx.globalAlpha = 1;
