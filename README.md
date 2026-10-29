@@ -37,6 +37,17 @@ Abra `http://localhost:8080`. No GitHub Pages basta publicar a pasta (raiz do re
 | **M**: mapa | Pausa → Mapa |
 | **Esc**: pausa | Botão de pausa |
 
+## Celular: tela cheia e deitado
+
+- **Android:** ao começar a jogar, o jogo entra em tela cheia e trava a tela deitada sozinho.
+  Se o celular estiver em pé, aparece o aviso "Gire o celular" com o botão **Tela cheia e deitar**.
+- **iPhone:** o Safari não deixa nenhum site entrar em tela cheia nem travar a rotação. O aviso explica:
+  1. desligar o cadeado de rotação na Central de Controle;
+  2. girar o iPhone;
+  3. para tela cheia: Compartilhar → **Adicionar à Tela de Início** e abrir pelo ícone (abre sem as barras
+     do Safari, como um aplicativo).
+- Dá para tocar em "Jogar em pé mesmo". O camarim e o menu funcionam em pé normalmente.
+
 ## O seu rosto no jogo
 
 No camarim, use os botões **Tirar foto do rosto** / **Foto da galeria** (logo abaixo do retrato) ou a aba **Seu rosto**, que é a primeira (o jogo pede permissão antes

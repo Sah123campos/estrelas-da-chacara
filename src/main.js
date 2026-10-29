@@ -67,6 +67,7 @@ class App {
       if (b) { this.audio.iniciar(); this.audio.sfx("clique"); this.acaoTitulo(b.dataset.acao); }
     });
     this.ligarConfig();
+    this.ligarOrientacao();
     this.mostrarContador();
     $("carregando").hidden = true;
     this.irParaTitulo();
@@ -112,6 +113,7 @@ class App {
     $("toque").hidden = true;
     $("dialogo").hidden = true;
     $("titulo").hidden = false;
+    $("girar").hidden = true;
     $("btn-continuar").hidden = !this.salvo?.ap;
     this.atualizarTitulo();
     this.audio.tocar("titulo");
@@ -152,6 +154,7 @@ class App {
   }
 
   comecar() {
+    if (this.toqueAtivo) this.telaCheiaDeitada(); // precisa ser no mesmo toque do botão
     $("titulo").hidden = true;
     $("hud").hidden = false;
     $("toque").hidden = !this.toqueAtivo;
@@ -162,6 +165,7 @@ class App {
     this.audio.tocar("chacara");
     this.salvar();
     this.salvo = carregarJogo();
+    this.verificarOrientacao();
     if (!this.jogo.estado.flags.has("intro_vista")) {
       this.jogo.estado.flags.add("intro_vista");
       setTimeout(() => this.ui.mensagem("Bem-vindo(a) à chácara!", `Oi, ${this.ap.nome || "estrela"}! Você acabou de chegar pelo portão da chácara. O acampamento tem um TEMA SECRETO e ninguém conta qual é… Suba o caminho, converse com quem tem ! sobre a cabeça, junte as pistas e descubra o mistério.`), 600);
@@ -219,7 +223,9 @@ class App {
   }
 
   voltarAoJogo(modo) {
+    if (this.toqueAtivo) this.telaCheiaDeitada();
     $("hud").hidden = false;
+    setTimeout(() => this.verificarOrientacao(), 50);
     $("toque").hidden = !this.toqueAtivo;
     this.jogo.modo = modo;
     this.entrada.limpar();
@@ -286,6 +292,47 @@ class App {
     this.audio.definirLigado(this.config.som);
     $("btn-som").innerHTML = `<span class="ico ${this.config.som ? "ico-som" : "ico-mudo"}"></span>`;
     this.gravarConfig();
+  }
+
+  // ---------- celular: tela cheia e tela deitada ----------
+  ehCelular() {
+    return this.toqueAtivo || matchMedia("(pointer: coarse)").matches;
+  }
+
+  async telaCheiaDeitada() {
+    const d = document.documentElement;
+    try {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (d.requestFullscreen) await d.requestFullscreen({ navigationUI: "hide" });
+        else if (d.webkitRequestFullscreen) d.webkitRequestFullscreen();
+      }
+    } catch { /* o navegador não deixou (ex.: iPhone) */ }
+    try { await screen.orientation?.lock?.("landscape"); } catch { /* sem trava de orientação */ }
+    setTimeout(() => this.verificarOrientacao(), 300);
+  }
+
+  ligarOrientacao() {
+    const ver = () => this.verificarOrientacao();
+    window.addEventListener("resize", ver);
+    window.addEventListener("orientationchange", ver);
+    screen.orientation?.addEventListener?.("change", ver);
+    $("girar-tela-cheia").onclick = () => this.telaCheiaDeitada();
+    $("girar-assim").onclick = () => { this.jogarEmPe = true; this.verificarOrientacao(); };
+    // iPhone: não existe tela cheia nem trava de rotação para sites no Safari
+    const iphone = /iP(hone|od)/.test(navigator.userAgent);
+    const instalado = navigator.standalone === true || matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches;
+    $("girar-ios").hidden = !iphone;
+    if (iphone) $("girar-tela-cheia").hidden = true;
+    if (iphone && instalado) $("girar-ios").querySelector("li:last-child").hidden = true;
+  }
+
+  // Mostra o aviso "gire o celular" enquanto joga em pé (o camarim e o menu funcionam em pé).
+  verificarOrientacao() {
+    const emPe = window.innerHeight > window.innerWidth;
+    const jogando = !$("hud").hidden || this.jogo?.modo === "cena";
+    const mostrar = this.ehCelular() && emPe && jogando && !this.jogarEmPe;
+    $("girar").hidden = !mostrar;
+    if (this.jogo && mostrar && this.jogo.modo === "explorar") this.entrada.limpar();
   }
 
   telaCheia() {

@@ -7,6 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Estrelas">
   <title>Estrelas da Chácara</title>
   <meta name="description" content="Um RPG em pixel art na chácara do acampamento. Crie seu personagem com o seu rosto, converse com todo mundo e descubra o tema secreto.">
   <link rel="manifest" href="manifest.webmanifest">
@@ -19,6 +20,27 @@
 <body>
   <div id="app">
     <canvas id="tela" aria-label="Cenário do jogo"></canvas>
+
+    <!-- Celular em pé: pedir para girar -->
+    <div id="girar" hidden>
+      <div class="girar-caixa moldura">
+        <div class="girar-celular" aria-hidden="true"><span></span></div>
+        <h2>Gire o celular</h2>
+        <p>O jogo fica muito melhor com o celular <b>deitado</b> e em <b>tela cheia</b>.</p>
+        <div class="nota girar-ios" id="girar-ios" hidden>
+          <p><b>No iPhone é diferente:</b> o Safari não deixa sites entrarem em tela cheia nem girarem sozinhos. Faça assim:</p>
+          <ol>
+            <li><b>Libere a rotação:</b> puxe a Central de Controle (canto de cima à direita) e desligue o cadeado de rotação.</li>
+            <li><b>Gire o iPhone</b> para deitado.</li>
+            <li><b>Para tela cheia:</b> toque em Compartilhar (quadrado com seta) → <b>Adicionar à Tela de Início</b> → abra o jogo pelo ícone novo. Ele abre sem as barras do Safari, como um aplicativo.</li>
+          </ol>
+        </div>
+        <div class="menu">
+          <button class="btn principal" id="girar-tela-cheia">Tela cheia e deitar</button>
+          <button class="btn fraco" id="girar-assim">Jogar em pé mesmo</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Carregando -->
     <div id="carregando" class="tela-cheia">
