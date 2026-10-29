@@ -37,16 +37,73 @@ export function surfaceProps(pattern) {
   }
 }
 
-// Cria material de tecido; map opcional (canvas pintado) substitui o padrão.
+// Mapas de micro-superfície partilhados: dão relevo real à trama sem criar uma textura por peça.
+const detailMapCache = new Map();
+function fabricDetailMaps(pattern = 'wool') {
+  const kind = /leather/.test(pattern) ? 'leather'
+    : /satin|sequin|metallic/.test(pattern) ? 'smooth'
+    : /denim|knit|plaid|houndstooth|stripes|pinstripe/.test(pattern) ? 'woven'
+    : /velvet/.test(pattern) ? 'velvet' : 'wool';
+  if (detailMapCache.has(kind)) return detailMapCache.get(kind);
+
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(size, size);
+  // Tons de cinza muito próximos mantêm o relevo subtil, sem parecerem riscos pintados.
+  let seed = kind === 'leather' ? 73 : kind === 'velvet' ? 31 : kind === 'woven' ? 19 : kind === 'smooth' ? 11 : 47;
+  const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const i = (y * size + x) * 4;
+    let v = 128;
+    if (kind === 'wool' || kind === 'woven') {
+      const warp = (x % 5 < 2) ? 13 : -5;
+      const weft = (y % 5 < 2) ? 11 : -4;
+      v += warp + weft + (rand() - 0.5) * 13;
+    } else if (kind === 'leather') {
+      v += (rand() - 0.5) * 22 + Math.sin(x * 0.17 + Math.sin(y * 0.09) * 2) * 3;
+    } else if (kind === 'velvet') {
+      v += (rand() - 0.5) * 8 + Math.sin((x + y * 0.3) * 0.12) * 4;
+    } else {
+      v += (rand() - 0.5) * 3;
+    }
+    v = Math.max(0, Math.min(255, v));
+    image.data[i] = image.data[i + 1] = image.data[i + 2] = v;
+    image.data[i + 3] = 255;
+  }
+  ctx.putImageData(image, 0, 0);
+  const bump = new THREE.CanvasTexture(canvas);
+  bump.wrapS = bump.wrapT = THREE.RepeatWrapping;
+  bump.repeat.set(kind === 'leather' ? 2.5 : kind === 'smooth' ? 1 : 3.5, kind === 'leather' ? 2.5 : kind === 'smooth' ? 1 : 3.5);
+  bump.colorSpace = THREE.NoColorSpace;
+  bump.generateMipmaps = true;
+  bump.minFilter = THREE.LinearMipmapLinearFilter;
+  bump.magFilter = THREE.LinearFilter;
+  const maps = { bump, kind };
+  detailMapCache.set(kind, maps);
+  return maps;
+}
+
+// Cria material de tecido com cor, trama e micro-relevo. O mapa pintado do tronco
+// continua a ser respeitado, enquanto o bump acrescenta detalhe à superfície.
 export function fabricMaterial(spec, { map = null, repeat = 1, side = THREE.FrontSide } = {}) {
-  const props = surfaceProps(spec && spec.pattern);
+  const pattern = spec && spec.pattern || 'wool';
+  const props = surfaceProps(pattern);
   const useMap = map || fabricTexture(spec);
   let tex = useMap;
   if (!map && useMap) { tex = useMap.clone(); tex.repeat.set(useMap.repeat.x * repeat, useMap.repeat.y * repeat); tex.needsUpdate = true; }
   const color = map || useMap ? 0xffffff : (spec ? spec.color : '#888');
   const physical = quality().physical && (props.sheen || props.clearcoat);
   const M = physical ? THREE.MeshPhysicalMaterial : THREE.MeshStandardMaterial;
-  const m = new M({ color, map: tex || null, roughness: props.roughness, metalness: props.metalness, side });
+  const detail = fabricDetailMaps(pattern);
+  const bumpScale = detail.kind === 'smooth' ? 0.006 : detail.kind === 'leather' ? 0.018 : detail.kind === 'velvet' ? 0.012 : 0.022;
+  const materialOptions = {
+    color, map: tex || null,
+    bumpMap: detail.bump, bumpScale,
+    roughness: props.roughness, metalness: props.metalness, side
+  };
+  const m = new M(materialOptions);
   if (physical) {
     if (props.sheen) { m.sheen = props.sheen; m.sheenRoughness = props.sheenRough ?? 0.5; m.sheenColor = new THREE.Color(spec.color).lerp(new THREE.Color('#ffffff'), 0.4); }
     if (props.clearcoat) { m.clearcoat = props.clearcoat; m.clearcoatRoughness = 0.3; }
