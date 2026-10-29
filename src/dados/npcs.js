@@ -178,8 +178,9 @@ const PRINCIPAIS = [
     local: { x: 3, z: -8 },
     comportamento: { tipo: "patrulha", pontos: [[0, -6], [-8, -18], [6, -24], [16, -6]], lento: true },
     aparencia: {
-      genero: "m", pele: "#e0ac83", cabelo: "topete", corCabelo: "#7a4b2a", barba: "cavanhaque", boca: "canto", sobrancelha: "grossa",
-      cima: "camiseta", casaco: "couro", pescoco: "corrente", baixo: "jeans", calcado: "tenis", oculos: "aviador", vestido: "nenhum",
+      genero: "m", pele: "#9a6440", cabelo: "curto", corCabelo: "#141010", barba: "bigode", boca: "canto", sobrancelha: "grossa", porte: 2,
+      cima: "camiseta", casaco: "couro", baixo: "jeans", calcado: "tenis", oculos: "redondo", chapeu: "bone", vestido: "nenhum",
+      ajustes: { cima: { camiseta: { cor: "#1f3a2a" } }, casaco: { couro: { cor: "#b8a07a", padrao: "veludo" } }, chapeu: { bone: { cor: "#16161a", cor2: "#e8d8a8" } } },
     },
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { outfitTag: "estrela" }, node: "tema" }, { node: "start" }],
