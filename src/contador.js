@@ -60,8 +60,8 @@ export const ENDERECOS_LEITURA = {
 // "Entrou": toda vez que a pessoa começa a jogar (espera 5 min para não contar recarga rápida).
 // "Finalizou": quando descobre o tema (uma vez por nome em cada aparelho).
 const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSeCihUJv2HxXsUFlpRNNkiwDaSXlPKDjP3hjLRiTB-cJkZ0Fg/formResponse";
-const CAMPO_NOME = "entry.1125356489";
-const CAMPO_SITUACAO = "entry.1024219460";
+const CAMPO_NOME = "entry.1024219460";
+const CAMPO_SITUACAO = "entry.1125356489";
 const CHAVE_NOME = "chacara.nomeEnviado.v3";
 
 export function enviarNome(nome, situacao = "Entrou") {
