@@ -385,8 +385,15 @@ export class Character {
   _buildHat(parent, app) {
     const it = findItem('hat', app.hat);
     if (!it || it.id === 'nenhum') return;
-    const mat = this._std(it.color, it.kind === 'crown' ? 0.25 : 0.8, it.kind === 'crown' ? 0.9 : 0, { side: THREE.DoubleSide });
-    const band = it.band ? this._std(it.band, 0.6) : null;
+    const mat = it.kind === 'crown'
+      ? this._std(it.color, 0.25, 0.9, { side: THREE.DoubleSide })
+      : this._mat(fabricMaterial({
+          color: it.color,
+          pattern: it.kind === 'straw' ? 'straw' : (it.kind === 'tophat' || it.kind === 'fedora' ? 'velvet' : 'woven')
+        }, { side: THREE.DoubleSide }));
+    const band = it.band
+      ? this._mat(fabricMaterial({ color: it.band, pattern: it.kind === 'straw' ? 'velvet' : 'woven' }))
+      : null;
     const volume = app.hair === 'black' ? 1.35 : (['cacheado', 'coque', 'topete'].includes(app.hair) ? 1.12 : 1);
     const g = new THREE.Group(); g.position.set(0, 0.085 + (volume - 1) * 0.1, -0.005); g.scale.setScalar(volume); g.rotation.x = -0.08; parent.add(g);
     const brim = (r, curl = 0) => {
