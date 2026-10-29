@@ -55,21 +55,25 @@ export const ENDERECOS_LEITURA = {
   pessoas: `https://abacus.jasoncameron.dev/get/${ESPACO}/pessoas`,
 };
 
-// Envia o NOME do jogador (só o nome) para o Formulário Google do organizador,
-// toda vez que a pessoa entra para jogar (cada envio = uma linha com data e hora na planilha).
-// Para não contar duas vezes uma recarga rápida, espera 5 minutos entre envios do mesmo nome.
+// Envia o NOME do jogador e a SITUAÇÃO ("Entrou" ou "Finalizou") para o Formulário Google
+// do organizador. Cada envio = uma linha com data e hora na planilha.
+// "Entrou": toda vez que a pessoa começa a jogar (espera 5 min para não contar recarga rápida).
+// "Finalizou": quando descobre o tema (uma vez por nome em cada aparelho).
 const FORM = "https://docs.google.com/forms/d/e/1FAIpQLSeCihUJv2HxXsUFlpRNNkiwDaSXlPKDjP3hjLRiTB-cJkZ0Fg/formResponse";
 const CAMPO_NOME = "entry.1125356489";
-const CHAVE_NOME = "chacara.nomeEnviado.v2";
+const CAMPO_SITUACAO = "entry.1024219460";
+const CHAVE_NOME = "chacara.nomeEnviado.v3";
 
-export function enviarNome(nome) {
+export function enviarNome(nome, situacao = "Entrou") {
   nome = (nome || "").trim();
   if (!nome || location.protocol === "file:" || /^(localhost|127\.)/.test(location.hostname)) return;
-  let ultimo = {};
-  try { ultimo = JSON.parse(localStorage.getItem(CHAVE_NOME) || "{}"); } catch { /* segue */ }
-  if (ultimo.nome === nome && Date.now() - (ultimo.em || 0) < 5 * 60 * 1000) return;
-  const dados = new URLSearchParams({ [CAMPO_NOME]: nome.slice(0, 60) });
+  let reg = {};
+  try { reg = JSON.parse(localStorage.getItem(CHAVE_NOME) || "{}"); } catch { /* segue */ }
+  const k = `${situacao}:${nome}`;
+  if (situacao === "Finalizou" && reg[k]) return;
+  if (situacao === "Entrou" && Date.now() - (reg[k] || 0) < 5 * 60 * 1000) return;
+  const dados = new URLSearchParams({ [CAMPO_NOME]: nome.slice(0, 60), [CAMPO_SITUACAO]: situacao });
   fetch(FORM, { method: "POST", mode: "no-cors", body: dados, credentials: "omit", referrerPolicy: "no-referrer" })
-    .then(() => { try { localStorage.setItem(CHAVE_NOME, JSON.stringify({ nome, em: Date.now() })); } catch { /* ok */ } })
+    .then(() => { reg[k] = Date.now(); try { localStorage.setItem(CHAVE_NOME, JSON.stringify(reg)); } catch { /* ok */ } })
     .catch(() => { /* sem internet: tenta na próxima vez */ });
 }

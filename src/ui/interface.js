@@ -2,6 +2,7 @@
 import { TEMA } from "../config.js";
 import { PISTAS, TEXTO_PISTAS, PISTAS_EXTRAS } from "../jogo.js";
 import { MAPA, px, py } from "../dados/mapa.js";
+import { enviarNome } from "../contador.js";
 
 export const $ = (id) => document.getElementById(id);
 const VEL_TEXTO = 46; // letras por segundo
@@ -451,6 +452,7 @@ export class Interface {
     this.atualizarObjetivo(true);
     this.aviso("★ <b>Coleção Calçada da Fama liberada!</b><br>Smoking de estrelas, vestido da grande estreia, estatueta, claquete e pipoca no camarim.", 5200);
     this.app.atualizarTitulo();
+    enviarNome(this.app.ap?.nome, "Finalizou");
   }
 
   // ---------- mapa ----------
