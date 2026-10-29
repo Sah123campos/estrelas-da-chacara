@@ -22,27 +22,31 @@ export const py = (z) => Math.round((z - LIMITES.z0) * PX_POR_METRO);
 export const m = (v) => v * PX_POR_METRO;
 
 export const MAPA = {
-  inicio: { x: 1.5, z: -1.2, dir: "cima" },
+  // O jogador chega pelo portão de entrada e sobe o caminho até a chácara.
+  inicio: { x: 0, z: 88.5, dir: "cima" },
 
   // Lago (visto à esquerda nas fotos, mais baixo que o gramado).
   lago: { x: -46, z: -42, rx: 30, rz: 13, fonte: "foto" },
   // Riacho da cachoeira até o lago (provisório).
-  riacho: { pts: [[-86, -44], [-80, -45], [-76, -43]], largura: 3, fonte: "provisorio" },
+  riacho: { pts: [[-87, -44.5], [-81, -45.2], [-75, -43]], largura: 3, fonte: "provisorio" },
   // Colina da casa amarela (o terreno sobe a partir daqui).
   colina: { z: -93, fonte: "foto" },
 
-  // Pátio azul (de onde as fotos foram tiradas) e o murinho azul ao norte.
-  patio: { x: 0, z: 6, w: 12, d: 7, fonte: "foto" },
-  murinho: { x: 0, z: 2.4, w: 14, fonte: "foto" },
+  // Plataforma de concreto azul (de onde as fotos foram tiradas). O murinho azul é a borda
+  // norte dela, virada para o gramado das palmeiras; nas laterais o murinho dobra um pouco.
+  patio: { x: 0, z: 7.4, w: 20, d: 10, fonte: "estimado" },
+  murinho: { x: 0, z: 2.4, w: 20, lateral: 4, fonte: "foto" },
 
   // Terraço da piscina (mais alto que o gramado, com balaustrada branca).
   terraco: { x: 40, z: -30, w: 36, d: 26, fonte: "estimado" },
   piscina: { x: 42, z: -31, w: 16, d: 8, fonte: "estimado" },
-  toboagua: { x: 52, z: -38, fonte: "foto" },
+  // Torre do toboágua no canto da piscina; o tubo desce até a água.
+  toboagua: { x: 55, z: -38.5, fim: { x: 48.5, z: -32 }, fonte: "foto" },
   quiosque: { x: 55, z: -22, w: 7, d: 6, fonte: "foto" },
 
   casa: { x: -58, z: -108, w: 20, d: 11, fonte: "foto" },
-  cachoeira: { x: -88, z: -46, fonte: "provisorio" },
+  // Cachoeira virada para o lago (a água cai para o leste e corre pelo riacho até o lago).
+  cachoeira: { x: -94, z: -44, fonte: "provisorio" },
 
   // Áreas provisórias (não aparecem nas fotos)
   refeitorio: { x: -30, z: 40, w: 18, d: 11, fonte: "provisorio" },
@@ -55,7 +59,7 @@ export const MAPA = {
   letreiro: { x: -6, z: -121, espaco: 6.2, fonte: "provisorio" },
 
   caminhos: [
-    { pts: [[0, 96], [0, 70], [2, 52], [0, 34], [0, 12]], largura: 3.2, tipo: "terra", fonte: "provisorio" },
+    { pts: [[0, 96], [0, 70], [2, 52], [0, 34], [0, 12.6]], largura: 3.2, tipo: "terra", fonte: "provisorio" },
     { pts: [[0, 34], [-14, 37], [-30, 42]], largura: 2.4, tipo: "terra", fonte: "provisorio" },
     { pts: [[2, 40], [16, 44]], largura: 2.4, tipo: "terra", fonte: "provisorio" },
     { pts: [[6, 2], [16, -8], [22, -16]], largura: 2.0, tipo: "terra", fonte: "estimado" },
@@ -130,7 +134,7 @@ export const MAPA = {
     quadra: { x: 30, z: 44 },
     fogueira: { x: -6, z: 34 },
     casa: { x: -58, z: -98 },
-    cachoeira: { x: -78, z: -48 },
+    cachoeira: { x: -86, z: -40.5 },
     morro: { x: -6, z: -113 },
     lago: { x: -14, z: -40 },
     portao: { x: 0, z: 88 },
@@ -143,10 +147,10 @@ export const MAPA = {
     { id: "sino", x: -21, z: 46, r: 2.5, rotulo: "Tocar o sino", acao: "sino" },
     { id: "espelho", x: -2, z: 69, r: 2.6, rotulo: "Abrir o camarim", acao: "camarim" },
     { id: "lago_beira", x: -16, z: -38, r: 4, rotulo: "Olhar o lago", texto: "A água está calma. Um sapo te encara como se você devesse dinheiro a ele." },
-    { id: "cachoeira", x: -80, z: -48, r: 5, rotulo: "Admirar a cachoeira", texto: "O barulho da água é tão bom que dá vontade de cochilar. (A posição da cachoeira é provisória: envie fotos dela para reproduzi-la fielmente.)" },
-    { id: "toboagua", x: 50, z: -35, r: 3.5, rotulo: "Olhar o toboágua", texto: "O toboágua azul brilha no sol. Dizem que quem desce gritando ganha um aplauso da plateia… que plateia?" },
+    { id: "cachoeira", x: -86, z: -41, r: 5.5, rotulo: "Admirar a cachoeira", texto: "Que lugar lindo! A água cai das pedras, espuma lá embaixo e corre pelo riacho até o lago. O barulho é tão gostoso que dá vontade de ficar aqui a tarde toda." },
+    { id: "toboagua", x: 55, z: -37.2, r: 3.2, rotulo: "Descer no toboágua!", acao: "toboagua" },
     { id: "palha", x: -7, z: -0.8, r: 2.5, rotulo: "Mexer na palha", texto: "Um montinho de palha seca de palmeira. Lá no fundo tem um papel: “ensaio geral às 19h — não contem pra ninguém”." },
-    { id: "murinho", x: 3, z: 3.2, r: 2.2, rotulo: "Sentar no murinho azul", acao: "sentar" },
+    { id: "murinho", x: 3, z: 3.6, r: 2.4, rotulo: "Sentar no murinho azul", acao: "sentar" },
     { id: "casa_porta", x: -58, z: -101.5, r: 3, rotulo: "Bater na porta", texto: "Ninguém atende. Pela janela dá para ver araras cheias de roupas brilhantes e um cartaz enrolado. Que mistério…" },
     { id: "letreiro", x: -6, z: -114.5, r: 9, rotulo: "Examinar as lonas", acao: "letreiro" },
     { id: "quiosque", x: 55, z: -18.5, r: 3, rotulo: "Espiar o quiosque", texto: "Tem caixas e mais caixas de milho de pipoca empilhadas aqui. Pra que tanto?!" },

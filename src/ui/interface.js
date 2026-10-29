@@ -51,6 +51,7 @@ export class Interface {
     $("enigma-entrada").addEventListener("input", () => this.atualizarCaixas());
     $("enigma-entrada").addEventListener("keydown", (e) => { if (e.key === "Enter") this.tentarEnigma(); });
     $("enigma-ok").onclick = () => this.tentarEnigma();
+    $("enigma-naosei").onclick = () => this.naoSei();
     $("rev-ok").onclick = () => {
       $("revelacao").hidden = true;
       this.aoFimRevelacao?.();
@@ -165,11 +166,11 @@ export class Interface {
     this.escrever(conversa.texto(jogador.ap.nome));
   }
 
-  mensagem(titulo, texto, { pistaExtra = false } = {}) {
+  mensagem(titulo, texto, { pistaExtra = false, aoFim } = {}) {
     const j = this.app.jogo;
     const modo = j.modo;
     j.modo = "dialogo";
-    this.dlg = { tipo: "msg", aoFim: () => { j.modo = modo === "dialogo" ? "explorar" : modo; } };
+    this.dlg = { tipo: "msg", aoFim: () => { j.modo = modo === "dialogo" || modo === "painel" ? "explorar" : modo; aoFim?.(); } };
     $("dialogo").classList.add("sem-retrato");
     $("dlg-eu-caixa").hidden = true;
     $("dlg-nome").textContent = titulo;
@@ -338,8 +339,9 @@ export class Interface {
   }
 
   // ---------- enigma ----------
-  enigma({ pistas, total, dicaH, aoAcertar }) {
-    this.enigmaDados = { aoAcertar, dicaH, erros: 0 };
+  enigma({ pistas, total, dicaH, aoAcertar, aoNaoSaber }) {
+    this.enigmaDados = { aoAcertar, aoNaoSaber, dicaH, erros: 0, todas: pistas >= total };
+    $("enigma-naosei").hidden = pistas < total;
     let t = "Nove formas enormes cobertas por lonas brancas, amarradas com cordas, viradas para a chácara inteira. Alguma coisa vai ser revelada aqui…";
     if (pistas < total) t += ` Você tem ${pistas} de ${total} pistas. Se ainda não souber, converse com mais gente — mas pode arriscar!`;
     else t += " Você juntou todas as pistas. Qual é a palavra escrita embaixo das lonas?";
@@ -384,6 +386,7 @@ export class Interface {
     }
     d.erros++;
     this.app.audio.sfx("erro");
+    if (d.todas && d.erros >= 2) return this.naoSei();
     const caixa = $("enigma-caixas");
     caixa.classList.remove("tremer");
     void caixa.offsetWidth;
@@ -396,6 +399,27 @@ export class Interface {
     ];
     r.textContent = dicas[Math.min(d.erros - 1, dicas.length - 1)];
     r.className = "retorno";
+  }
+
+  // Com todas as pistas e sem saber a palavra: aparece o bebê João.
+  naoSei() {
+    const d = this.enigmaDados;
+    $("enigma").hidden = true;
+    this.app.entrada.limpar();
+    this.app.jogo.modo = "explorar";
+    d?.aoNaoSaber?.();
+  }
+
+  // Nome do personagem (texto nítido em HTML, por cima do jogo).
+  rotuloNpc(txt, x, y) {
+    const el = $("rotulo-npc");
+    if (!txt) { if (!el.hidden) el.hidden = true; return; }
+    const t = this.app.tela;
+    const k = t.escala / (t.dpr || 1);
+    if (el.textContent !== txt) el.textContent = txt;
+    el.style.left = `${Math.round(x * k)}px`;
+    el.style.top = `${Math.round(y * k)}px`;
+    el.hidden = false;
   }
 
   // ---------- revelação ----------
@@ -430,7 +454,7 @@ export class Interface {
       rot.append(s);
     };
     const areas = [
-      ["patio", "Pátio azul"], ["lago", "Lago"], ["terraco", "Piscina"], ["casa", "Casa amarela"], ["cachoeira", "Cachoeira*"],
+      ["patio", "Pátio azul"], ["lago", "Lago"], ["terraco", "Piscina"], ["casa", "Casa amarela"], ["cachoeira", "Cachoeira"],
       ["refeitorio", "Refeitório*"], ["quadra", "Quadra*"], ["fogueira", "Fogueira*"], ["alojamento", "Alojamento e camarim*"], ["portao", "Portão*"],
     ];
     for (const [k, nome] of areas) { const a = MAPA[k]; marca(px(a.x), py(a.z) + (k === "casa" ? 30 : 0), nome); }

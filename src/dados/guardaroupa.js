@@ -309,6 +309,6 @@ export function aparenciaPadrao(genero = "f") {
     foto: { usar: true, noBoneco: true, zoom: 1, dx: 0, dy: 0, brilho: 0 },
   };
   if (genero === "f") Object.assign(base, { vestido: "sereia_dourado", calcado: "salto_dourado", brinco: "argola", marcas: ["cilios"], batom: "#c0485a" });
-  else Object.assign(base, { casaco: "smoking_preto", baixo: "calca_smoking", pescoco: "borboleta" });
+  else Object.assign(base, { casaco: "smoking_preto", baixo: "calca_smoking", pescoco: "borboleta", formato: "quadrado", sobrancelha: "grossa", boca: "canto" });
   return base;
 }

@@ -236,7 +236,7 @@ export class Camarim {
   // ---------- Corpo ----------
   abaCorpo(box) {
     const ap = this.ap;
-    this.chips(this.secao(box, "Corpo"), CORPO.genero, ap.genero, (v) => this.mudar({ genero: v }));
+    this.chips(this.secao(box, "Corpo"), CORPO.genero, ap.genero, (v) => this.trocarGenero(v));
     this.chips(this.secao(box, "Altura"), CORPO.altura, ap.altura, (v) => this.mudar({ altura: v }));
     this.chips(this.secao(box, "Porte"), CORPO.porte, ap.porte, (v) => this.mudar({ porte: v }));
     const s = this.secao(box, "Tom de pele");
@@ -249,6 +249,15 @@ export class Camarim {
       b.onclick = () => this.mudar({ pele: this.app.foto.proc.pele });
       s.append(b);
     }
+  }
+
+  // Trocar o corpo também troca rosto, cabelo, maquiagem e roupa para o padrão daquele corpo.
+  // Pele, olhos, cor do cabelo, altura, porte, nome e foto continuam.
+  trocarGenero(v) {
+    if (v === this.ap.genero) return;
+    const ap = this.ap;
+    const fica = { nome: ap.nome, pele: ap.pele, corOlhos: ap.corOlhos, corCabelo: ap.corCabelo, corMechas: ap.corMechas, altura: ap.altura, porte: ap.porte, foto: ap.foto, ajustes: ap.ajustes };
+    this.mudar({ ...aparenciaPadrao(v), ...fica, genero: v });
   }
 
   // ---------- Rosto ----------

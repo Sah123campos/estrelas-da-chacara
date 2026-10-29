@@ -632,3 +632,53 @@ class PintorRetrato {
 export function desenharRetrato(ap, extra) {
   return new PintorRetrato(ap, extra).desenhar();
 }
+
+// Retrato do bebê João: cabeça grande e redonda, cachinhos, bochechas rosadas e macacãozinho.
+export function desenharRetratoBebe(ap) {
+  const pm = new Pixmap(N, N);
+  const pele = rgb(ap.pele || "#a86a42");
+  const cab = rgb(ap.corCabelo || "#1a1010");
+  const roupa = rgb("#8ac4e8");
+  // corpinho
+  for (let y = 48; y < N; y++) for (let x = 8; x < 56; x++) {
+    const w = 18 + (y - 48) * 0.9;
+    if (Math.abs(x + 0.5 - 32) > w) continue;
+    let c = (x + y) % 7 === 0 ? clarear(roupa, 0.25) : roupa;
+    if (x + 0.5 - 32 > w - 3) c = escurecer(c, 0.2);
+    pm.set(x, y, c);
+  }
+  for (let x = 24; x < 40; x++) { pm.set(x, 49, "#ffffff"); pm.set(x, 50, "#f0f0f0"); }
+  for (const y of [55, 59]) { pm.set(31, y, "#f2d544"); pm.set(32, y, "#f2d544"); }
+  // orelhas
+  for (const cx of [11, 52]) for (let y = 26; y < 36; y++) for (let x = cx - 3; x <= cx + 3; x++) if (((x - cx) / 3) ** 2 + ((y - 31) / 5) ** 2 <= 1) pm.set(x, y, escurecer(pele, cx < 32 ? 0.05 : 0.18));
+  // cabeça
+  for (let y = 4; y < 52; y++) for (let x = 8; x < 56; x++) {
+    const nx = (x + 0.5 - 32) / 21;
+    const ny = (y + 0.5 - 28) / 22;
+    if (nx * nx + ny * ny > 1) continue;
+    let c = pele;
+    if (nx > 0.5) c = escurecer(pele, 0.08 + (nx - 0.5) * 0.3);
+    if (nx < -0.6) c = clarear(pele, 0.06);
+    pm.set(x, y, c);
+  }
+  // cachinhos
+  for (let k = 0; k < 26; k++) {
+    const a = Math.PI + (k / 25) * Math.PI;
+    const cx = 32 + Math.cos(a) * (17 + (k % 3));
+    const cy = 22 + Math.sin(a) * 15;
+    for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (i * i + j * j <= 9) pm.set(cx + i, cy + j, i + j < -2 ? clarear(cab, 0.25) : (i + j) > 2 ? escurecer(cab, 0.2) : cab);
+  }
+  // olhos grandes
+  const olho = misturar(rgb(ap.corOlhos || "#2a1a10"), "#0a0608", 0.4);
+  for (const cx of [24, 40]) {
+    for (let j = -4; j <= 4; j++) for (let i = -4; i <= 4; i++) if (i * i + j * j * 1.1 <= 17) pm.set(cx + i, 30 + j, i * i + j * j <= 7 ? olho : [250, 247, 242, 255]);
+    pm.set(cx - 1, 28, [255, 255, 255, 255]); pm.set(cx - 2, 28, [255, 255, 255, 255]); pm.set(cx - 1, 27, [255, 255, 255, 255]);
+    for (let i = -4; i <= 4; i++) pm.set(cx + i, 25, escurecer(pele, 0.45));
+  }
+  // bochechas, nariz e boca aberta (falando)
+  for (const cx of [18, 46]) for (let j = -2; j <= 2; j++) for (let i = -3; i <= 3; i++) if (i * i / 9 + j * j / 4 <= 1) pm.set(cx + i, 38 + j, misturar(pele, "#f06a7a", 0.45));
+  pm.set(31, 36, escurecer(pele, 0.25)); pm.set(33, 36, escurecer(pele, 0.25));
+  for (let j = 0; j < 5; j++) for (let i = -4; i <= 4; i++) if (i * i / 16 + (j - 2) ** 2 / 6 <= 1) pm.set(32 + i, 40 + j, j > 2 ? "#e87a8a" : "#5a1a1a");
+  pm.contorno(0.6);
+  return pm;
+}

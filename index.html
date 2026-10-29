@@ -58,6 +58,7 @@
         <button id="btn-som" class="btn-icone" aria-label="Som" title="Som"><span class="ico ico-som"></span></button>
         <button id="btn-pausa" class="btn-icone" aria-label="Pausa (Esc)" title="Pausa (Esc)"><span class="ico ico-pausa"></span></button>
       </div>
+      <div id="rotulo-npc" class="rotulo-npc" hidden></div>
       <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="prompt-texto"></span></div>
       <div id="dicas-teclado" class="dicas-teclado">
         <span><kbd>WASD</kbd> andar</span><span><kbd>Shift</kbd> correr</span><span><kbd>E</kbd> interagir</span><span><kbd>Q</kbd> acenar</span><span><kbd>J</kbd> pistas</span><span><kbd>R</kbd> camarim</span><span><kbd>M</kbd> mapa</span>
@@ -113,6 +114,7 @@
         <p id="enigma-retorno" class="retorno" aria-live="polite"></p>
         <div class="linha-botoes">
           <button class="btn fraco" data-fechar>Voltar</button>
+          <button class="btn" id="enigma-naosei" hidden>Não sei…</button>
           <button class="btn principal" id="enigma-ok">Revelar!</button>
         </div>
       </div>

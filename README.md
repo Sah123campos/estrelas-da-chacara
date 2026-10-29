@@ -65,6 +65,13 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 - As miniaturas mostram cada peça **em você** (com o seu rosto).
 - Peças e looks **secretos** (Coleção Calçada da Fama) aparecem como `???` até o tema ser descoberto.
 
+## Na chácara
+
+- Você chega pelo **portão** e sobe o caminho até a chácara.
+- Dá para **sentar no murinho azul** (borda da plataforma de concreto azul das fotos).
+- O **toboágua** desce até a piscina: aperte E na escadinha, escorregue, caia na água e nade um pouco.
+- A **cachoeira** fica virada para o lago: a água cai no poço e corre pelo riacho até o lago.
+
 ## O mistério do tema
 
 1. Quatro personagens têm um **!** sobre a cabeça: cada um conta uma pista quando você pergunta.
@@ -72,6 +79,8 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
    da casa amarela).
 3. No morro ao lado da casa amarela há **nove formas cobertas por lonas**. Com as pistas, vá até lá
    e digite a palavra.
+   Se mesmo com todas as pistas a pessoa não souber (botão **Não sei…** ou dois erros), aparece o
+   **bebê João**, filho da Thais e do Davi, que aponta para as lonas e fala "HOLLYWOOD!".
 4. Acertou: as lonas voam, o letreiro **HOLLYWOOD** aparece com fogos e holofotes, o tapete vermelho
    surge no gramado, as estrelas da calçada aparecem no pátio, os personagens ganham falas novas e o
    camarim libera a coleção secreta.
@@ -122,8 +131,8 @@ embutido (código, estilos e fonte).
   o quiosque de telha e os postes de madeira.
 - **Não analisados:** os vídeos DJI (de 120 MB a 1,4 GB) — o conector do Google Drive só baixa arquivos de até 10 MB.
 - Em `src/dados/mapa.js`, cada elemento tem `fonte: 'foto' | 'estimado' | 'provisorio'`.
-  Refeitório, quadra, fogueira, alojamento, portão e o local das lonas são **provisórios**; a cachoeira
-  existe (informação do usuário), mas a **posição é provisória**. No mapa do jogo essas áreas têm `*`.
+  Refeitório, quadra, fogueira, alojamento, portão e o local das lonas são **provisórios** (no mapa do jogo
+  têm `*`). A cachoeira existe (informação do usuário); a posição dela é estimada.
 
 ## Versão 3D anterior
 

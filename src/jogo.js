@@ -1,15 +1,15 @@
 // Núcleo do jogo: mundo, jogador, NPCs, câmera, interações, pistas e a revelação do tema.
 import { VELOCIDADE_JOGADOR, FATOR_CORRIDA, TEMA, DEBUG, POS_INICIAL } from "./config.js";
 import { Cenario } from "./arte/cenario.js";
-import { gerarFolha, quadroDe, LARG, ALT } from "./arte/personagem.js";
-import { desenharRetrato } from "./arte/retrato.js";
+import { gerarFolha, gerarFolhaBebe, quadroDe, LARG, ALT } from "./arte/personagem.js";
+import { desenharRetrato, desenharRetratoBebe } from "./arte/retrato.js";
 import { MAPA, px, py, m, ponto } from "./dados/mapa.js";
 import { NPCS } from "./dados/npcs.js";
 import { aparenciaPadrao } from "./dados/guardaroupa.js";
 import { EstadoHistoria, Conversa } from "./motor/conversa.js";
 import { hash, criarCanvas } from "./arte/pixel.js";
 
-export const PISTAS = NPCS.map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
+export const PISTAS = NPCS.filter((n) => !n.bebe).map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
 export const TEXTO_PISTAS = {
   pista_davi_dicaprio: "Davi: mandaram decorar falas e ensaiar o melhor ângulo… coisa de CINEMA.",
   pista_taylor_frisso: "Taylor: tapete VERMELHO e estrelas… na calçada.",
@@ -23,8 +23,9 @@ export const PISTAS_EXTRAS = {
 };
 
 class Ator {
-  constructor(id, ap, x, y) {
+  constructor(id, ap, x, y, bebe = false) {
     this.id = id;
+    this.bebe = bebe;
     this.x = x;
     this.y = y;
     this.dir = "baixo";
@@ -34,6 +35,11 @@ class Ator {
   }
   definir(ap, extra) {
     this.ap = ap;
+    if (this.bebe) {
+      this.folha = gerarFolhaBebe(ap);
+      this.retrato = desenharRetratoBebe(ap).paraCanvas();
+      return;
+    }
     this.folha = gerarFolha(ap, extra);
     this.retrato = desenharRetrato(ap, extra).paraCanvas();
   }
@@ -67,7 +73,7 @@ export class Jogo {
     for (const def of NPCS) {
       const ap = { ...aparenciaPadrao(def.aparencia.genero || "f"), ...def.aparencia, nome: def.nome };
       const p = typeof def.local === "string" ? ponto(def.local) : { x: px(def.local.x), y: py(def.local.z) };
-      const a = new Ator(def.id, ap, p.x, p.y);
+      const a = new Ator(def.id, ap, p.x, p.y, !!def.bebe);
       a.def = def;
       a.casa = { x: p.x, y: p.y };
       a.alvo = null;
@@ -97,11 +103,21 @@ export class Jogo {
       this.jogador.dir = MAPA.inicio.dir;
     }
     if (POS_INICIAL && ponto(POS_INICIAL)) Object.assign(this.jogador, ponto(POS_INICIAL));
+    Object.assign(this.jogador, { sentado: false, elevar: 0, nadando: false });
+    this.levarJoaoParaCasa();
     this.aplicarRevelacao(this.revelado);
   }
 
   dadosSalvos() {
     return { ...this.estado.toJSON(), x: Math.round(this.jogador.x), y: Math.round(this.jogador.y), dir: this.jogador.dir };
+  }
+
+  visivel(n) {
+    return !n.def?.oculto || this.revelado || this.estado.flags.has("joao_apareceu");
+  }
+
+  get npcsVisiveis() {
+    return this.npcs.filter((n) => this.visivel(n));
   }
 
   get revelado() {
@@ -118,13 +134,14 @@ export class Jogo {
     const ent = this.entrada;
     if (this.modo === "explorar") this.atualizarExplorar(dt);
     else if (this.modo === "cena") this.atualizarCena(dt);
+    else if (this.modo === "toboagua") this.atualizarToboagua(dt);
     else if (this.modo === "titulo") {
       this.camTitulo += dt;
       const k = this.camTitulo * 0.05;
       this.cam.x = px(-6) + Math.sin(k) * 160;
       this.cam.y = py(-20) + Math.cos(k * 0.7) * 70;
     }
-    for (const n of this.npcs) this.atualizarNPC(n, dt);
+    for (const n of this.npcsVisiveis) this.atualizarNPC(n, dt);
     this.atualizarParticulas(dt);
     if (this.clarear) { this.anoitecer = Math.max(0, (this.anoitecer || 0) - dt / 3); if (!this.anoitecer) this.clarear = false; }
     if (this.modo !== "explorar") ent.limpar();
@@ -141,7 +158,7 @@ export class Jogo {
     const eixo = ent.eixo();
     const mexendo = Math.hypot(eixo.x, eixo.y) > 0.05;
     if (ent.acao("acenar")) { j.acenarAte = this.tempo + 1.2; j.sentado = false; }
-    if (j.sentado && mexendo) j.sentado = false;
+    if (j.sentado && mexendo) { j.sentado = false; j.elevar = 0; }
     if (j.sentado) {
       j.pose = "sentado";
       j.dir = "baixo";
@@ -177,10 +194,12 @@ export class Jogo {
     const caixa = (x, y) => {
       const pts = [[x - 5, y - 4], [x + 5, y - 4], [x - 5, y], [x + 5, y]];
       if (pts.some(([qx, qy]) => this.cen.solidoEm(qx, qy))) return true;
-      for (const n of this.npcs) if (n !== a && Math.abs(n.x - x) < 9 && Math.abs(n.y - y) < 5) return true;
+      for (const n of this.npcs) if (n !== a && this.visivel(n) && Math.abs(n.x - x) < (n.bebe ? 6 : 9) && Math.abs(n.y - y) < 5) return true;
       if (a !== this.jogador && Math.abs(this.jogador.x - x) < 9 && Math.abs(this.jogador.y - y) < 5) return true;
       return false;
     };
+    // se já estiver preso dentro de algo (ex.: depois de sentar), deixa sair
+    if (caixa(a.x, a.y)) { a.x += dx; a.y += dy; return false; }
     const passos = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / 2) || 1;
     const sx = dx / passos;
     const sy = dy / passos;
@@ -237,6 +256,7 @@ export class Jogo {
         }
       }
       alvo = n.alvo;
+      if (c.lento) vel = 14;
     } else if (c.tipo === "patrulha") {
       alvo = n.pontos[n.indice];
       vel = c.lento ? 22 : 36;
@@ -272,7 +292,7 @@ export class Jogo {
     const fy = j.y + frente[1];
     let melhor = null;
     let md = Infinity;
-    for (const n of this.npcs) {
+    for (const n of this.npcsVisiveis) {
       const d = Math.hypot(n.x - fx, (n.y - fy) * 1.2);
       if (d < 22 && d < md) { md = d; melhor = { tipo: "npc", npc: n, rotulo: `Conversar com ${n.def.nome}` }; }
     }
@@ -306,7 +326,12 @@ export class Jogo {
         npc: n,
         jogador: j,
         aoEscolher: (res) => this.aposEscolha(n, res),
-        aoFim: () => { n.conversando = false; this.modo = "explorar"; this.ui.salvar(); },
+        aoFim: () => {
+          n.conversando = false;
+          this.modo = "explorar";
+          this.ui.salvar();
+          if (this.revelarDepois) { this.revelarDepois = false; this.iniciarRevelacao(); }
+        },
       });
       return;
     }
@@ -314,10 +339,12 @@ export class Jogo {
     if (it.acao === "sentar") {
       j.sentado = true;
       j.x = px(it.x);
-      j.y = py(MAPA.murinho.z) + 3;
+      j.y = py(MAPA.murinho.z) + 8;
+      j.elevar = 9;
       return;
     }
     if (it.acao === "camarim") return this.ui.abrirCamarim("camarim");
+    if (it.acao === "toboagua") return this.iniciarToboagua();
     if (it.acao === "sino") {
       this.audio.sfx("sino");
       const t = this.npcs.find((n) => n.id === "thais_grande");
@@ -340,6 +367,7 @@ export class Jogo {
     if (res.acao === "acenar") { n.acenarAte = this.tempo + 1.6; this.jogador.acenarAte = this.tempo + 1.6; }
     if (res.acao === "dancar") { n.acenarAte = this.tempo + 2; this.jogador.acenarAte = this.tempo + 2; }
     if (res.acao === "camarim") this.ui.abrirCamarim("camarim");
+    if (res.acao === "revelar") this.revelarDepois = true;
     if (res.set && res.set.startsWith("pista_")) {
       this.audio.sfx("pista");
       const k = this.pistasEncontradas();
@@ -355,7 +383,113 @@ export class Jogo {
       total: PISTAS.length,
       dicaH: this.estado.flags.has("pista_samuel_pitt"),
       aoAcertar: () => this.iniciarRevelacao(),
+      aoNaoSaber: () => this.chamarJoao(),
     });
+  }
+
+  // ---------- toboágua ----------
+  iniciarToboagua() {
+    const tb = this.cen.toboagua;
+    const j = this.jogador;
+    this.modo = "toboagua";
+    this.ui.prompt(null);
+    this.ui.rotuloNpc(null);
+    j.sentado = false;
+    this.tobo = { fase: "subir", t: 0 };
+    j.x = tb.torre.x;
+    j.y = tb.torre.y;
+    j.dir = "cima";
+    j.elevar = 0;
+    j.frente = true;
+  }
+
+  atualizarToboagua(dt) {
+    const tb = this.cen.toboagua;
+    const j = this.jogador;
+    const T = this.tobo;
+    T.t += dt;
+    j.t += dt;
+    const pi = this.cen.piscina;
+    if (T.fase === "subir") {
+      j.pose = "andar";
+      j.dir = "cima";
+      j.elevar = Math.min(1, T.t / 1.3) * (tb.torre.y - tb.trilho[0][1] - 4);
+      if (T.t > 1.5) { T.fase = "descer"; T.t = 0; this.audio.sfx("escolha"); }
+    } else if (T.fase === "descer") {
+      const k = Math.min(1, T.t / 1.8);
+      const e = k * k * (3 - 2 * k);
+      const i = Math.min(tb.trilho.length - 1, Math.floor(e * (tb.trilho.length - 1)));
+      const [x, y] = tb.trilho[i];
+      j.x = x;
+      j.y = tb.fim.y + 1;
+      j.elevar = j.y - y - 4;
+      j.pose = "sentado";
+      j.dir = "baixo";
+      if (k >= 1) {
+        T.fase = "nadar";
+        T.t = 0;
+        j.elevar = 0;
+        j.frente = false;
+        j.nadando = true;
+        j.y = tb.fim.y;
+        this.audio.sfx("splash");
+        for (let n = 0; n < 40; n++) this.particulas.push({ tipo: "confete", x: j.x + (Math.random() - 0.5) * 10, y: j.y - 2, vx: (Math.random() - 0.5) * 70, vy: -40 - Math.random() * 50, vida: 0.7 + Math.random() * 0.4, cor: Math.random() > 0.4 ? "#ffffff" : "#9ad8f8" });
+        const t = this.npcs.find((n) => n.id === "taylor_frisso");
+        if (t) t.acenarAte = this.tempo + 3;
+      }
+    } else if (T.fase === "nadar") {
+      // nada um pouquinho em direção à borda de baixo da piscina
+      j.pose = "andar";
+      const alvoX = pi.x0 + (pi.x1 - pi.x0) * 0.35;
+      const alvoY = pi.y1 - 6;
+      const dx = alvoX - j.x;
+      const dy = alvoY - j.y;
+      const d = Math.hypot(dx, dy);
+      if (d > 1) { j.x += (dx / d) * 26 * dt; j.y += (dy / d) * 26 * dt; }
+      j.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "esq" : "dir") : "baixo";
+      if (T.t > 0.3 && Math.random() < dt * 6) this.particulas.push({ tipo: "pano", x: j.x + (Math.random() - 0.5) * 12, y: j.y + 1, vx: 0, vy: -6, vida: 0.4, cor: "#ffffff" });
+      if (T.t > 4.2 || d < 2) {
+        j.nadando = false;
+        j.y = pi.y1 + 10;
+        j.dir = "baixo";
+        j.pose = "parado";
+        this.modo = "explorar";
+        this.tobo = null;
+        this.entrada.limpar();
+        this.ui.aviso("💦 <b>Splash!</b> Que descida de estrela!", 2400);
+      }
+    }
+    this.seguirCamera(dt, { x: j.x, y: j.y - (j.elevar || 0) });
+  }
+
+  // ---------- bebê João ----------
+  chamarJoao() {
+    const joao = this.npcs.find((n) => n.id === "joao");
+    if (!joao) return this.iniciarRevelacao();
+    this.estado.flags.add("joao_apareceu");
+    const j = this.jogador;
+    joao.x = j.x + 22;
+    joao.y = j.y + 2;
+    joao.dir = "esq";
+    joao.casa = { x: joao.x, y: joao.y };
+    joao.alvo = null;
+    joao.espera = 99;
+    this.audio.sfx("pista");
+    for (let k = 0; k < 30; k++) this.particulas.push({ tipo: "confete", x: joao.x + (Math.random() - 0.5) * 16, y: joao.y - 10 - Math.random() * 10, vx: (Math.random() - 0.5) * 40, vy: -30 - Math.random() * 30, vida: 0.9, cor: ["#ffd84a", "#ffffff", "#f08aa8"][k % 3] });
+    j.dir = "dir";
+    setTimeout(() => {
+      this.ui.mensagem("Ué… quem é esse?", "Um bebê moreninho de cachinhos aparece engatinhando, todo sorridente. É o João, filho da Thais e do Davi!", {
+        aoFim: () => this.interagir({ tipo: "npc", npc: joao }),
+      });
+    }, 500);
+  }
+
+  // Depois da revelação o João fica com a mãe, perto do refeitório.
+  levarJoaoParaCasa() {
+    const joao = this.npcs.find((n) => n.id === "joao");
+    if (!joao) return;
+    const p = { x: px(joao.def.local.x), y: py(joao.def.local.z) };
+    Object.assign(joao, { x: p.x, y: p.y, casa: p, alvo: null, espera: 1 });
   }
 
   // ---------- revelação ----------
@@ -411,6 +545,7 @@ export class Jogo {
 
   encerrarRevelacao() {
     this.modo = "explorar";
+    this.levarJoaoParaCasa();
     this.clarear = true;
     this.cena = null;
     this.ui.esconderHud(false);
@@ -522,9 +657,10 @@ export class Jogo {
       if (x0 > cx + W || y0 > cy + H || x0 + o.w < cx || y0 + o.h < cy + -0) continue;
       lista.push(o);
     }
-    const atores = [this.jogador, ...this.npcs];
+    const atores = [this.jogador, ...this.npcsVisiveis];
     for (const a of atores) if (Math.abs(a.x - this.cam.x) < W && Math.abs(a.y - this.cam.y) < H) lista.push(a);
-    lista.sort((a, b) => (a.chao ? -1e9 : a.y) - (b.chao ? -1e9 : b.y));
+    const prof = (o) => (o.chao ? -1e9 : o.frente ? 1e9 : o.y);
+    lista.sort((a, b) => prof(a) - prof(b));
     const j = this.jogador;
     const letrasVis = [];
     for (const o of lista) {
@@ -547,7 +683,8 @@ export class Jogo {
       if (o.fogo) this.desenharFogo(o.x - cx, o.y - cy - 8);
     }
     // indicadores sobre os NPCs
-    for (const n of this.npcs) {
+    for (const n of this.npcsVisiveis) {
+      if (n.bebe) continue;
       const sx = Math.round(n.x - cx);
       const sy = Math.round(n.y - cy - ALT - 6 + Math.sin(t * 4) * 1.5);
       const temPista = !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
@@ -583,21 +720,36 @@ export class Jogo {
     // nome do NPC próximo
     if (this.alvo?.tipo === "npc" && this.modo === "explorar") {
       const n = this.alvo.npc;
-      this.rotulo(n.def.nome, Math.round(n.x - cx), Math.round(n.y - cy - ALT - (this.estado.flags.has(`pista_${n.id}`) || this.revelado ? 4 : 14)));
-    }
+      const alto = n.bebe ? 20 : ALT;
+      const temBalao = !n.bebe && !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
+      this.ui.rotuloNpc(n.def.nome, n.x - cx, n.y - cy - alto - (temBalao ? 12 : 2));
+    } else this.ui.rotuloNpc(null);
   }
 
   desenharAtor(a, cx, cy) {
     const ctx = this.ctx;
     const x = Math.round(a.x - cx);
     const y = Math.round(a.y - cy);
-    ctx.fillStyle = "rgba(10,30,14,0.32)";
-    ctx.beginPath();
-    ctx.ellipse(x, y - 1, 7, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (!a.nadando && !a.elevar) {
+      ctx.fillStyle = "rgba(10,30,14,0.32)";
+      ctx.beginPath();
+      ctx.ellipse(x, y - 1, a.bebe ? 5 : 7, a.bebe ? 2 : 2.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
     const q = quadroDe(a.dir, a.pose, a.t);
     const bob = a.def?.comportamento?.tipo === "dancar" && !a.conversando ? (Math.floor(a.t * 4.8) % 2) : 0;
-    ctx.drawImage(a.folha.canvas, q.sx, q.sy, LARG, ALT, x - (LARG >> 1), y - ALT + 2 - bob, LARG, ALT);
+    const el = Math.round(a.elevar || 0);
+    if (a.nadando) {
+      // só cabeça e ombros para fora da água, com ondinhas em volta
+      const corte = 20;
+      ctx.drawImage(a.folha.canvas, q.sx, q.sy, LARG, corte, x - (LARG >> 1), y - corte + 2 + Math.round(Math.sin(this.tempo * 5)), LARG, corte);
+      ctx.strokeStyle = "rgba(255,255,255,0.75)";
+      ctx.beginPath();
+      ctx.ellipse(x, y + 2, 9 + Math.sin(this.tempo * 4) * 1.5, 3, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      return;
+    }
+    ctx.drawImage(a.folha.canvas, q.sx, q.sy, LARG, ALT, x - (LARG >> 1), y - ALT + 2 - bob - el, LARG, ALT);
   }
 
   desenharFogo(x, y) {

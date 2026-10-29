@@ -1258,3 +1258,99 @@ export function quadroDe(dir, pose, t) {
   const q = lista[Math.floor(t * vel) % lista.length];
   return { sx: q * LARG, sy: DIRECOES.indexOf(dir) * ALT };
 }
+
+// ---------- Bebê (o João) ----------
+// Mesma folha (8 quadros × 4 direções) do adulto, mas com corpinho de bebê de ~20 px.
+function quadroBebe(ap, dir, q) {
+  const pm = new Pixmap(LARG, ALT);
+  const pele = rgb(ap.pele || "#a86a42");
+  const cab = rgb(ap.corCabelo || "#1a1010");
+  const roupa = rgb("#8ac4e8");
+  const lado = dir === "esq" || dir === "dir";
+  const costas = dir === "cima";
+  const andar = q >= 2 && q <= 5 ? q - 2 : -1;
+  const bob = andar === 1 || andar === 3 ? -1 : 0;
+  const sentado = q === 7;
+  const desce = sentado ? 3 : 0;
+  const r = (x0, x1, y0, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) pm.set(x, y, typeof c === "function" ? c(x, y) : c); };
+  const Y = 18 + bob + desce; // topo da cabeça
+  // pernas e pés
+  if (!sentado) {
+    const sobeE = andar === 0 ? 1 : 0;
+    const sobeD = andar === 2 ? 1 : 0;
+    if (lado) {
+      const k = andar === 0 ? 1 : andar === 2 ? -1 : 0;
+      r(9 - k, 10 - k, 34, 36, escurecer(pele, 0.15));
+      r(11 + k, 12 + k, 34, 36, pele);
+      r(9 - k, 11 - k, 37, 37, "#f4f4f4");
+      r(11 + k, 13 + k, 37, 37, "#ffffff");
+    } else {
+      r(8, 10, 34, 36 - sobeE, pele);
+      r(11, 13, 34, 36 - sobeD, escurecer(pele, 0.08));
+      r(8, 10, 37 - sobeE, 37 - sobeE, "#f4f4f4");
+      r(11, 13, 37 - sobeD, 37 - sobeD, "#f4f4f4");
+    }
+  } else {
+    r(7, 14, 35, 37, (x) => (x === 7 ? clarear(roupa, 0.1) : roupa));
+    r(6, 8, 36, 37, pele);
+    r(13, 15, 36, 37, pele);
+  }
+  // corpinho (macacãozinho)
+  const t0 = Y + 9;
+  r(lado ? 8 : 7, lado ? 13 : 14, t0, t0 + 6, (x, y) => {
+    let c = roupa;
+    if ((x + y) % 5 === 0) c = clarear(roupa, 0.25);
+    if (x === (lado ? 13 : 14)) c = escurecer(roupa, 0.2);
+    return c;
+  });
+  if (!lado && !costas) { pm.set(10, t0 + 1, "#ffffff"); pm.set(11, t0 + 1, "#ffffff"); pm.set(10, t0 + 3, "#f2d544"); pm.set(10, t0 + 5, "#f2d544"); }
+  // bracinhos
+  const acenar = q === 6;
+  if (lado) r(10, 11, t0 + 1, t0 + 4, pele);
+  else {
+    if (acenar) r(4, 5, t0 - 4, t0 + 1, pele);
+    else r(5, 6, t0 + 1, t0 + 4 + (andar === 0 ? 1 : 0), pele);
+    r(15, 16, t0 + 1, t0 + 4 + (andar === 2 ? 1 : 0), pele);
+  }
+  // cabeça grande e redonda
+  for (let y = 0; y < 10; y++) for (let x = 0; x < 11; x++) {
+    const nx = (x - 5) / 5.4;
+    const ny = (y - 4.6) / 5;
+    if (nx * nx + ny * ny > 1) continue;
+    let c = pele;
+    if (x > 7) c = escurecer(pele, 0.12);
+    if (x < 2) c = clarear(pele, 0.08);
+    pm.set(5 + x, Y + y, c);
+  }
+  // cabelinho cacheado
+  const tufos = costas ? [[6, 0], [8, -1], [10, 0], [12, -1], [14, 0], [7, 2], [10, 2], [13, 2], [6, 4], [9, 4], [12, 4], [15, 4], [8, 6], [11, 6], [14, 6]] : lado ? [[7, 0], [9, -1], [11, 0], [13, 0], [6, 2], [8, 2], [6, 4]] : [[7, 0], [9, -1], [11, -1], [13, 0], [6, 1], [15, 1], [10, 1]];
+  for (const [x, y] of tufos) { pm.set(x, Y + y, cab); pm.set(x + 1, Y + y, clarear(cab, 0.2)); pm.set(x, Y + y + 1, cab); }
+  if (!costas) {
+    const olho = misturar(rgb(ap.corOlhos || "#2a1a10"), "#0a0608", 0.5);
+    if (lado) {
+      pm.set(13, Y + 5, olho); pm.set(13, Y + 4, "#ffffff");
+      pm.set(13, Y + 7, misturar(pele, "#f06a7a", 0.5));
+      pm.set(15, Y + 7, escurecer(pele, 0.4));
+    } else {
+      pm.set(7, Y + 4, "#ffffff"); pm.set(8, Y + 4, olho); pm.set(7, Y + 5, olho); pm.set(8, Y + 5, olho);
+      pm.set(12, Y + 4, "#ffffff"); pm.set(13, Y + 4, olho); pm.set(12, Y + 5, olho); pm.set(13, Y + 5, olho);
+      pm.set(6, Y + 6, misturar(pele, "#f06a7a", 0.5)); pm.set(14, Y + 6, misturar(pele, "#f06a7a", 0.5));
+      pm.set(10, Y + 7, escurecer(pele, 0.45)); pm.set(9, Y + 7, misturar(pele, "#c0485a", 0.5)); pm.set(11, Y + 7, misturar(pele, "#c0485a", 0.5));
+    }
+  }
+  pm.contorno(0.66);
+  if (dir === "esq") return pm.espelhado();
+  return pm;
+}
+
+export function gerarFolhaBebe(ap) {
+  const c = criarCanvas(LARG * NQ, ALT * 4);
+  const ctx = c.getContext("2d");
+  DIRECOES.forEach((d, j) => {
+    for (let q = 0; q < NQ; q++) {
+      const pm = quadroBebe(ap, d, q);
+      ctx.putImageData(new ImageData(pm.d, LARG, ALT), q * LARG, j * ALT);
+    }
+  });
+  return { canvas: c, larg: LARG, alt: ALT };
+}

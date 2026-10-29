@@ -114,7 +114,8 @@ class App {
       const novo = () => {
         this.salvo = null;
         this.jogo.carregar(null);
-        const ap = { ...aparenciaPadrao(this.ap.genero || "f"), foto: this.ap.foto, pele: this.ap.pele, nome: this.ap.nome || "" };
+        // mantém o visual que a pessoa já montou no camarim (não volta ao padrão)
+        const ap = structuredClone(this.ap);
         $("titulo").hidden = true;
         this.audio.tocar("camarim");
         this.camarim.abrir("novo", ap, {
@@ -150,7 +151,7 @@ class App {
     this.salvo = carregarJogo();
     if (!this.jogo.estado.flags.has("intro_vista")) {
       this.jogo.estado.flags.add("intro_vista");
-      setTimeout(() => this.ui.mensagem("Bem-vindo(a) à chácara!", `Oi, ${this.ap.nome || "estrela"}! O acampamento tem um TEMA SECRETO e ninguém conta qual é… Converse com quem tem ! sobre a cabeça, junte as pistas e descubra o mistério.`), 600);
+      setTimeout(() => this.ui.mensagem("Bem-vindo(a) à chácara!", `Oi, ${this.ap.nome || "estrela"}! Você acabou de chegar pelo portão da chácara. O acampamento tem um TEMA SECRETO e ninguém conta qual é… Suba o caminho, converse com quem tem ! sobre a cabeça, junte as pistas e descubra o mistério.`), 600);
     }
   }
 

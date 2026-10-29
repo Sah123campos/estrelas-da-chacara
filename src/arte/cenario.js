@@ -394,7 +394,7 @@ export class Cenario {
     for (const b of MAPA.bancos) this.add(O.banco(), px(b.x), py(b.z), { tipo: "banco", id: b.id });
     for (const p of MAPA.palha) this.add(O.palha(), px(p.x), py(p.z), { tipo: "palha", chao: true });
 
-    // murinho azul do pátio
+    // murinho azul: borda norte da plataforma (virado para o pátio) e as duas dobras laterais
     {
       const mu = MAPA.murinho;
       const W = m(mu.w);
@@ -405,7 +405,28 @@ export class Cenario {
       c.fillStyle = "#1e5f9a"; c.fillRect(0, 6, W, 9);
       c.fillStyle = "#17487a"; c.fillRect(0, 14, W, 2);
       for (let x = 0; x < W; x += 2) if (hash(x, 3) > 0.6) { c.fillStyle = "rgba(255,255,255,0.12)"; c.fillRect(x, 7 + (x % 6), 2, 1); }
+      for (let x = 0; x < W; x += 3) if (hash(x, 9) > 0.8) { c.fillStyle = "rgba(200,210,200,0.35)"; c.fillRect(x, 1 + (x % 4), 3, 1); }
       this.add({ img: pm, ox: W / 2, oy: 15, col: { x: -W / 2, y: -8, w: W, h: 8 }, w: W, h: 16 }, px(mu.x), py(mu.z), { tipo: "murinho" });
+      const L = m(mu.lateral);
+      for (const lado of [-1, 1]) {
+        const lp = criarCanvas(7, L + 16);
+        const g = lp.getContext("2d");
+        g.fillStyle = "#3a9ad0"; g.fillRect(0, 0, 7, L + 6);
+        g.fillStyle = lado < 0 ? "#64b6e0" : "#2a7ab0"; g.fillRect(lado < 0 ? 0 : 5, 0, 2, L + 6);
+        g.fillStyle = "#1e5f9a"; g.fillRect(0, L + 6, 7, 9);
+        g.fillStyle = "#17487a"; g.fillRect(0, L + 14, 7, 2);
+        const x = px(mu.x) + lado * (W / 2) - (lado < 0 ? 0 : 7);
+        this.add({ img: lp, ox: 0, oy: L + 15, col: { x: 0, y: -L - 8, w: 7, h: L + 8 }, w: 7, h: L + 16 }, x, py(mu.z) + L, { tipo: "murinho" });
+      }
+    }
+    // degrau/borda da plataforma (ela fica um pouco acima do gramado)
+    {
+      const p = MAPA.patio;
+      const x0 = px(p.x - p.w / 2), x1 = px(p.x + p.w / 2), y1 = py(p.z + p.d / 2);
+      const ctx = this.ctxChao;
+      ctx.fillStyle = "#3f6f8a"; ctx.fillRect(x0, y1, x1 - x0, 3);
+      ctx.fillStyle = "rgba(16,40,20,0.35)"; ctx.fillRect(x0, y1 + 3, x1 - x0, 3);
+      ctx.fillStyle = "#3f6f8a"; ctx.fillRect(x0 - 2, py(p.z - p.d / 2), 2, y1 - py(p.z - p.d / 2) + 3); ctx.fillRect(x1, py(p.z - p.d / 2), 2, y1 - py(p.z - p.d / 2) + 3);
     }
 
     // terraço: balaustradas
@@ -421,7 +442,13 @@ export class Cenario {
     }
     const S = (k, o) => this.add(o, px(MAPA[k].x), py(MAPA[k].z + (MAPA[k].d || 0) / 2), { tipo: k });
     S("quiosque", O.quiosque());
-    this.add(O.toboagua(), px(MAPA.toboagua.x), py(MAPA.toboagua.z) + 6, { tipo: "toboagua" });
+    {
+      const t = MAPA.toboagua;
+      const dx = px(t.x) - px(t.fim.x);
+      const dy = py(t.z) - py(t.fim.z);
+      const o = this.add(O.toboagua(-dx, -dy), px(t.fim.x), py(t.fim.z), { tipo: "toboagua" });
+      this.toboagua = { trilho: o.trilho.map(([x, y]) => [o.x + x, o.y + y]), torre: { x: px(t.x), y: py(t.z) + 2 }, fim: { x: o.x, y: o.y } };
+    }
     S("casa", O.casaAmarela());
     S("refeitorio", O.refeitorio());
     S("alojamento", O.alojamento());

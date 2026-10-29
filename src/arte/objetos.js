@@ -311,34 +311,51 @@ export function quiosque() {
   return pronto(pm, W >> 1, H - 2, { x: -30, y: -16, w: 60, h: 14 });
 }
 
-export function toboagua() {
-  const W = 70;
-  const H = 96;
+// Toboágua: torre com escada e um tubo azul que desce em curva até a piscina.
+// dx/dy = do pé da torre até onde o tubo cai na água (em pixels). O "pé" do objeto é a saída na água.
+export function toboagua(dx = -52, dy = 52) {
+  const W = 40 + Math.abs(dx) + 20;
+  const tx = W - 22;
+  const ty = 86;
+  const H = ty + dy + 10;
   const pm = new Pixmap(W, H);
   const azul = rgb("#2a8ad8");
-  // torre com escada
-  for (let y = 18; y < H - 2; y++) for (const x of [8, 22]) { pm.set(x, y, "#e8e8e8"); pm.set(x + 1, y, "#a8a8b0"); }
-  for (let y = 22; y < H - 4; y += 6) for (let x = 9; x < 22; x++) pm.set(x, y, "#c8c8d0");
-  for (let x = 4; x < 28; x++) for (let y = 14; y < 19; y++) pm.set(x, y, y === 14 ? "#f4f4f4" : "#d0d0d8");
-  // tubo azul em curvas até a água
-  const pts = [];
-  for (let t = 0; t <= 1; t += 0.004) {
-    const x = 20 + t * 42 + Math.sin(t * Math.PI * 2.2) * 14;
-    const y = 16 + t * (H - 22) + Math.cos(t * Math.PI * 2.2) * 6 - 6;
-    pts.push([x, y, t]);
+  const alt = 70;
+  // torre (pernas, escada e plataforma)
+  for (let y = ty - alt; y < ty; y++) for (const x of [tx - 7, tx + 6]) { pm.set(x, y, "#f0f0f0"); pm.set(x + 1, y, "#a8a8b0"); }
+  for (let y = ty - alt + 6; y < ty - 1; y += 5) for (let x = tx - 6; x < tx + 6; x++) pm.set(x, y, "#c8c8d0");
+  for (let x = tx - 10; x < tx + 10; x++) for (let y = ty - alt - 5; y < ty - alt; y++) pm.set(x, y, y === ty - alt - 5 ? "#ffffff" : "#d0d0d8");
+  for (let x = tx - 10; x < tx + 10; x += 3) for (let y = ty - alt - 11; y < ty - alt - 5; y++) pm.set(x, y, "#e8e8f0");
+  for (let x = tx - 10; x < tx + 10; x++) pm.set(x, ty - alt - 11, "#e8e8f0");
+  // tubo
+  const ex = tx + dx;
+  const ey = ty + dy;
+  const trilho = [];
+  for (let t = 0; t <= 1.0001; t += 0.004) {
+    const gx = tx - 4 + (ex - (tx - 4)) * t;
+    const gy = ty + (ey - ty) * t;
+    const h = (alt - 2) * Math.pow(1 - t, 1.25);
+    const giro = Math.sin(t * Math.PI * 2) * 18 * (1 - t);
+    trilho.push([gx + giro, gy - h + Math.cos(t * Math.PI * 2) * 4 * (1 - t) - 2, h]);
   }
-  for (const [x, y, t] of pts) {
+  // suportes até o chão
+  for (const k of [0.25, 0.5, 0.72]) {
+    const i = Math.floor(k * (trilho.length - 1));
+    const [x, y, h] = trilho[i];
+    for (let yy = y + 4; yy < y + h; yy++) { pm.set(x, yy, "#c8c8d0"); pm.set(x + 1, yy, "#9a9aa8"); }
+  }
+  for (const [x, y] of trilho) {
     for (let k = -4; k <= 4; k++) {
-      const c = k < -2 ? clarear(azul, 0.35) : k > 2 ? escurecer(azul, 0.3) : k === -1 ? clarear(azul, 0.15) : azul;
+      const c = k < -2 ? clarear(azul, 0.35) : k > 2 ? escurecer(azul, 0.3) : k === -1 ? clarear(azul, 0.18) : azul;
       pm.set(x, y + k, c);
     }
   }
-  // suportes
-  for (const tx of [0.35, 0.65]) {
-    const [x, y] = pts[Math.floor(tx * (pts.length - 1))];
-    for (let yy = y + 4; yy < H - 2; yy++) pm.set(x, yy, "#c8c8d0");
-  }
-  return pronto(pm, 15, H - 2, { x: -10, y: -6, w: 20, h: 6 });
+  // água escorrendo na saída
+  for (let k = 0; k < 6; k++) pm.set(ex - 3 + k, ey - 1, "#c8f0ff");
+  const o = pronto(pm, ex, ey, { x: -dx - 9, y: -dy - 5, w: 18, h: 5 });
+  o.trilho = trilho.map(([x, y]) => [x - ex, y - ey]);
+  o.torre = { x: -dx, y: -dy, topo: -dy - alt - 6 };
+  return o;
 }
 
 export function refeitorio() {
@@ -419,33 +436,48 @@ export function fogueira() {
   return pronto(pm, 15, 13, { x: -12, y: -7, w: 24, h: 8 });
 }
 
-// Cachoeira: paredão de pedra com queda d'água (3 quadros de animação).
+// Cachoeira virada para o leste (para o lago): o paredão de pedra fica à esquerda,
+// a água cai pela borda direita e espuma no poço que vira o riacho (3 quadros de animação).
 export function cachoeira(q = 0) {
-  const W = 90;
-  const H = 96;
+  const W = 104;
+  const H = 104;
   const pm = new Pixmap(W, H);
+  const base = H - 10;
+  const borda = 66; // x da borda de onde a água cai
+  // paredão de pedra
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const n = ruido(x, y, 9, 4) + ruido(x, y, 4, 8) * 0.4;
-    const borda = Math.abs(x - W / 2) / (W / 2);
-    if (y < 8 + borda * borda * 20 - n * 6) continue;
-    if (y > H - 12 + borda * 8) continue;
-    const v = n - y / H * 0.3 + (x < W / 2 ? 0.1 : -0.1);
+    const nx = (x - 38) / 34;
+    const ny = (y - 58) / 50;
+    if (nx * nx + ny * ny > 1 - (n - 0.5) * 0.25 && !(x > borda - 4 && x < borda + 6 && y > 8 && y < base)) continue;
+    if (y > base + 4) continue;
+    const v = n - (y / H) * 0.25 + (x < borda - 20 ? 0.15 : -0.12) - (x > borda - 6 ? 0.2 : 0);
     let c = v > 0.85 ? "#b8b0a0" : v > 0.65 ? "#8a8478" : v > 0.45 ? "#6a6458" : "#4a4640";
-    if (y < 14 + borda * 20 && hash(x, y, 2) > 0.5) c = VERDES.med;
-    if (hash(x >> 1, y >> 1, 3) > 0.94) c = VERDES.cla;
+    if (ny < -0.82 && hash(x, y, 2) > 0.35) c = hash(x, y, 7) > 0.5 ? VERDES.med : VERDES.cla;
+    if (hash(x >> 1, y >> 1, 3) > 0.93) c = VERDES.cla;
     pm.set(x, y, c);
   }
-  // água caindo
-  for (let y = 12; y < H - 10; y++) {
-    const w = 8 + (y / H) * 6;
+  // samambaias na pedra
+  for (const [fx, fy] of [[12, 30], [30, 52], [48, 26], [20, 72]]) for (let k = -4; k <= 4; k++) { pm.set(fx + k, fy - Math.abs(k) * 0.5, VERDES.cla); pm.set(fx + k, fy + 1 - Math.abs(k) * 0.5, VERDES.med); }
+  // poço de espuma (a leste do paredão)
+  for (let y = base - 12; y < base + 8; y++) for (let x = borda - 6; x < W - 2; x++) {
+    const nx = (x - (borda + 14)) / 24;
+    const ny = (y - (base - 2)) / 9;
+    if (nx * nx + ny * ny > 1) continue;
+    const k = hash(x + q * 3, y, 9);
+    pm.set(x, y, nx * nx + ny * ny < 0.35 ? (k > 0.4 ? "#ffffff" : "#d8f4ff") : k > 0.6 ? "#c8ecff" : "#5aa8c8");
+  }
+  // água caindo: sai da borda, faz uma curvinha para fora (leste) e cai no poço
+  for (let y = 12; y < base - 4; y++) {
+    const f = (y - 12) / (base - 16);
+    const cx = borda + 2 + Math.sqrt(f) * 9;
+    const w = 4 + f * 4;
     for (let x = -w; x <= w; x++) {
       const k = (y + q * 5 + Math.floor((x + 20) * 1.7) * 3) % 9;
-      pm.set(W / 2 + x, y, k < 2 ? "#ffffff" : k < 5 ? "#c8ecff" : "#8ad0f0");
+      pm.set(cx + x, y, k < 2 ? "#ffffff" : k < 5 ? "#c8ecff" : "#8ad0f0");
     }
   }
-  // espuma
-  for (let x = -16; x <= 16; x++) for (let y = H - 13; y < H - 7; y++) if (hash(x + q * 3, y, 9) > 0.35) pm.set(W / 2 + x, y, hash(x, y + q, 1) > 0.5 ? "#ffffff" : "#d8f4ff");
-  return pronto(pm, W >> 1, H - 8, { x: -44, y: -40, w: 88, h: 34 }, false);
+  return pronto(pm, W >> 1, base, { x: -50, y: -34, w: 100, h: 40 }, false);
 }
 
 // Balaustrada branca do terraço (com pilares rosados, como na foto DJI_0336).

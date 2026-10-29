@@ -26,7 +26,7 @@ export const NPCS = [
     local: "banco_lago",
     comportamento: { tipo: "sentar", dir: "baixo" },
     aparencia: {
-      genero: "m", pele: "#efc3a4", cabelo: "lateral", corCabelo: "#b88a4a", corOlhos: "#3d6ea8", olhos: "amendoa", boca: "canto", formato: "quadrado",
+      genero: "m", pele: "#8a5634", cabelo: "cacheado", corCabelo: "#141010", corOlhos: "#3a2414", olhos: "amendoa", boca: "canto", formato: "quadrado", sobrancelha: "grossa",
       cima: "camisa_branca", casaco: "smoking_preto", pescoco: "borboleta", baixo: "calca_smoking", calcado: "oxford", pulso: "relogio_ouro", vestido: "nenhum",
     },
     dialogo: {
@@ -62,11 +62,13 @@ export const NPCS = [
           options: [
             { label: "Você merece a estatueta!", next: "estatueta" },
             { label: "Que filme vamos gravar no lago?", next: "filme" },
+            { label: "E o João?", next: "joao" },
             { label: "Tchau, astro!", end: true, action: "acenar" },
           ],
         },
         estatueta: { text: "Obrigado, obrigado. Eu gostaria de agradecer ao lago, ao sapo e à tábua que quase coube nós dois.", options: [{ label: "*aplausos*", end: true, action: "acenar" }] },
         filme: { text: "\"Titanic 2: O Laguinho\". Classificação livre. O iceberg vai ser aquele sapo.", options: [{ label: "Sucesso garantido.", end: true }] },
+        joao: { text: "Meu filhão! Puxou o pai: já nasceu sabendo o nome do lugar mais famoso do cinema. Tá com a mãe dele, lá no refeitório.", options: [{ label: "Que fofo!", end: true }] },
       },
     },
   },
@@ -159,9 +161,11 @@ export const NPCS = [
           options: [
             { label: "Me vê uma pipoca!", next: "pipoca" },
             { label: "Canta a nota da estreia!", next: "nota" },
+            { label: "O João é muito esperto!", next: "joao" },
             { label: "Tchau, diva!", end: true, action: "acenar" },
           ],
         },
+        joao: { text: "Né?! A primeira palavra dele foi \"pipoca\". A segunda foi \"Hollywood\". Com essa mãe e esse pai, o que você esperava?", options: [{ label: "Família de estrelas!", end: true }] },
         pipoca: { text: "Toma! (Ela te entrega um balde imaginário.) O de verdade tá no camarim, junto com as peças novas.", options: [{ label: "Valeu!", end: true }] },
       },
     },
@@ -204,6 +208,34 @@ export const NPCS = [
         },
         tapete: { text: "Passo lento, aceno pra direita, aceno pra esquerda, finge que tem flash. Pronto, você é uma estrela.", options: [{ label: "*acena*", end: true, action: "acenar" }] },
         jennifer: { text: "Ela vai ser figurante. Palmeira também sonha, sabia?", options: [{ label: "Lindo.", end: true }] },
+      },
+    },
+  },
+  {
+    // Bebê João: filho da Thais e do Davi. Aparece quando o jogador já tem todas as pistas
+    // e mesmo assim não sabe a palavra (botão "Não sei…" ou dois erros nas lonas).
+    id: "joao",
+    nome: "Bebê João",
+    bebe: true,
+    oculto: true, // só aparece depois de chamado (flag 'joao_apareceu') ou depois da revelação
+    local: { x: -27, z: 48.5 },
+    comportamento: { tipo: "passear", raio: 2.2, lento: true },
+    aparencia: { genero: "m", pele: "#a86a42", cabelo: "cacheado", corCabelo: "#1a1010", corOlhos: "#2a1a10", cima: "camiseta", vestido: "nenhum" },
+    dialogo: {
+      entry: [{ if: POS, node: "pos" }, { node: "chamado" }],
+      nodes: {
+        chamado: {
+          text: "Gugu… dadá… (o bebê João aponta para as lonas no morro) …HÓ-LI-UUD! HOLLYWOOD!",
+          options: [{ label: "O quê?! Fala de novo, João!", next: "denovo" }],
+        },
+        denovo: {
+          text: "HOLLYWOOD! HOLLYWOOD! (ele bate palminhas e dá uma risada de neném)",
+          options: [{ label: "O João descobriu o tema!", end: true, action: "revelar" }],
+        },
+        pos: {
+          text: ["Ho-li-ud! (o João te dá um abraço apertado)", "Pipoca! Papai! Mamãe! HOLLYWOOD! (ele sai engatinhando rindo)"],
+          options: [{ label: "Toca aqui, João!", end: true, action: "acenar" }, { label: "Tchau, pequeno!", end: true }],
+        },
       },
     },
   },
