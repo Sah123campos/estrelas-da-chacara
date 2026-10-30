@@ -69,6 +69,7 @@ export class Interface {
   fecharPainel(el) {
     if (!el || el.hidden) return;
     el.hidden = true;
+    if (el.id === "enigma") setTimeout(() => this.app.verificarOrientacao(), 0);
     this.app.entrada.limpar();
     if (el.id === "config" || el.id === "creditos") { this.app.aoFecharConfig?.(el.id); return; }
     if (el.id === "modal-camera") { this.app.camarim?.fecharCamera(); return; }
@@ -360,7 +361,9 @@ export class Interface {
   // ---------- enigma ----------
   enigma({ pistas, total, dicaH, aoAcertar, aoNaoSaber }) {
     this.enigmaDados = { aoAcertar, aoNaoSaber, dicaH, erros: 0, todas: pistas >= total };
-    $("enigma-naosei").hidden = pistas < total;
+    $("enigma-naosei").hidden = false;
+    this.enigmaDados.pistas = pistas;
+    this.enigmaDados.total = total;
     let t = "Nove formas enormes cobertas por lonas brancas, amarradas com cordas, viradas para a chácara inteira. Alguma coisa vai ser revelada aqui…";
     if (pistas < total) t += ` Você tem ${pistas} de ${total} pistas. Se ainda não souber, converse com mais gente — mas pode arriscar!`;
     else t += " Você juntou todas as pistas. Qual é a palavra escrita embaixo das lonas?";
@@ -372,7 +375,9 @@ export class Interface {
     this.atualizarCaixas();
     this.abrirPainel($("enigma"));
     this.app.audio.sfx("abrir");
-    setTimeout(() => ent.focus(), 60);
+    // no celular não abre o teclado sozinho (ele cobria os botões)
+    if (!this.app.ehCelular()) setTimeout(() => ent.focus(), 60);
+    this.app.verificarOrientacao();
   }
 
   atualizarCaixas() {
@@ -423,7 +428,14 @@ export class Interface {
   // Com todas as pistas e sem saber a palavra: aparece o bebê João.
   naoSei() {
     const d = this.enigmaDados;
+    if (d && !d.todas) {
+      const r = $("enigma-retorno");
+      r.textContent = `O bebê João só aparece pra quem já ouviu todo mundo! Você tem ${d.pistas} de ${d.total} pistas — converse com quem tem ! sobre a cabeça.`;
+      r.className = "retorno";
+      return;
+    }
     $("enigma").hidden = true;
+    this.app.verificarOrientacao();
     this.app.entrada.limpar();
     this.app.jogo.modo = "explorar";
     d?.aoNaoSaber?.();

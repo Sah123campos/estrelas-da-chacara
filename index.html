@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preload" href="assets/fontes/PixelifySans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/estilo.css?v=202610291704">
+  <link rel="stylesheet" href="css/estilo.css?v=202610300236">
 </head>
 <body>
   <div id="app">
@@ -133,11 +133,11 @@
         <h2>As lonas do morro</h2>
         <p id="enigma-texto"></p>
         <div id="enigma-caixas" class="caixas-letras" aria-hidden="true"></div>
+        <button class="btn pequeno" id="enigma-naosei">🤔 Não sei…</button>
         <input id="enigma-entrada" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Digite a palavra de 9 letras">
         <p id="enigma-retorno" class="retorno" aria-live="polite"></p>
         <div class="linha-botoes">
           <button class="btn fraco" data-fechar>Voltar</button>
-          <button class="btn" id="enigma-naosei" hidden>Não sei…</button>
           <button class="btn principal" id="enigma-ok">Revelar!</button>
         </div>
       </div>
@@ -309,6 +309,6 @@
     <input type="file" id="arquivo-camera" accept="image/*" capture="user" hidden>
   </div>
   <noscript>Este jogo precisa de JavaScript ativado.</noscript>
-  <script type="module" src="src/main.js?v=202610291704"></script>
+  <script type="module" src="src/main.js?v=202610300236"></script>
 </body>
 </html>

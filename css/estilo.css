@@ -358,3 +358,5 @@ body.girado #app { width: 100vh; height: 100vw; inset: auto; left: 0; top: 0; tr
 .cam-nome-topo input { width: min(220px, 40vw); font-size: 17px; padding: 5px 8px; background: #0c0716; color: #fff6dc; border: 3px solid var(--ouro); }
 .cam-nome-topo input.falta { animation: tremer 0.4s; border-color: #ff6a6a; }
 @media (max-width: 640px) { .cam-topo { flex-wrap: wrap; } .cam-topo h2 { font-size: 17px; } .cam-nome-topo { order: 5; width: 100%; } .cam-nome-topo input { flex: 1; width: auto; } }
+#enigma-naosei { display: block; margin: 0 auto 8px; }
+#enigma-naosei[hidden] { display: none; }

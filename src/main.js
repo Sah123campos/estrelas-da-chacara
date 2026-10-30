@@ -340,7 +340,8 @@ class App {
   verificarOrientacao() {
     const emPe = window.innerHeight > window.innerWidth;
     const jogando = !$("hud").hidden || ["cena", "toboagua", "chegada"].includes(this.jogo?.modo);
-    const girar = this.ehCelular() && emPe && jogando && this.config.girar !== false;
+    // com o enigma aberto o jogo fica em pé (o teclado do celular funciona melhor assim)
+    const girar = this.ehCelular() && emPe && jogando && this.config.girar !== false && $("enigma").hidden;
     const estava = document.body.classList.contains("girado");
     $("girar").hidden = true;
     if (girar !== estava) {
