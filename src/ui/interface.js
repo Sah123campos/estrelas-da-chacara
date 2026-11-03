@@ -148,7 +148,7 @@ export class Interface {
     let t;
     if (j.revelado) t = "O tema da festa à fantasia é HOLLYWOOD! Monte sua fantasia de estrela no camarim.";
     else if (k >= PISTAS.length) t = "Você conversou com todo mundo! Fique de olho: tem alguém chegando…";
-    else t = `Siga a seta amarela e converse com ${j.alvoAtual()?.def.nome.split(" ")[0] || "as pessoas"} (${k} de ${PISTAS.length}).`;
+    else t = `Siga a seta e converse com ${j.alvoAtual()?.def.nome.split(" ")[0] || "as pessoas"} (${k} de ${PISTAS.length}). Todo mundo da fazenda pode conversar com você!`;
     $("objetivo-texto").textContent = t;
     $("objetivo-pistas").innerHTML = j.revelado ? "" : PISTAS.map((p) => `<i class="${j.estado.flags.has(p.flag) ? "sim" : ""}"></i>`).join("");
     if (novo) {

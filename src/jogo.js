@@ -537,7 +537,7 @@ export class Jogo {
         "(O ônibus do acampamento balança pela estrada de terra a caminho da fazenda.)",
         "Que alegria! O tema das mensagens deste acampamento é o REINO INVERTIDO. Quero aprender tudo!",
         "Senhor, eu tô indo de coração aberto. Tô ansioso(a) pra ver o que o Senhor tem preparado pra mim lá.",
-        "Mas e o tema da FESTA À FANTASIA? Ninguém conta! Vou seguir a seta amarela e conversar com todo mundo. Chegamos!",
+        "Mas e o tema da FESTA À FANTASIA? Ninguém conta! Olha… chegamos!",
       ],
       aoFim: () => {
         const c = this.chegada;
@@ -936,10 +936,16 @@ export class Jogo {
     } else this.ui.setaTexto(null);
     // indicadores sobre os NPCs
     for (const n of this.npcsVisiveis) {
-      if (n.bebe || n.def.extra) continue;
       const sx = Math.round(n.x - cx);
       const sy = Math.round(n.y - cy - ALT - 6 + Math.sin(t * 4) * 1.5);
       const temPista = this.alvoAtual() === n;
+      // balãozinho de conversa: qualquer pessoa perto pode ser chamada pra conversar
+      if (!temPista && !n.conversando && this.modo === "explorar" && Math.hypot(n.x - j.x, n.y - j.y) < 80) {
+        const by = Math.round(n.y - cy - (n.bebe ? 22 : ALT) - 4 + Math.sin(t * 3 + n.x) * 1);
+        ctx.fillStyle = "#1a1228"; ctx.fillRect(sx - 6, by - 6, 13, 9); ctx.fillRect(sx - 2, by + 3, 3, 2);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(sx - 5, by - 5, 11, 7); ctx.fillRect(sx - 1, by + 2, 1, 1);
+        ctx.fillStyle = "#1a1228"; for (const dx of [-3, 0, 3]) ctx.fillRect(sx + dx, by - 2, 1, 1);
+      }
       if (temPista && !n.conversando) this.balao(sx, sy, "!", "#ffd84a");
     }
     if (!this.revelado && this.pistasEncontradas() >= PISTAS.length) {
