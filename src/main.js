@@ -173,7 +173,7 @@ class App {
       this.jogo.iniciarChegada(() => {
         this.salvar();
         this.ui.aviso("★ <b>Bem-vindo(a) à fazenda!</b> A seta amarela mostra quem tem uma pista.", 3600);
-        setTimeout(() => this.ui.aviso("💬 Você pode conversar com <b>qualquer pessoa</b> da fazenda! Chegue perto e aperte <b>E</b> (no celular, toque no balão).", 5200), 3800);
+        setTimeout(() => this.ui.aviso("💬 Você pode conversar com <b>qualquer pessoa</b> da fazenda! Chegue perto e aperte <b>E</b> (no celular, toque no balão). No <b>mapa</b> aparece onde está cada pessoa.", 6000), 3800);
       });
     }
   }
