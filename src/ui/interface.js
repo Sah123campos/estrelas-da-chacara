@@ -146,7 +146,7 @@ export class Interface {
     const j = this.app.jogo;
     const k = j.pistasEncontradas();
     let t;
-    if (j.revelado) t = "O tema da festa à fantasia é HOLLYWOOD! Monte sua fantasia de estrela no camarim.";
+    if (j.revelado) t = "O tema da festa à fantasia é HOLLYWOOD! Continue explorando e conversando com o pessoal, ou monte sua fantasia no camarim.";
     else if (k >= PISTAS.length) t = "Você conversou com todo mundo! Fique de olho: tem alguém chegando…";
     else t = `Siga a seta e converse com ${j.alvoAtual()?.def.nome.split(" ")[0] || "as pessoas"} (${k} de ${PISTAS.length}). Todo mundo da fazenda pode conversar com você!`;
     $("objetivo-texto").textContent = t;
@@ -471,7 +471,8 @@ export class Interface {
 
   aposRevelacao() {
     this.atualizarObjetivo(true);
-    this.aviso("★ <b>Coleção Calçada da Fama liberada!</b><br>Smoking de estrelas, vestido da grande estreia, estatueta, claquete e pipoca no camarim.", 5200);
+    this.aviso("💬 <b>Continue explorando!</b> Converse com o pessoal da fazenda: agora todo mundo sabe que o tema é Hollywood.", 5200);
+    this.aviso("★ <b>Fantasias de estrela liberadas no camarim!</b> Smoking de estrelas, vestido da grande estreia, estatueta, claquete e pipoca.", 4600);
     this.app.atualizarTitulo();
     enviarNome(this.app.ap?.nome, "Finalizou");
   }
