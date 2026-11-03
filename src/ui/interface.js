@@ -501,7 +501,10 @@ export class Interface {
     ];
     for (const [k, nome] of areas) { const a = MAPA[k]; marca(px(a.x), py(a.z) + (k === "casa" ? 30 : 0), nome); }
     marca(px(MAPA.letreiro.x), py(MAPA.letreiro.z) - 20, j.revelado ? "Letreiro HOLLYWOOD" : "Lonas misteriosas");
-    for (const n of j.npcsVisiveis) marca(n.x, n.y, n.def.nome.split(" ")[0], "npc");
+    // só aparece quem você ainda não conversou
+    const faltam = j.npcsVisiveis.filter((n) => !j.estado.visitas[n.id]);
+    for (const n of faltam) marca(n.x, n.y, n.def.nome.split(" ")[0], "npc");
+    $("mapa-faltam").textContent = faltam.length ? `Faltam ${faltam.length} pessoa${faltam.length > 1 ? "s" : ""} para conversar. Quem você já conversou some do mapa.` : "Você já conversou com todo mundo! ★";
     marca(j.jogador.x, j.jogador.y, "Você", "voce");
     this.abrirPainel($("mapa"));
     this.app.audio.sfx("abrir");

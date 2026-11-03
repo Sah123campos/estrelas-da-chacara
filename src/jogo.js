@@ -450,6 +450,7 @@ export class Jogo {
           this.ui.salvar();
           if (this.revelarDepois) { this.revelarDepois = false; this.iniciarRevelacao(); }
           if (this.joaoDepois) { this.joaoDepois = false; setTimeout(() => this.chamarJoao(), 900); }
+          else this.verificarTodos();
         },
       });
       return;
@@ -686,6 +687,17 @@ export class Jogo {
       }
     }
     this.seguirCamera(dt, { x: j.x, y: j.y - (j.elevar || 0) });
+  }
+
+  // Conversou com todas as pessoas da fazenda: mensagem de parabéns (uma vez só).
+  verificarTodos() {
+    if (this.estado.flags.has("falou_todos")) return;
+    const faltam = this.npcsVisiveis.filter((n) => !this.estado.visitas[n.id]);
+    if (faltam.length) return;
+    this.estado.flags.add("falou_todos");
+    this.audio.sfx("pista");
+    setTimeout(() => this.ui.mensagem("Parabéns! ★", "Você conversou com TODO MUNDO da fazenda! Cada um tem uma história, e agora você conhece todas. Isso é viver o Reino Invertido: dar atenção a cada pessoa. Aproveite o acampamento!"), 700);
+    this.ui.salvar();
   }
 
   // ---------- bebê João ----------
