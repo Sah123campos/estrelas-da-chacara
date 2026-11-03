@@ -34,12 +34,12 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { visits: 2 }, node: "denovo" }, { node: "start" }],
       nodes: {
-        pista: { text: "Ninguém me contou… mas mandaram eu decorar falas e ensaiar meu melhor ângulo. Isso é coisa de CINEMA, {jogador}.", options: [{ label: "Pista: cinema!", end: true, set: "pista_davi_dicaprio" }] },
+        pista: { text: "No Reino Invertido, dar é melhor do que receber! E sobre a festa à fantasia… mandaram eu ensaiar meu melhor ângulo de CINEMA, {jogador}.", options: [{ label: "Pista: cinema!", end: true, set: "pista_davi_dicaprio" }] },
         start: {
           text: ["Shhh… olha esse lago, {jogador}. Imenso. Gelado. Perigoso.", "Você também sente? Esse lago tem a energia de um transatlântico."],
           options: [
             { label: "Qual é o tema do acampamento?", next: "pista", if: { notFlag: "pista_davi_dicaprio" } },
-            { label: "É um laguinho de chácara, Davi.", next: "laguinho" },
+            { label: "É um laguinho de fazenda, Davi.", next: "laguinho" },
             { label: "Quer que eu abra os braços na ponta do píer?", next: "pier" },
             { label: "Belo smoking!", next: "smoking", if: { outfitTag: "gala" } },
             { label: "Tchau!", end: true },
@@ -86,7 +86,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { flag: "taylor_musica" }, node: "fan" }, { node: "start" }],
       nodes: {
-        pista: { text: "Pista número um: tapete VERMELHO. Pista número dois: estrelas… na calçada. Faz sentido pra você?", options: [{ label: "Tapete vermelho e estrelas na calçada…", end: true, set: "pista_taylor_frisso" }] },
+        pista: { text: "No Reino Invertido, quem se humilha é que é exaltado! E a festa à fantasia? Tô vendo tapete VERMELHO e estrelas na calçada…", options: [{ label: "Tapete vermelho e estrelas na calçada…", end: true, set: "pista_taylor_frisso" }] },
         start: {
           text: ["Oiii! Você chegou bem na hora do meu show de beira de piscina!", "Shhh, tô compondo! Rima com \"toboágua\"… \"mágoa\"! Perfeito."],
           options: [
@@ -100,7 +100,7 @@ const PRINCIPAIS = [
         musica: { text: "Chama \"Shake It Off do Toboágua\". Fala de um ex que ficou com medo da descida. Era o caseiro.", options: [{ label: "Quero ouvir o refrão!", next: "refrao" }, { label: "Pesado. Até mais.", end: true }] },
         refrao: { text: "♪ Os haters vão hater, hater, hater… e o toboágua vai descer, descer, descer! ♪", options: [{ label: "HIT!", end: true, set: "taylor_musica", action: "acenar" }] },
         piscina: { text: "Claro que não, querida. Lantejoula molhada pesa 40 quilos. Eu só faço pose na borda.", options: [{ label: "Faz sentido.", next: "start" }, { label: "Tchau!", end: true }] },
-        danca: { text: "ISSO! Olha esse passinho! A chácara inteira tá assistindo, eu sinto!", options: [{ label: "(continuar dançando)", next: "start" }, { label: "Cansei, tchau!", end: true }] },
+        danca: { text: "ISSO! Olha esse passinho! A fazenda inteira tá assistindo, eu sinto!", options: [{ label: "(continuar dançando)", next: "start" }, { label: "Cansei, tchau!", end: true }] },
         fan: {
           text: "Minha fã número um voltou! Já tô na versão acústica da música do toboágua.",
           options: [
@@ -109,7 +109,7 @@ const PRINCIPAIS = [
             { label: "Depois eu volto!", end: true },
           ],
         },
-        autografo: { text: "Assinei na sua alma. É mais fácil que achar caneta aqui na chácara.", options: [{ label: "Valeu!", end: true }] },
+        autografo: { text: "Assinei na sua alma. É mais fácil que achar caneta aqui na fazenda.", options: [{ label: "Valeu!", end: true }] },
         pos: {
           text: ["HOLLYWOOD! Eu já tô compondo o hino: ♪ Le-trei-ro no mor-ro, eu cor-ro, eu cor-ro ♪", "Tapete vermelho, estrelas, letreiro… eu falei, não falei? Eu SEMPRE falo."],
           options: [
@@ -135,7 +135,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { visits: 2 }, node: "denovo" }, { node: "start" }],
       nodes: {
-        pista: { text: "Encomendaram pipoca para trezentas pessoas e um telão. Pensa num lugar famoso por pipoca, telão e estreia…", options: [{ label: "Pipoca e telão. Anotado!", end: true, set: "pista_thais_grande" }] },
+        pista: { text: "Sabia? No Reino Invertido, quem serve é o maior! E pra festa à fantasia encomendaram pipoca pra todo mundo e um telão enorme…", options: [{ label: "Pipoca e telão. Anotado!", end: true, set: "pista_thais_grande" }] },
         start: {
           text: ["Aaaaah♪! Desculpa, eu sempre solto um agudo quando o feijão ferve.", "Bem-vindo ao refeitório! Aqui a gente canta, cozinha e não deixa ninguém repetir sobremesa. Mentira, deixa sim."],
           options: [
@@ -185,7 +185,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { outfitTag: "estrela" }, node: "tema" }, { node: "start" }],
       nodes: {
-        pista: { text: "Vi uns caras subindo o morro do lado da casa amarela com letras brancas GIGANTES. Nove letras. A primeira é H.", options: [{ label: "Nove letras… começa com H!", end: true, set: "pista_samuel_pitt" }] },
+        pista: { text: "No Reino Invertido, os últimos serão os primeiros! E pra festa à fantasia, vi letras brancas GIGANTES no morro. Nove letras, começa com H.", options: [{ label: "Nove letras… começa com H!", end: true, set: "pista_samuel_pitt" }] },
         start: {
           text: ["E aí… (vira em câmera lenta) …beleza?", "Tô treinando minha caminhada de cena de filme entre as palmeiras. Fica comigo no enquadramento."],
           options: [
@@ -196,7 +196,7 @@ const PRINCIPAIS = [
             { label: "Tchau!", end: true },
           ],
         },
-        devagar: { text: "Tem um drone filmando a chácara. Se ele passar, eu quero estar no meu melhor ângulo.", options: [{ label: "O drone já passou faz tempo.", next: "drone" }, { label: "Justo. Até mais.", end: true }] },
+        devagar: { text: "Tem um drone filmando a fazenda. Se ele passar, eu quero estar no meu melhor ângulo.", options: [{ label: "O drone já passou faz tempo.", next: "drone" }, { label: "Justo. Até mais.", end: true }] },
         drone: { text: "…Então eu ando assim por estilo mesmo. Ninguém precisa saber.", options: [{ label: "Seu segredo tá seguro.", end: true }] },
         palmeiras: { text: "Contei umas doze. Dei nome pra todas. Aquela torta ali é a Jennifer. Não pergunta.", options: [{ label: "Não vou perguntar.", next: "start" }, { label: "Tchau!", end: true }] },
         pose: { text: "Mão no bolso, olhar no horizonte, sorriso de canto. Agora finge que tem vento. Isso! Pose de estrela.", options: [{ label: "Me senti numa estreia.", end: true, set: "samuel_pose" }] },

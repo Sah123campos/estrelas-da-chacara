@@ -1,5 +1,5 @@
 // ============================================================================
-// MAPA DA CHÁCARA — dados centralizados (vista de cima, pixel art).
+// MAPA DA FAZENDA — dados centralizados (vista de cima, pixel art).
 // Coordenadas em METROS, iguais às medidas tiradas das fotos de drone.
 // x = leste, z = sul (o "norte" do mapa fica em cima na tela).
 // Origem (0,0) = plataforma de concreto azul de onde as fotos DJI_0336..0339 foram tiradas.
@@ -22,7 +22,7 @@ export const py = (z) => Math.round((z - LIMITES.z0) * PX_POR_METRO);
 export const m = (v) => v * PX_POR_METRO;
 
 export const MAPA = {
-  // O jogador chega pelo portão de entrada e sobe o caminho até a chácara.
+  // O jogador chega pelo portão de entrada e sobe o caminho até a fazenda.
   inicio: { x: 0, z: 88.5, dir: "cima" },
 
   // Lago (visto à esquerda nas fotos, mais baixo que o gramado).
@@ -193,9 +193,9 @@ export const MAPA = {
     { id: "bombinhas", x: 33, z: 61.6, r: 2.2, rotulo: "Mexer na caixinha", texto: "Uma caixa de bombinhas escondida embaixo do criado-mudo… A madrugada vai ser boa!" },
     { id: "bateria", x: 13, z: 28, r: 2.4, rotulo: "Tocar a bateria", acao: "musica", texto: "TU-DUM-TSSS! Você manda uma virada na bateria e o Pedro faz sinal de joinha lá do microfone." },
     { id: "violao", x: 19, z: 27.6, r: 2, rotulo: "Tocar o violão", acao: "musica", texto: "Você dedilha uns acordes no violão. Até os passarinhos param pra ouvir." },
-    { id: "microfone", x: 16.5, z: 30.4, r: 1.8, rotulo: "Falar no microfone", texto: "“Alô, alô, chácara!” — sua voz ecoa nas caixas de som. Do refeitório alguém grita: “TÁ ALTO!”" },
+    { id: "microfone", x: 16.5, z: 30.4, r: 1.8, rotulo: "Falar no microfone", texto: "“Alô, alô, fazenda!” — sua voz ecoa nas caixas de som. Do refeitório alguém grita: “TÁ ALTO!”" },
     { id: "buffet", x: -30, z: 49.6, r: 3.2, rotulo: "Ver a comida", texto: "Arroz soltinho, feijão, frango assado, salada e um bolo de fubá que tá cheirando de longe. A Thais caprichou!" },
-    { id: "cama_meninas", x: -34, z: 62.5, r: 2.4, rotulo: "Olhar as camas", texto: "Camas arrumadinhas, ursinho de pelúcia, necessaire de maquiagem e um pôster escrito “Estrelas da Chácara ★”." },
+    { id: "cama_meninas", x: -34, z: 62.5, r: 2.4, rotulo: "Olhar as camas", texto: "Camas arrumadinhas, ursinho de pelúcia, necessaire de maquiagem e um pôster escrito “Estrelas da Fazenda ★”." },
     { id: "cama_meninos", x: 18, z: 62.5, r: 2.4, rotulo: "Olhar as camas", texto: "Uma cama arrumada e cinco bagunçadas. Tem tênis pra todo lado e um travesseiro com cheiro de protetor solar." },
     { id: "carros", x: -40, z: 90.6, r: 4, rotulo: "Olhar o estacionamento", texto: "Carros de todo mundo que veio ajudar, e o ônibus do acampamento descansando à sombra. Alguém esqueceu o pisca-alerta ligado…" },
     { id: "quiosque", x: 55, z: -18.5, r: 3, rotulo: "Espiar o quiosque", texto: "Tem caixas e mais caixas de milho de pipoca empilhadas aqui. Pra que tanto?!" },

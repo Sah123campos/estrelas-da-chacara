@@ -24,7 +24,7 @@ const ABAS = [
 ];
 const ROUPAS = ["cima", "casaco", "baixo", "vestido", "meia", "calcado"];
 const ACESSORIOS = ["chapeu", "oculos", "pescoco", "brinco", "pulso", "luvas", "mao"];
-const NOMES_ESTRELA = ["Leo Di Chácara", "Meryl Fogueira", "Brad Pitanga", "Angelina Jolinha", "Will Smithão", "Keanu Rifas", "Emma Pedra", "Zendaia do Lago", "Tom Cruzeiro", "Anne Rathaway", "Morgan Freemanga", "Julia Roberta", "Nicole Kidmansa", "Johnny Deppósito"];
+const NOMES_ESTRELA = ["Leo Di Fazenda", "Meryl Fogueira", "Brad Pitanga", "Angelina Jolinha", "Will Smithão", "Keanu Rifas", "Emma Pedra", "Zendaia do Lago", "Tom Cruzeiro", "Anne Rathaway", "Morgan Freemanga", "Julia Roberta", "Nicole Kidmansa", "Johnny Deppósito"];
 const BAIXO_NO_BONECO = new Set(["baixo", "meia", "calcado"]);
 
 export class Camarim {

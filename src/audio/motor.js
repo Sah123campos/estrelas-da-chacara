@@ -187,6 +187,40 @@ export class MotorAudio {
     this.saindo = this.saindo.filter((m) => this.agora < m.fimEm);
   }
 
+  // ---------- Sons de ambiente (cachoeira, passarinhos) ----------
+  ambiente(nome, volume) {
+    if (!this.ctx) return;
+    this.amb ||= {};
+    let a = this.amb[nome];
+    if (!a) {
+      const c = this.ctx;
+      const g = c.createGain();
+      g.gain.value = 0;
+      g.connect(this.busAmb);
+      if (nome === "cachoeira") {
+        const s = c.createBufferSource();
+        s.buffer = this.ruido;
+        s.loop = true;
+        const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1800;
+        const f2 = c.createBiquadFilter(); f2.type = "highpass"; f2.frequency.value = 180;
+        s.connect(f).connect(f2).connect(g);
+        s.start();
+      } else {
+        // passarinhos: piados curtos de vez em quando
+        a = { g, piar: setInterval(() => {
+          if (!this.ligado || a.v < 0.05 || this.ctx.state !== "running") return;
+          const t = this.agora;
+          const f0 = 2600 + Math.random() * 1600;
+          for (let k = 0; k < 2 + Math.floor(Math.random() * 3); k++) this.tom(f0 * (1 + Math.random() * 0.1), t + k * 0.11, 0.06, g, { onda: "sine", vol: 0.05, f2: f0 * 1.3 });
+        }, 1700) };
+      }
+      a ||= { g };
+      this.amb[nome] = a;
+    }
+    a.v = volume;
+    a.g.gain.setTargetAtTime(volume, this.agora, 0.25);
+  }
+
   // ---------- Efeitos ----------
   sfx(nome, opcoes = {}) {
     if (!this.ctx || !this.ligado) return;

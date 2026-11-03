@@ -1,4 +1,4 @@
-// Estrelas da Chácara — inicialização, estados (título, camarim, jogo) e laço principal.
+// Estrelas da Fazenda — inicialização, estados (título, camarim, jogo) e laço principal.
 import { Tela } from "./motor/tela.js";
 import { Entrada } from "./motor/entrada.js";
 import { MotorAudio } from "./audio/motor.js";
@@ -172,7 +172,7 @@ class App {
       this.ui.esconderHud(true);
       this.jogo.iniciarChegada(() => {
         this.salvar();
-        this.ui.aviso("★ <b>Bem-vindo(a) à chácara!</b> Converse com quem tem <b>!</b> sobre a cabeça e descubra o tema secreto.", 4200);
+        this.ui.aviso("★ <b>Bem-vindo(a) à fazenda!</b> Converse com quem tem <b>!</b> sobre a cabeça e descubra o tema secreto.", 4200);
       });
     }
   }

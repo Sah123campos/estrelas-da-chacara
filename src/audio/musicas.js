@@ -51,7 +51,7 @@ const titulo = {
   },
 };
 
-// ---------- Exploração: tarde ensolarada na chácara (violão dedilhado + flauta) ----------
+// ---------- Exploração: tarde ensolarada na fazenda (violão dedilhado + flauta) ----------
 const melChacara = melodia([
   "G4 . A4 . B4 . . D5 . . B4 . A4 . G4 .",
   "E4 . . . . . G4 . A4 . . . . . . .",

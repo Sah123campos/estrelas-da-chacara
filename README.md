@@ -1,7 +1,7 @@
-# Estrelas da Chácara — RPG em pixel art
+# Estrelas da Fazenda — RPG em pixel art
 
-Jogo web em 2D (pixel art, vista de cima) na chácara do acampamento. Você cria o seu personagem
-com **a foto do seu próprio rosto**, monta o look no camarim e explora a chácara conversando com
+Jogo web em 2D (pixel art, vista de cima) na fazenda do acampamento. Você cria o seu personagem
+com **a foto do seu próprio rosto**, monta o look no camarim e explora a fazenda conversando com
 todo mundo para descobrir **o tema secreto do acampamento**.
 
 O estilo e o motor seguem os outros jogos do mesmo autor (como *O Maior Amor*): tela em baixa
@@ -81,7 +81,7 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 - As miniaturas mostram cada peça **em você** (com o seu rosto).
 - Peças e looks **secretos** (Coleção Calçada da Fama) aparecem como `???` até o tema ser descoberto.
 
-## Na chácara
+## Na fazenda
 
 - O jogo começa **dentro do ônibus** do acampamento: o personagem conta que está curioso com o tema e ansioso
   pelo que Deus tem preparado. O ônibus para na estrada em frente ao **portão**, você desce e o ônibus vai embora.
@@ -103,7 +103,7 @@ internet, e pode ser apagada a qualquer momento (aba Sua foto, ou Configuraçõe
 ## O mistério do tema
 
 1. Quatro personagens têm um **!** sobre a cabeça: cada um conta uma pista quando você pergunta.
-2. Há achados extras pela chácara (a palha perto do murinho azul, o quiosque da piscina, a porta
+2. Há achados extras pela fazenda (a palha perto do murinho azul, o quiosque da piscina, a porta
    da casa amarela).
 3. No morro ao lado da casa amarela há **nove formas cobertas por lonas**. Com as pistas, vá até lá
    e digite a palavra.
@@ -144,7 +144,7 @@ src/arte/pixel.js      ferramentas de pixel art (cores, ruído, Pixmap) — as m
 src/arte/personagem.js boneco em camadas: corpo, roupas, cabelo, chapéu, óculos, rosto/foto (4 direções)
 src/arte/retrato.js    retrato 64×64 com a foto do jogador ou rosto desenhado
 src/arte/tecido.js     padrões de tecido
-src/arte/cenario.js    pinta o chão da chácara, colisões e a lista de objetos
+src/arte/cenario.js    pinta o chão da fazenda, colisões e a lista de objetos
 src/arte/objetos.js    palmeiras, casa amarela, toboágua, balaustrada, cachoeira, lonas e letras…
 src/rosto/             foto: leitura, detecção aproximada do rosto, câmera e conversão para pixel art
 src/motor/             tela (escala inteira), entrada (teclado/toque), motor de diálogos

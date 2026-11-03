@@ -97,6 +97,15 @@ export class Interface {
     b.classList.add("disponivel");
   }
 
+  // texto grande embaixo da tela: "Fale com Fulano"
+  setaTexto(txt) {
+    const el = $("seta-texto");
+    if (!el) return;
+    if (!txt) { if (!el.hidden) el.hidden = true; return; }
+    if (el.textContent !== txt) el.textContent = "➜ " + txt;
+    el.hidden = false;
+  }
+
   limparAvisos() {
     this.avisos = [];
     clearTimeout(this.tAviso);
@@ -137,9 +146,9 @@ export class Interface {
     const j = this.app.jogo;
     const k = j.pistasEncontradas();
     let t;
-    if (j.revelado) t = "O tema é HOLLYWOOD! Monte seu look de estrela no camarim e desfile no tapete vermelho do gramado.";
+    if (j.revelado) t = "O tema da festa à fantasia é HOLLYWOOD! Monte sua fantasia de estrela no camarim.";
     else if (k >= PISTAS.length) t = "Você conversou com todo mundo! Fique de olho: tem alguém chegando…";
-    else t = `Converse com as pessoas que têm ! sobre a cabeça (${k} de ${PISTAS.length}). A seta amarela mostra o caminho.`;
+    else t = `Siga a seta amarela e converse com ${j.alvoAtual()?.def.nome.split(" ")[0] || "as pessoas"} (${k} de ${PISTAS.length}).`;
     $("objetivo-texto").textContent = t;
     $("objetivo-pistas").innerHTML = j.revelado ? "" : PISTAS.map((p) => `<i class="${j.estado.flags.has(p.flag) ? "sim" : ""}"></i>`).join("");
     if (novo) {
@@ -350,7 +359,7 @@ export class Interface {
     const ex = $("lista-extras");
     ex.innerHTML = "";
     const achados = Object.entries(PISTAS_EXTRAS).filter(([f]) => j.estado.flags.has(f));
-    if (!achados.length) ex.innerHTML = `<li class="nao">Nada ainda. Fuçe a chácara: a palha do pátio, o quiosque, a casa amarela…</li>`;
+    if (!achados.length) ex.innerHTML = `<li class="nao">Nada ainda. Fuçe a fazenda: a palha do pátio, o quiosque, a casa amarela…</li>`;
     for (const [, t] of achados) { const li = document.createElement("li"); li.className = "sim"; li.textContent = t; ex.append(li); }
     const k = j.pistasEncontradas();
     $("diario-dica").textContent = j.revelado ? "Mistério resolvido: o tema é HOLLYWOOD! ★" : k >= PISTAS.length ? "Todas as pistas! Vá até as lonas no morro e diga qual é a palavra." : `Pistas: ${k}/${PISTAS.length}. As pessoas com ! sobre a cabeça têm algo a contar.`;
@@ -364,7 +373,7 @@ export class Interface {
     $("enigma-naosei").hidden = false;
     this.enigmaDados.pistas = pistas;
     this.enigmaDados.total = total;
-    let t = "Nove formas enormes cobertas por lonas brancas, amarradas com cordas, viradas para a chácara inteira. Alguma coisa vai ser revelada aqui…";
+    let t = "Nove formas enormes cobertas por lonas brancas, amarradas com cordas, viradas para a fazenda inteira. Alguma coisa vai ser revelada aqui…";
     if (pistas < total) t += ` Você tem ${pistas} de ${total} pistas. Se ainda não souber, converse com mais gente — mas pode arriscar!`;
     else t += " Você juntou todas as pistas. Qual é a palavra escrita embaixo das lonas?";
     $("enigma-texto").textContent = t;

@@ -293,7 +293,7 @@ export const LOOKS = [
   { id: "galã", nome: "Galã de jaqueta", ap: { cima: "camiseta", casaco: "couro", baixo: "jeans", vestido: "nenhum", calcado: "tenis", oculos: "aviador", pescoco: "corrente" } },
   { id: "rock", nome: "Rock star", ap: { cima: "camiseta_preta", casaco: "couro", baixo: "calca_couro", vestido: "nenhum", calcado: "coturno", oculos: "redondo", pulso: "pulseiras", mao: "violao" } },
   { id: "diva_retro", nome: "Diva retrô", ap: { vestido: "pretinho", calcado: "scarpin", luvas: "luva_cetim", pescoco: "perolas", oculos: "gatinho", chapeu: "pamela" } },
-  { id: "caipira", nome: "Arraiá da chácara", ap: { cima: "xadrez", casaco: "colete", baixo: "jeans", vestido: "nenhum", calcado: "bota", chapeu: "palha", pescoco: "lenco" } },
+  { id: "caipira", nome: "Arraiá da fazenda", ap: { cima: "xadrez", casaco: "colete", baixo: "jeans", vestido: "nenhum", calcado: "bota", chapeu: "palha", pescoco: "lenco" } },
   { id: "piscina", nome: "Dia de piscina", ap: { cima: "havaiana", casaco: "nenhum", baixo: "bermuda", vestido: "nenhum", calcado: "chinelo", oculos: "wayfarer", chapeu: "bone", mao: "suco" } },
   { id: "estreia", nome: "Grande estreia", segredo: true, ap: { vestido: "tapete_vermelho", calcado: "salto_dourado", brinco: "brilhante", luvas: "luva_longa", mao: "estatueta", oculos: "estrela" } },
   { id: "diretor", nome: "Diretor de cena", segredo: true, ap: { cima: "gola_alta", casaco: "smoking_estrela", baixo: "calca_preta", vestido: "nenhum", calcado: "oxford", chapeu: "boina_diretor", mao: "claquete", oculos: "redondo" } },

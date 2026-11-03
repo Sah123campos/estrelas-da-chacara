@@ -1,4 +1,4 @@
-// Monta o cenário da chácara: pinta o chão inteiro (grama, lago, caminhos, pátio azul,
+// Monta o cenário da fazenda: pinta o chão inteiro (grama, lago, caminhos, pátio azul,
 // terraço da piscina, colina...) numa imagem grande, gera a grade de colisão e a lista
 // de objetos altos (palmeiras, casa, toboágua...) ordenados por profundidade no jogo.
 import { rgb, misturar, escurecer, clarear, hash, fbm, bayer, semente, criarCanvas } from "./pixel.js";

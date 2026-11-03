@@ -11,11 +11,13 @@ import { hash, criarCanvas } from "./arte/pixel.js";
 import { onibus, interiorOnibus } from "./arte/objetos.js";
 
 export const PISTAS = NPCS.filter((n) => !n.bebe && !n.extra).map((n) => ({ id: n.id, flag: `pista_${n.id}`, nome: n.nome }));
+// Ordem em que a seta leva o jogador (atravessa o mapa do portão até o lago).
+export const ORDEM = ["thais_grande", "samuel_pitt", "taylor_frisso", "davi_dicaprio"];
 export const TEXTO_PISTAS = {
-  pista_davi_dicaprio: "Davi: mandaram decorar falas e ensaiar o melhor ângulo… coisa de CINEMA.",
-  pista_taylor_frisso: "Taylor: tapete VERMELHO e estrelas… na calçada.",
-  pista_thais_grande: "Thais: pipoca para 300 pessoas e um telão. Lugar famoso por estreias…",
-  pista_samuel_pitt: "Samuel: letras brancas gigantes no morro. Nove letras. Começa com H.",
+  pista_davi_dicaprio: "Davi: ensaiar o melhor ângulo… coisa de CINEMA.",
+  pista_taylor_frisso: "Taylor: tapete VERMELHO e estrelas na calçada.",
+  pista_thais_grande: "Thais: pipoca pra todo mundo e um telão.",
+  pista_samuel_pitt: "Samuel: letras gigantes no morro, 9 letras, começa com H.",
 };
 export const PISTAS_EXTRAS = {
   extra_palha: "Bilhete na palha do pátio: “ensaio geral às 19h — não contem pra ninguém”.",
@@ -205,6 +207,13 @@ export class Jogo {
     return this.estado.flags.has("tema_revelado");
   }
 
+  // próxima pessoa da ordem que ainda não contou a pista
+  alvoAtual() {
+    if (this.revelado) return null;
+    const id = ORDEM.find((i) => !this.estado.flags.has(`pista_${i}`));
+    return id ? this.npcs.find((n) => n.id === id) : null;
+  }
+
   pistasEncontradas() {
     return PISTAS.filter((p) => this.estado.flags.has(p.flag)).length;
   }
@@ -224,6 +233,16 @@ export class Jogo {
       this.cam.y = py(-20) + Math.cos(k * 0.7) * 70;
     }
     for (const n of this.npcsVisiveis) this.atualizarNPC(n, dt);
+    // som da cachoeira: mais alto quanto mais perto
+    this.tSom = (this.tSom || 0) + dt;
+    if (this.tSom > 0.2 && MAPA.cachoeira) {
+      this.tSom = 0;
+      const ref = this.modo === "titulo" ? this.cam : this.jogador;
+      const d = Math.hypot(ref.x - px(MAPA.cachoeira.x), ref.y - py(MAPA.cachoeira.z));
+      this.audio.ambiente?.("cachoeira", Math.pow(Math.max(0, 1 - d / 300), 1.6) * 0.9);
+      const dl = Math.hypot(ref.x - px(MAPA.lago.x), ref.y - py(MAPA.lago.z));
+      this.audio.ambiente?.("passaros", 0.25 + Math.max(0, 1 - dl / 500) * 0.3);
+    }
     this.atualizarParticulas(dt);
     this.atualizarBola(dt);
     if (this.clarear) { this.anoitecer = Math.max(0, (this.anoitecer || 0) - dt / 3); if (!this.anoitecer) this.clarear = false; }
@@ -416,6 +435,7 @@ export class Jogo {
       const dx = n.x - j.x;
       const dy = n.y - j.y;
       j.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "esq" : "dir") : dy < 0 ? "cima" : "baixo";
+      this.estado.alvoAtual = this.alvoAtual()?.id || null;
       const conv = new Conversa(n.def, this.estado, j.ap);
       this.modo = "dialogo";
       this.ui.prompt(null);
@@ -482,7 +502,7 @@ export class Jogo {
   }
 
   examinarLetreiro() {
-    if (this.revelado) return this.ui.mensagem("O letreiro", "H-O-L-L-Y-W-O-O-D. Nove letras brancas gigantes no morro da chácara. O acampamento virou tapete vermelho! ★");
+    if (this.revelado) return this.ui.mensagem("O letreiro", "H-O-L-L-Y-W-O-O-D. Nove letras brancas gigantes no morro da fazenda. O acampamento virou tapete vermelho! ★");
     const k = this.pistasEncontradas();
     if (k >= PISTAS.length) return this.chamarJoao();
     return this.ui.mensagem("As lonas do morro", `Nove formas enormes cobertas por lonas brancas… O que será? Converse com as pessoas que têm ! sobre a cabeça (${k} de ${PISTAS.length}) e alguém vai te contar.`);
@@ -514,10 +534,10 @@ export class Jogo {
       nome,
       retrato: j.retrato,
       textos: [
-        "(O ônibus do acampamento balança pela estrada de terra. Lá fora passam pastos, palmeiras e um céu azul enorme.)",
-        "Finalmente! Acampamento na chácara… Dá pra sentir que esse fim de semana vai ser especial.",
+        "(O ônibus do acampamento balança pela estrada de terra a caminho da fazenda.)",
+        "Que alegria! O tema das mensagens deste acampamento é o REINO INVERTIDO. Quero aprender tudo!",
         "Senhor, eu tô indo de coração aberto. Tô ansioso(a) pra ver o que o Senhor tem preparado pra mim lá.",
-        "Vou conversar com todo mundo! Olha… o portão! Chegamos!",
+        "Mas e o tema da FESTA À FANTASIA? Ninguém conta! Vou seguir a seta amarela e conversar com todo mundo. Chegamos!",
       ],
       aoFim: () => {
         const c = this.chegada;
@@ -895,38 +915,31 @@ export class Jogo {
       if (o.fogo) this.desenharFogo(o.x - cx, o.y - cy - 8);
     }
     this.desenharBola(cx, cy);
-    // seta amarela apontando para a próxima pessoa com pista (quando ela está fora da tela)
-    if (this.modo === "explorar" && !this.revelado) {
-      let alvo = null;
-      let md = Infinity;
-      for (const n of this.npcs) {
-        if (n.bebe || n.def.extra || this.estado.flags.has(`pista_${n.id}`)) continue;
-        const d = Math.hypot(n.x - j.x, n.y - j.y);
-        if (d < md) { md = d; alvo = n; }
-      }
-      if (alvo) {
-        const sx = alvo.x - cx, sy = alvo.y - cy - 20;
-        if (sx < 10 || sy < 10 || sx > W - 10 || sy > H - 10) {
-          const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
-          const r = Math.min(W, H) / 2 - 22 + Math.sin(t * 6) * 3;
-          const ax = W / 2 + Math.cos(ang) * r, ay = H / 2 + Math.sin(ang) * r;
-          ctx.save();
-          ctx.translate(Math.round(ax), Math.round(ay));
-          ctx.rotate(ang);
-          ctx.fillStyle = "#1a1228";
-          ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-6, -8); ctx.lineTo(-6, 8); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = "#ffd84a";
-          ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-4, -6); ctx.lineTo(-4, 6); ctx.closePath(); ctx.fill();
-          ctx.restore();
-        }
-      }
-    }
+    // SETA AMARELA: mostra quem é a próxima pessoa para conversar (sempre visível)
+    const alvoSeta = this.modo === "explorar" ? this.alvoAtual() : null;
+    if (alvoSeta) {
+      const sx = alvoSeta.x - cx, sy = alvoSeta.y - cy - ALT - 16;
+      const naTela = sx > 16 && sy > 24 && sx < W - 16 && sy < H - 16;
+      const ang = naTela ? Math.PI / 2 : Math.atan2(alvoSeta.y - j.y, alvoSeta.x - j.x);
+      const r = Math.min(W, H) / 2 - 26 + Math.sin(t * 6) * 3;
+      const ax = naTela ? sx : W / 2 + Math.cos(ang) * r;
+      const ay = naTela ? sy - 6 + Math.sin(t * 6) * 3 : H / 2 + Math.sin(ang) * r;
+      ctx.save();
+      ctx.translate(Math.round(ax), Math.round(ay));
+      ctx.rotate(ang);
+      ctx.fillStyle = "#1a1228";
+      ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, -11); ctx.lineTo(-3, 0); ctx.lineTo(-8, 11); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ffd84a";
+      ctx.beginPath(); ctx.moveTo(11, 0); ctx.lineTo(-6, -8); ctx.lineTo(-2, 0); ctx.lineTo(-6, 8); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      this.ui.setaTexto(`Fale com ${alvoSeta.def.nome.split(" ")[0]}`);
+    } else this.ui.setaTexto(null);
     // indicadores sobre os NPCs
     for (const n of this.npcsVisiveis) {
       if (n.bebe || n.def.extra) continue;
       const sx = Math.round(n.x - cx);
       const sy = Math.round(n.y - cy - ALT - 6 + Math.sin(t * 4) * 1.5);
-      const temPista = !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
+      const temPista = this.alvoAtual() === n;
       if (temPista && !n.conversando) this.balao(sx, sy, "!", "#ffd84a");
     }
     if (!this.revelado && this.pistasEncontradas() >= PISTAS.length) {
@@ -960,7 +973,7 @@ export class Jogo {
     if (this.alvo?.tipo === "npc" && this.modo === "explorar") {
       const n = this.alvo.npc;
       const alto = n.bebe ? 20 : ALT;
-      const temBalao = !n.bebe && !n.def.extra && !this.estado.flags.has(`pista_${n.id}`) && !this.revelado;
+      const temBalao = this.alvoAtual() === n;
       this.ui.rotuloNpc(n.def.nome, n.x - cx, n.y - cy - alto - (temBalao ? 12 : 2));
     } else this.ui.rotuloNpc(null);
   }

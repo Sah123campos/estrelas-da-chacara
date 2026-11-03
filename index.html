@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Estrelas">
-  <title>Estrelas da Chácara</title>
-  <meta name="description" content="Um RPG em pixel art na chácara do acampamento. Crie seu personagem com o seu rosto, converse com todo mundo e descubra o tema secreto.">
+  <title>Estrelas da Fazenda</title>
+  <meta name="description" content="Um RPG em pixel art na fazenda do acampamento. Crie seu personagem com o seu rosto, converse com todo mundo e descubra o tema secreto.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preload" href="assets/fontes/PixelifySans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/estilo.css?v=202611030135">
+  <link rel="stylesheet" href="css/estilo.css?v=202611030149">
 </head>
 <body>
   <div id="app">
@@ -44,16 +44,16 @@
 
     <!-- Carregando -->
     <div id="carregando" class="tela-cheia">
-      <div class="logo"><span class="estrela">★</span> Estrelas <em>da</em> Chácara</div>
+      <div class="logo"><span class="estrela">★</span> Estrelas <em>da</em> Fazenda</div>
       <div class="barra"><i id="barra-carga"></i></div>
-      <p id="texto-carga">Montando a chácara pixel por pixel…</p>
+      <p id="texto-carga">Montando a fazenda pixel por pixel…</p>
     </div>
 
     <!-- Título -->
     <div id="titulo" class="tela-cheia" hidden>
       <div class="titulo-caixa moldura">
-        <div class="logo grande"><span class="estrela">★</span> Estrelas <em>da</em> Chácara</div>
-        <p class="sub" id="titulo-sub">Um acampamento. Uma chácara. Um tema que ninguém quer contar…<br>Explore a chácara, converse com as pessoas e descubra o segredo.</p>
+        <div class="logo grande"><span class="estrela">★</span> Estrelas <em>da</em> Fazenda</div>
+        <p class="sub" id="titulo-sub">Um acampamento. Uma fazenda. Um tema que ninguém quer contar…<br>Explore a fazenda, converse com as pessoas e descubra o segredo.</p>
         <div class="menu" id="menu-titulo">
           <button class="btn principal" data-acao="continuar" id="btn-continuar">Continuar</button>
           <button class="btn" data-acao="novo">Novo jogo</button>
@@ -82,6 +82,7 @@
         <button id="btn-pausa" class="btn-icone" aria-label="Pausa (Esc)" title="Pausa (Esc)"><span class="ico ico-pausa"></span></button>
       </div>
       <div id="rotulo-npc" class="rotulo-npc" hidden></div>
+      <div id="seta-texto" class="seta-texto" hidden></div>
       <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="prompt-texto"></span></div>
       <div id="dicas-teclado" class="dicas-teclado">
         <span><kbd>WASD</kbd> andar</span><span><kbd>Shift</kbd> correr</span><span><kbd>E</kbd> interagir</span><span><kbd>Q</kbd> acenar</span><span><kbd>J</kbd> pistas</span><span><kbd>R</kbd> camarim</span><span><kbd>M</kbd> mapa</span>
@@ -120,7 +121,7 @@
         <h2>Diário de pistas</h2>
         <p class="nota">Qual é o tema secreto do acampamento? Cada pessoa sabe um pedacinho.</p>
         <ul id="lista-pistas" class="lista-pistas"></ul>
-        <h3>Achados pela chácara</h3>
+        <h3>Achados pela fazenda</h3>
         <ul id="lista-extras" class="lista-pistas extras"></ul>
         <p class="nota" id="diario-dica"></p>
       </div>
@@ -146,9 +147,9 @@
     <!-- Revelação -->
     <div id="revelacao" hidden>
       <div class="rev-caixa">
-        <p class="rev-pre">O tema do acampamento é…</p>
+        <p class="rev-pre">O tema da festa à fantasia é…</p>
         <h1 class="rev-palavra" id="rev-palavra">HOLLYWOOD</h1>
-        <p class="rev-sub">A chácara virou tapete vermelho! Novas peças da <b>Coleção Calçada da Fama</b> foram liberadas no camarim. ★</p>
+        <p class="rev-sub">A fazenda virou tapete vermelho! Novas peças da <b>Coleção Calçada da Fama</b> foram liberadas no camarim. ★</p>
         <button class="btn principal" id="rev-ok">Continuar</button>
       </div>
     </div>
@@ -157,7 +158,7 @@
     <div id="mapa" class="painel-tela" hidden>
       <div class="moldura painel largo">
         <button class="fechar" data-fechar aria-label="Fechar">×</button>
-        <h2>Mapa da chácara</h2>
+        <h2>Mapa da fazenda</h2>
         <div class="mapa-caixa"><canvas id="mapa-canvas" width="432" height="484"></canvas><div id="mapa-rotulos"></div></div>
         <p class="nota">Áreas marcadas com * ainda são provisórias (sem foto de referência).</p>
       </div>
@@ -202,9 +203,9 @@
         <button class="fechar" data-fechar aria-label="Fechar">×</button>
         <h2>Créditos</h2>
         <div class="texto-longo">
-          <p><b>Estrelas da Chácara</b> — RPG em pixel art.</p>
+          <p><b>Estrelas da Fazenda</b> — RPG em pixel art.</p>
           <p>Toda a arte (personagens, roupas, cenário), a música e os sons são gerados por código neste projeto.</p>
-          <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da chácara. Áreas sem foto estão marcadas como provisórias.</p>
+          <p>Cenário baseado nas fotos de drone DJI_0336 a DJI_0339 da fazenda. Áreas sem foto estão marcadas como provisórias.</p>
           <p>Fonte Pixelify Sans (SIL Open Font License). Motor e estilo de interface baseados nos jogos do mesmo autor.</p>
           <p>Os personagens têm nomes de brincadeira e não representam as celebridades reais.</p>
           <p class="contador" id="contador-creditos">Contando acessos…</p>
@@ -309,6 +310,6 @@
     <input type="file" id="arquivo-camera" accept="image/*" capture="user" hidden>
   </div>
   <noscript>Este jogo precisa de JavaScript ativado.</noscript>
-  <script type="module" src="src/main.js?v=202611030135"></script>
+  <script type="module" src="src/main.js?v=202611030149"></script>
 </body>
 </html>

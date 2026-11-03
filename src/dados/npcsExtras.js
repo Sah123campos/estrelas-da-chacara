@@ -41,7 +41,7 @@ export const EXTRAS = [
   npc({
     id: "jaque", nome: "Jaque Aniston", local: { x: -12.6, z: -45.8 }, comp: { tipo: "passear", raio: 1.6, par: "renan", lento: true },
     ap: { genero: "f", pele: "#d29a6e", cabelo: "longo", corCabelo: "#1a1010", marcas: ["cilios"], batom: "#c97a6a", cima: "regata", baixo: "jeans_claro", calcado: "tenis", pulso: "pulseiras", ajustes: { cima: { regata: { cor: "#16161a" } } } },
-    falas: ["Oi! Eu sou a Jaque. Eu e o Renan estamos amando a chácara!", "O Renan tá estranho hoje… muito carinhoso. Ele tá aprontando alguma!"],
+    falas: ["Oi! Eu sou a Jaque. Eu e o Renan estamos amando a fazenda!", "O Renan tá estranho hoje… muito carinhoso. Ele tá aprontando alguma!"],
     opcoes: [
       { label: "Você e o Renan…", texto: "Namorando! Ele carrega minha mochila e eu carrego o juízo dele." },
       { label: "Tá gostando do acampamento?", texto: "Muito! Ver todo mundo junto louvando é a melhor parte." },
@@ -71,7 +71,7 @@ export const EXTRAS = [
   npc({
     id: "lara", nome: "Lara Lawrence", local: { x: -22, z: 73.5 }, comp: { tipo: "passear", raio: 3 },
     ap: { genero: "f", altura: 0, pele: "#fbe3d4", cabelo: "cachos_longos", corCabelo: "#b33a24", marcas: ["sardas", "blush"], corOlhos: "#3b6b3a", cima: "camiseta", baixo: "jeans_claro", calcado: "tenis_retro" },
-    falas: ["Oi! Eu sou a Lara. Meu cabelo não aguenta essa umidade da chácara, olha esses cachos!", "É meu primeiro acampamento! Tô um pouquinho nervosa, mas muito feliz."],
+    falas: ["Oi! Eu sou a Lara. Meu cabelo não aguenta essa umidade da fazenda, olha esses cachos!", "É meu primeiro acampamento! Tô um pouquinho nervosa, mas muito feliz."],
     opcoes: [
       { label: "Seu cabelo é lindo!", texto: "Obrigada! Ruivo e cacheado: combo raro, tipo figurinha dourada do álbum." },
       { label: "Primeiro acampamento? Vai ser incrível!", texto: "Todo mundo fala isso! E falam que Deus faz coisas grandes aqui. Tô esperando de coração aberto." },
@@ -94,7 +94,7 @@ export const EXTRAS = [
   npc({
     id: "kenedy", nome: "Kenedy Hart", local: { x: 34, z: 50.5 }, comp: { tipo: "passear", raio: 2.5, par: "brayan" },
     ap: { genero: "m", pele: "#a86f47", cabelo: "curto", corCabelo: "#141010", barba: "cavanhaque", boca: "risada", oculos: "grau", cima: "camiseta", baixo: "bermuda_jeans", calcado: "tenis" },
-    falas: ["O Brayan acha que ganha de mim no basquete. Coitado.", "Sorria! Aqui na chácara não tem tempo ruim!"],
+    falas: ["O Brayan acha que ganha de mim no basquete. Coitado.", "Sorria! Aqui na fazenda não tem tempo ruim!"],
     opcoes: [{ label: "Quem joga melhor, você ou o Brayan?", texto: "Eu, claro. Mas fala baixo, ele é sensível." }],
   }),
   // ---------- refeitório ----------
