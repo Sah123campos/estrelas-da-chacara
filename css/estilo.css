@@ -158,7 +158,6 @@ kbd {
   .objetivo { max-width: 46vw; font-size: 12px; }
   .btn-icone { width: 38px; height: 38px; }
   .hud-botoes { gap: 4px; }
-  #btn-mapa-hud { display: none; }
 }
 
 /* ---------- Toque ---------- */

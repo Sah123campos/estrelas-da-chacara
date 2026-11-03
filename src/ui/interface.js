@@ -471,7 +471,7 @@ export class Interface {
 
   aposRevelacao() {
     this.atualizarObjetivo(true);
-    this.aviso("💬 <b>Continue explorando!</b> Converse com o pessoal da fazenda: agora todo mundo sabe que o tema é Hollywood.", 5200);
+    this.aviso("💬 <b>Continue explorando!</b> Converse com o pessoal da fazenda: agora todo mundo sabe que o tema é Hollywood. No <b>mapa</b> aparece onde está cada pessoa.", 5600);
     this.aviso("★ <b>Fantasias de estrela liberadas no camarim!</b> Smoking de estrelas, vestido da grande estreia, estatueta, claquete e pipoca.", 4600);
     this.app.atualizarTitulo();
     enviarNome(this.app.ap?.nome, "Finalizou");
