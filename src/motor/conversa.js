@@ -41,6 +41,8 @@ export class Conversa {
     estado.visitas[npc.id] = (estado.visitas[npc.id] || 0) + 1;
     const ent = (npc.dialogo.entry || [{ node: "start" }]).find((e) => condicao(e.if, this.ctx));
     this.no = ent ? ent.node : "start";
+    // jogo simples: na primeira conversa a pessoa já conta a pista dela
+    if (npc.dialogo.nodes.pista && !estado.flags.has(`pista_${npc.id}`) && !estado.flags.has("tema_revelado")) this.no = "pista";
   }
   get node() {
     return this.def.dialogo.nodes[this.no];

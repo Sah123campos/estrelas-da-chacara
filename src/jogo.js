@@ -429,6 +429,7 @@ export class Jogo {
           this.modo = "explorar";
           this.ui.salvar();
           if (this.revelarDepois) { this.revelarDepois = false; this.iniciarRevelacao(); }
+          if (this.joaoDepois) { this.joaoDepois = false; setTimeout(() => this.chamarJoao(), 900); }
         },
       });
       return;
@@ -476,12 +477,15 @@ export class Jogo {
       this.audio.sfx("pista");
       const k = this.pistasEncontradas();
       this.ui.novaPista(TEXTO_PISTAS[res.set], k, PISTAS.length);
+      if (k >= PISTAS.length && !this.revelado) this.joaoDepois = true; // o bebê João chega sozinho
     }
   }
 
   examinarLetreiro() {
     if (this.revelado) return this.ui.mensagem("O letreiro", "H-O-L-L-Y-W-O-O-D. Nove letras brancas gigantes no morro da chácara. O acampamento virou tapete vermelho! ★");
     const k = this.pistasEncontradas();
+    if (k >= PISTAS.length) return this.chamarJoao();
+    return this.ui.mensagem("As lonas do morro", `Nove formas enormes cobertas por lonas brancas… O que será? Converse com as pessoas que têm ! sobre a cabeça (${k} de ${PISTAS.length}) e alguém vai te contar.`);
     this.ui.enigma({
       pistas: k,
       total: PISTAS.length,
@@ -513,8 +517,7 @@ export class Jogo {
         "(O ônibus do acampamento balança pela estrada de terra. Lá fora passam pastos, palmeiras e um céu azul enorme.)",
         "Finalmente! Acampamento na chácara… Dá pra sentir que esse fim de semana vai ser especial.",
         "Senhor, eu tô indo de coração aberto. Tô ansioso(a) pra ver o que o Senhor tem preparado pra mim lá.",
-        "E esse TEMA? Ninguém quer contar! Todo mundo só fala \"você vai ver…\" e dá risada.",
-        "Já sei: vou conversar com todo mundo até alguém deixar escapar uma pista. Olha… o portão! Chegamos!",
+        "Vou conversar com todo mundo! Olha… o portão! Chegamos!",
       ],
       aoFim: () => {
         const c = this.chegada;
@@ -892,6 +895,32 @@ export class Jogo {
       if (o.fogo) this.desenharFogo(o.x - cx, o.y - cy - 8);
     }
     this.desenharBola(cx, cy);
+    // seta amarela apontando para a próxima pessoa com pista (quando ela está fora da tela)
+    if (this.modo === "explorar" && !this.revelado) {
+      let alvo = null;
+      let md = Infinity;
+      for (const n of this.npcs) {
+        if (n.bebe || n.def.extra || this.estado.flags.has(`pista_${n.id}`)) continue;
+        const d = Math.hypot(n.x - j.x, n.y - j.y);
+        if (d < md) { md = d; alvo = n; }
+      }
+      if (alvo) {
+        const sx = alvo.x - cx, sy = alvo.y - cy - 20;
+        if (sx < 10 || sy < 10 || sx > W - 10 || sy > H - 10) {
+          const ang = Math.atan2(alvo.y - j.y, alvo.x - j.x);
+          const r = Math.min(W, H) / 2 - 22 + Math.sin(t * 6) * 3;
+          const ax = W / 2 + Math.cos(ang) * r, ay = H / 2 + Math.sin(ang) * r;
+          ctx.save();
+          ctx.translate(Math.round(ax), Math.round(ay));
+          ctx.rotate(ang);
+          ctx.fillStyle = "#1a1228";
+          ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-6, -8); ctx.lineTo(-6, 8); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = "#ffd84a";
+          ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-4, -6); ctx.lineTo(-4, 6); ctx.closePath(); ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
     // indicadores sobre os NPCs
     for (const n of this.npcsVisiveis) {
       if (n.bebe || n.def.extra) continue;

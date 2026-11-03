@@ -138,8 +138,8 @@ export class Interface {
     const k = j.pistasEncontradas();
     let t;
     if (j.revelado) t = "O tema é HOLLYWOOD! Monte seu look de estrela no camarim e desfile no tapete vermelho do gramado.";
-    else if (k >= PISTAS.length) t = "Você tem todas as pistas! Vá até as lonas brancas no morro, ao lado da casa amarela.";
-    else t = "Converse com todo mundo e descubra o tema secreto do acampamento.";
+    else if (k >= PISTAS.length) t = "Você conversou com todo mundo! Fique de olho: tem alguém chegando…";
+    else t = `Converse com as pessoas que têm ! sobre a cabeça (${k} de ${PISTAS.length}). A seta amarela mostra o caminho.`;
     $("objetivo-texto").textContent = t;
     $("objetivo-pistas").innerHTML = j.revelado ? "" : PISTAS.map((p) => `<i class="${j.estado.flags.has(p.flag) ? "sim" : ""}"></i>`).join("");
     if (novo) {
@@ -153,7 +153,7 @@ export class Interface {
   novaPista(texto, k, total) {
     this.aviso(`★ <b>Nova pista (${k}/${total})</b><br>${texto}`, 4200);
     this.atualizarObjetivo(true);
-    if (k >= total) setTimeout(() => this.aviso("Você juntou todas as pistas! <b>Vá até as lonas no morro</b>, perto da casa amarela.", 4600), 300);
+    if (k >= total) setTimeout(() => this.aviso("Você conversou com todo mundo! <b>Tem alguém chegando…</b>", 3200), 300);
   }
 
   // ---------- diálogo ----------
