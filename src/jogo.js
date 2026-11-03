@@ -14,10 +14,10 @@ export const PISTAS = NPCS.filter((n) => !n.bebe && !n.extra).map((n) => ({ id: 
 // Ordem em que a seta leva o jogador (atravessa o mapa do portão até o lago).
 export const ORDEM = ["thais_grande", "samuel_pitt", "taylor_frisso", "davi_dicaprio"];
 export const TEXTO_PISTAS = {
-  pista_davi_dicaprio: "Davi: ensaiar o melhor ângulo… coisa de CINEMA.",
-  pista_taylor_frisso: "Taylor: tapete VERMELHO e estrelas na calçada.",
-  pista_thais_grande: "Thais: pipoca pra todo mundo e um telão.",
-  pista_samuel_pitt: "Samuel: letras gigantes no morro, 9 letras, começa com H.",
+  pista_davi_dicaprio: "Davi: cinema + tapete vermelho + estrelas + letreiro com H = a cidade dos filmes nos EUA!",
+  pista_taylor_frisso: "Taylor: tapete vermelho, estrelas na calçada e fantasias de artista de cinema.",
+  pista_thais_grande: "Thais: pipoca, telão e sessão de cinema, igual aos filmes famosos.",
+  pista_samuel_pitt: "Samuel: letreiro gigante no morro, igual ao dos filmes. Começa com H-O-L-L-Y…",
 };
 export const PISTAS_EXTRAS = {
   extra_palha: "Bilhete na palha do pátio: “ensaio geral às 19h — não contem pra ninguém”.",

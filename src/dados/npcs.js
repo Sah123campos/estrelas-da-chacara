@@ -34,7 +34,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { visits: 2 }, node: "denovo" }, { node: "start" }],
       nodes: {
-        pista: { text: "No Reino Invertido, dar é melhor do que receber! E sobre a festa à fantasia… mandaram eu ensaiar meu melhor ângulo de CINEMA, {jogador}.", options: [{ label: "Pista: cinema!", end: true, set: "pista_davi_dicaprio" }] },
+        pista: { text: "No Reino Invertido, dar é melhor do que receber! Agora junta tudo, {jogador}: cinema, tapete vermelho, estrelas e um letreiro com H… É a cidade dos filmes nos Estados Unidos!", options: [{ label: "Pista: cinema!", end: true, set: "pista_davi_dicaprio" }] },
         start: {
           text: ["Shhh… olha esse lago, {jogador}. Imenso. Gelado. Perigoso.", "Você também sente? Esse lago tem a energia de um transatlântico."],
           options: [
@@ -86,7 +86,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { flag: "taylor_musica" }, node: "fan" }, { node: "start" }],
       nodes: {
-        pista: { text: "No Reino Invertido, quem se humilha é que é exaltado! E a festa à fantasia? Tô vendo tapete VERMELHO e estrelas na calçada…", options: [{ label: "Tapete vermelho e estrelas na calçada…", end: true, set: "pista_taylor_frisso" }] },
+        pista: { text: "No Reino Invertido, quem se humilha é exaltado! E na festa vai ter TAPETE VERMELHO, ESTRELAS NA CALÇADA e todo mundo fantasiado de ARTISTA DE CINEMA!", options: [{ label: "Tapete vermelho e estrelas na calçada…", end: true, set: "pista_taylor_frisso" }] },
         start: {
           text: ["Oiii! Você chegou bem na hora do meu show de beira de piscina!", "Shhh, tô compondo! Rima com \"toboágua\"… \"mágoa\"! Perfeito."],
           options: [
@@ -135,7 +135,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { visits: 2 }, node: "denovo" }, { node: "start" }],
       nodes: {
-        pista: { text: "Sabia? No Reino Invertido, quem serve é o maior! E pra festa à fantasia encomendaram pipoca pra todo mundo e um telão enorme…", options: [{ label: "Pipoca e telão. Anotado!", end: true, set: "pista_thais_grande" }] },
+        pista: { text: "Sabia? No Reino Invertido, quem serve é o maior! E a festa à fantasia vai ter PIPOCA, TELÃO e sessão de CINEMA, igualzinho aos filmes famosos!", options: [{ label: "Pipoca e telão. Anotado!", end: true, set: "pista_thais_grande" }] },
         start: {
           text: ["Aaaaah♪! Desculpa, eu sempre solto um agudo quando o feijão ferve.", "Bem-vindo ao refeitório! Aqui a gente canta, cozinha e não deixa ninguém repetir sobremesa. Mentira, deixa sim."],
           options: [
@@ -185,7 +185,7 @@ const PRINCIPAIS = [
     dialogo: {
       entry: [{ if: POS, node: "pos" }, { if: { outfitTag: "estrela" }, node: "tema" }, { node: "start" }],
       nodes: {
-        pista: { text: "No Reino Invertido, os últimos serão os primeiros! E pra festa à fantasia, vi letras brancas GIGANTES no morro. Nove letras, começa com H.", options: [{ label: "Nove letras… começa com H!", end: true, set: "pista_samuel_pitt" }] },
+        pista: { text: "No Reino Invertido, os últimos serão os primeiros! E olha: vi letras brancas GIGANTES no morro, igual ao letreiro famoso dos filmes. Começa com H-O-L-L-Y…", options: [{ label: "Nove letras… começa com H!", end: true, set: "pista_samuel_pitt" }] },
         start: {
           text: ["E aí… (vira em câmera lenta) …beleza?", "Tô treinando minha caminhada de cena de filme entre as palmeiras. Fica comigo no enquadramento."],
           options: [
